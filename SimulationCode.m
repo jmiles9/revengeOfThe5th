@@ -9,9 +9,14 @@ k = 200;
 c = 900;
 p = 2700;
 
-Ta = 293.15;
+% ambient temp
+Ta = 295.15;
+
 kc = 5;
-Pin = 10;
+Vacross = 12.5;
+PowerResistor = 15;
+PowerOn = Vacross / PowerResistor;
+Pin = PowerOn;
 
 sigma = 5.67 * 10^(-8);
 epsilon = 1;
@@ -50,7 +55,7 @@ n = size(T,2);
 
 % initializes bar to room temp
 for i=1:n
-    T(i) = 293.15;
+    T(i) = Ta;
 end
 
 lastpoll = 1;
@@ -80,10 +85,8 @@ for i = 1:t/dt
     % unheated end conduction
     T(n) = T(n) + dt * k * (T(n-1) - T(n)) / (c * p * dx^2);
     if i * dt > lastpoll + pollTime
-       a = cast(s1loc * 100,'int16');
-       S1( sensorArrayIndex ) = T(a);
-       b = cast(s2loc * 100,'int16');
-       S2( sensorArrayIndex ) = T(b);
+       S1( sensorArrayIndex ) = T(cast(s1loc * 200,'int16'));
+       S2( sensorArrayIndex ) = T(cast(s2loc * 200,'int16'));
        S2( sensorArrayIndex ) = T(cast(s2loc * 200,'int16'));
        S3( sensorArrayIndex ) = T(cast(s3loc * 200,'int16'));
        S4( sensorArrayIndex ) = T(cast(s4loc * 200,'int16'));
@@ -95,7 +98,7 @@ for i = 1:t/dt
         if Pin > 0
             Pin = 0;
         else 
-            Pin = 10;
+            Pin = PowerOn;
         end
         lastSwitch = i * dt;
     end
