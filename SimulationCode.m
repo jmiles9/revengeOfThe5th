@@ -16,7 +16,7 @@ Ta = 295.15;
 kc = 5;
 Vacross = 12.5;
 PowerResistor = 15;
-PowerOn = Vacross / PowerResistor;
+PowerOn = Vacross^2 / PowerResistor;
 Pin = PowerOn;
 
 sigma = 5.67 * 10^(-8);
@@ -45,6 +45,7 @@ S2 = size(x);
 S3 = size(x);
 S4 = size(x);
 S5 = size(x);
+matT = size(x);
 % locoation of sensors in bar
 s1loc = round(0.0163,3);
 s2loc = round(0.0842,3);
@@ -59,8 +60,8 @@ for i=1:n
     T(i) = Ta;
 end
 
-lastpoll = 1;
-lastSwitch = 1;
+lastpoll = 0;
+lastSwitch = 0;
 sensorArrayIndex = 1;
 
 
@@ -85,7 +86,8 @@ for i = 1:t/dt
     T(2:n-1) = T(2:n-1) + k / (c * p) * dt * (T(1:n-2) - 2*T(2:n-1) + T(3:n))/dx^2;
     % unheated end conduction
     T(n) = T(n) + dt * k * (T(n-1) - T(n)) / (c * p * dx^2);
-    if i * dt > lastpoll + pollTime
+    if i * dt >= lastpoll + pollTime
+       matT ( sensorArrayIndex ) = i * dt;
        S1( sensorArrayIndex ) = T(cast(s1loc * 200,'int16'));
        S2( sensorArrayIndex ) = T(cast(s2loc * 200,'int16'));
        S2( sensorArrayIndex ) = T(cast(s2loc * 200,'int16'));
@@ -110,7 +112,19 @@ plot(S2);
 plot(S3);
 plot(S4);
 plot(S5);
+
+filename = 'sim.csv';
+matA = S1(:);
+matB = S2(:);
+matC = S3(:);
+matD = S4(:);
+matE = S5(:);
+matT = matT(:);
+matZ = [matT matA matB matC matD matE];
+csvwrite(filename,matZ);
+
+
 title('Steady-State Temperature vs Time for Matte Black Aluminum Rod')
-xlabel('Distance Along Rod (shifted one cm right) (cm)') % x-axis label
+xlabel('Time (s)') % x-axis label
 ylabel('Temperature (K)') % y-axis label
 
