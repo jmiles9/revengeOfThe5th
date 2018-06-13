@@ -3,40 +3,49 @@
 %test Matan2
 
 clear all;
-
+% length m
 L = 0.3;
-r = 0.01279;
-k = 200;
+% radius m
+r = 0.013;
+% conductivity W/m K
+k = 204;
+% specific heat J/kg K
 c = 900;
+% density kg/m^3
 p = 2700;
 
 % ambient temp
-Ta = 295.15;
+Ta = 294.0;
 
-kc = 5;
+%variable1
+kc = 12;
+
 Vacross = 12.5;
 PowerResistor = 15;
 PowerOn = Vacross^2 / PowerResistor;
-Pin = PowerOn;
+Pfrac = 0.82;
+Pin = PowerOn * Pfrac;
 
 sigma = 5.67 * 10^(-8);
-epsilon = 1;
+
+%variable2
+epsilon = 0.95;
 
 % length resoultion, in meters
 dx = 0.005;
 % time resolution, in seconds
-dt = 0.1;
+dt = 0.01;
 % total time
-t = 10000;
+t = 3700;
 
 % array used for numerical calculation
 T = 0:dx:L;
 
 % how often we poll sensors
-pollTime = 3;
+pollTime = 3.07;
 
-% how often we switch power
-powerTime = 500;
+% how often we switch power on (whole period)
+powerTime = 600;
 
 % creates sensor arrays
 x = 0:3:t;
@@ -108,10 +117,6 @@ for i = 1:t/dt
 end
 hold on
 plot(S1);
-plot(S2);
-plot(S3);
-plot(S4);
-plot(S5);
 
 filename = 'sim.csv';
 matA = S1(:);
