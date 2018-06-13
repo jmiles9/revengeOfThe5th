@@ -3,40 +3,49 @@
 %test Miles 
 
 clear all;
-
+% length m
 L = 0.3;
-r = 0.01279;
-k = 200;
+% radius m
+r = 0.013;
+% conductivity W/m K
+k = 204;
+% specific heat J/kg K
 c = 900;
+% density kg/m^3
 p = 2700;
 
 % ambient temp
-Ta = 295.15;
+Ta = 294.0;
 
-kc = 5;
+%variable1
+kc = 12;
+
 Vacross = 12.5;
 PowerResistor = 15;
-PowerOn = Vacross / PowerResistor;
-Pin = PowerOn;
+PowerOn = Vacross^2 / PowerResistor;
+Pfrac = 0.82;
+Pin = PowerOn * Pfrac;
 
 sigma = 5.67 * 10^(-8);
-epsilon = 1;
+
+%variable2
+epsilon = 0.95;
 
 % length resoultion, in meters
 dx = 0.005;
 % time resolution, in seconds
-dt = 0.1;
+dt = 0.01;
 % total time
-t = 10000;
+t = 3700;
 
 % array used for numerical calculation
 T = 0:dx:L;
 
 % how often we poll sensors
-pollTime = 3;
+pollTime = 3.07;
 
-% how often we switch power
-powerTime = 500;
+% how often we switch power on (whole period)
+powerTime = 600;
 
 % creates sensor arrays
 x = 0:3:t;
@@ -45,6 +54,7 @@ S2 = size(x);
 S3 = size(x);
 S4 = size(x);
 S5 = size(x);
+matT = size(x);
 % locoation of sensors in bar
 s1loc = round(0.0163,3);
 s2loc = round(0.0842,3);
@@ -59,8 +69,8 @@ for i=1:n
     T(i) = Ta;
 end
 
-lastpoll = 1;
-lastSwitch = 1;
+lastpoll = 0;
+lastSwitch = 0;
 sensorArrayIndex = 1;
 
 
@@ -85,7 +95,8 @@ for i = 1:t/dt
     T(2:n-1) = T(2:n-1) + k / (c * p) * dt * (T(1:n-2) - 2*T(2:n-1) + T(3:n))/dx^2;
     % unheated end conduction
     T(n) = T(n) + dt * k * (T(n-1) - T(n)) / (c * p * dx^2);
-    if i * dt > lastpoll + pollTime
+    if i * dt >= lastpoll + pollTime
+       matT ( sensorArrayIndex ) = i * dt;
        S1( sensorArrayIndex ) = T(cast(s1loc * 200,'int16'));
        S2( sensorArrayIndex ) = T(cast(s2loc * 200,'int16'));
        S2( sensorArrayIndex ) = T(cast(s2loc * 200,'int16'));
@@ -106,11 +117,19 @@ for i = 1:t/dt
 end
 hold on
 plot(S1);
-plot(S2);
-plot(S3);
-plot(S4);
-plot(S5);
+
+filename = 'sim.csv';
+matA = S1(:);
+matB = S2(:);
+matC = S3(:);
+matD = S4(:);
+matE = S5(:);
+matT = matT(:);
+matZ = [matT matA matB matC matD matE];
+csvwrite(filename,matZ);
+
+
 title('Steady-State Temperature vs Time for Matte Black Aluminum Rod')
-xlabel('Distance Along Rod (shifted one cm right) (cm)') % x-axis label
+xlabel('Time (s)') % x-axis label
 ylabel('Temperature (K)') % y-axis label
 
