@@ -18,7 +18,7 @@ p = 2700;
 Ta = 294.0;
 
 %variable1
-kc = 12;
+kc = 9;
 
 Vacross = 12.5;
 PowerResistor = 15;
@@ -126,7 +126,7 @@ matD = S4(:);
 matE = S5(:);
 matT = matT(:);
 matZ = [matT matA matB matC matD matE];
-csvwrite(filename,matZ);
+%csvwrite(filename,matZ);
 
 
 title('Steady-State Temperature vs Time for Matte Black Aluminum Rod')
