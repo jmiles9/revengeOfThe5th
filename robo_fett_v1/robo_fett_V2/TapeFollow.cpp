@@ -25,15 +25,39 @@ constexpr int GAIN 23
 
 class TapeFollower {
     public:
-    int kp; int kd; int gain;
+    int kp; int kd; int gain; int error;
 
     TapeFollower(int kpin, int kdin, int gainin){
         kp = kpin;
         kd = kdin;
         gain = gain;
+        error = 0;
     }
 
-    void tapeFollow(bool lOnTape, bool rOnTape, bool edgeDetect){
+    void tapeFollow(bool leftOnTape, bool rightOnTape, bool edgeDetect){
+        int lasterr = error; //saving the old error value
+  
+        if(rightOnTape && leftOnTape){
+            if(edgeDetect){
+                hardStop(10);
+                delay(1000);
+                setMotorPower(FULL_R,HALF_R);
+                delay(250);
+                setMotorPower(HALF_F,FULL_F);
+                delay(100);
+            }
+            error = 0; 
+        }
+        if(!rightOnTape && leftOnTape)error = -1;
+        if(rightOnTape && !leftOnTape)error = 1;
+        if(!rightOnTape && !leftOnTape){
+            if(error == -1 || error == -5) error = -5;
+            else error = 5;
+        }
 
+        //steering for error
+        steer((kp*error + kd*(error - lasterr))*gain);
     }
 };
+
+//ask if ok to have controls in this class?
