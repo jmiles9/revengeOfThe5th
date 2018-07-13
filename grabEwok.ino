@@ -33,9 +33,10 @@ void grabEwok(){
   delay(100);
   RCServo1.write(CLAW_TONG_CLOSED_POSITION);
   delay(150);
-  RCServo0,write(CLAW_ARM_RAISED_POSITION);
+  RCServo0.write(CLAW_ARM_RAISED_POSITION);
   delay(100);
   RCServo1.write(CLAW_TONG_OPEN_POSITION);
+  delay(50);
+  RCServo1.write(CLAW_TONG_CLOSED_POSITION);
   
 }
-
