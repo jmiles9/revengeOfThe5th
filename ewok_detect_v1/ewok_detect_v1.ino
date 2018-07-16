@@ -2,7 +2,7 @@
 #include <LiquidCrystal.h> 
 
 #define EWOK_DETECT 2
-#define THRESH 200
+#define THRESH 27
 
 void setup() {
   LCD.clear();  LCD.home() ;
@@ -15,5 +15,10 @@ void loop() {
   LCD.clear();  LCD.home() ;
   LCD.setCursor(0,0); LCD.print("sensor= "); LCD.print(ewokVal);
   Serial.println(ewokVal);
+  if(ewokVal > THRESH){
+    Serial.println("EWOK");
+    LCD.setCursor(1,0); LCD.print("EWOK!");
+  }
+  
   delay(100);
 }
