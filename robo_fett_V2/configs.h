@@ -95,5 +95,7 @@ namespace configs {
     const int RIGHT = 1;  
     const int EWOK = 0;
     const int CHEWIE = 1;
+    const int ON_EDGE = 0;
+    const int NOT_ON_EDGE = 1;
 }
 #endif //CONFIGS

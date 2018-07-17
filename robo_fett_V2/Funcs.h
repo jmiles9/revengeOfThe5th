@@ -7,7 +7,7 @@
 namespace funcs {
     class Funcs {
         private:
-            void tapeFollow(int kp, int kd, int gain, int speed);
+            bool tapeFollow(int kp, int kd, int gain, int speed);
             void tapeFollowForDistance(int distance);
             void hardStop();
             bool pickUp(int side, int stuffy);
