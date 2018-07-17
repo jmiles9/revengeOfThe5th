@@ -6,9 +6,9 @@
 #include <LiquidCrystal.h>     
 
 //setting up sensor ports
-#define LEFT_SENSOR 10  //digital
-#define RIGHT_SENSOR 9  //digital
-#define EDGE_SENSOR 8  
+#define TAPE_QRD_LEFT 10  //digital
+#define TAPE_QRD_RIGHT 9  //digital
+#define EDGE_QRD 8  
 #define LEFT_MOTOR 1   //motor port
 #define RIGHT_MOTOR 0  //motor port
 #define EWOK_SENSOR 2  //analog
@@ -94,9 +94,9 @@ bool ewokDetect(){
  *        gain = gain for pd
  */
 void tapeFollow(int kp, int kd, int gain){
-  boolean rightOnTape = digitalRead(RIGHT_SENSOR);
-  boolean leftOnTape = digitalRead(LEFT_SENSOR);
-  boolean edgeDetect = digitalRead(EDGE_SENSOR);
+  boolean rightOnTape = digitalRead(TAPE_QRD_RIGHT);
+  boolean leftOnTape = digitalRead(TAPE_QRD_LEFT);
+  boolean edgeDetect = digitalRead(EDGE_QRD);
   //boolean edgeDetect = false; //this turns off edge detecting for testing purposes
 
   //setting error values

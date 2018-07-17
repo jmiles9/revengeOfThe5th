@@ -1,4 +1,5 @@
 #include "Robot.h"
+#include "Menu.h"
 
 using namespace configs;
 
@@ -13,10 +14,21 @@ public:
 		leftWheelIndex = 0;
         rightWheelIndex = 0;
 		cruiseIndex = 0;
+		Menu menu;
 	}
 
 	void STARTUP() {
 		//TODO: Add button to begin - ie. from menu 
+		while(!menu.quitMenu){
+			bool start = false;
+   			bool stopp = false;
+			   
+    		while(startbutton()){start = true;}
+    		if(start) menu.handleInput(BTN_START);
+
+    		while(stopbutton()){stopp = true;}
+    		if(stopp) menu.handleInput(BTN_STOP);
+		}
 		state = CRUISE;
 	}
 

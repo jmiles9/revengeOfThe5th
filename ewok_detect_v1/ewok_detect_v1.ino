@@ -2,7 +2,7 @@
 #include <LiquidCrystal.h> 
 
 #define EWOK_DETECT 2
-#define THRESH 27
+#define THRESH 33
 
 void setup() {
   LCD.clear();  LCD.home() ;
