@@ -44,7 +44,7 @@ void loop() {
 			roboFett.ZIP_HOOK();
 			break;
 		case ZIP_UNHOOK :
-			roboFett.ZIP_UNHOOK;
+			roboFett.ZIP_UNHOOK();
 			break;
 		case EWOK_4 :
 			roboFett.EWOK_4();

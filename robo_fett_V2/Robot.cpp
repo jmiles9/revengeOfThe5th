@@ -1,4 +1,5 @@
 #include "Robot.h"
+#include "Menu.h"
 
 using namespace configs;
 
@@ -13,26 +14,37 @@ public:
 		leftWheelIndex = 0;
         rightWheelIndex = 0;
 		cruiseIndex = 0;
+		Menu menu;
 	}
 
 	void STARTUP() {
 		//TODO: Add button to begin - ie. from menu 
+		while(!menu.quitMenu){
+			bool start = false;
+   			bool stopp = false;
+			   
+    		while(startbutton()){start = true;}
+    		if(start) menu.handleInput(BTN_START);
+
+    		while(stopbutton()){stopp = true;}
+    		if(stopp) menu.handleInput(BTN_STOP);
+		}
 		state = CRUISE;
 	}
 
 	/// Tape follows until reaching the first gap.
 	void CRUISE_PLAT1() {
 		while() {
-			if(isOnEdge()) {
-				stop()
+			int temp = tapeFollow(PROPORTIONAL1,DERIVITIVE1,TAPEFOLLOW_GAIN1,TAPEFOLLOW_SPEED1);
+			if(temp == ON_EDGE){
 				state = DRAWBRIDGE;
 				break;
 			}
-			tapeFollow(PROPORTIONAL1,DERIVITIVE1,TAPEFOLLOW_GAIN1,TAPEFOLLOW_SPEED1);
 		}
 	}
 
 	/// Lowers drawbridge then backs up.
+	//backing up will probably not use tape since inaccurate, maybe encoders?
 	void DRAWBRIDGE() {
 		lowerBridge();
 		tapeFollowForDistance(-10);
@@ -41,7 +53,14 @@ public:
 	// TODO: write
 	// look for extrema in value?
 	void EWOK_SEARCH() {
-
+		while(){
+			tapeFollow(16, 10, 10, PUT_SOME_STUFF_HERE);
+			if(ewokDetect()){
+				setMotorPower(0,0);
+				state = EWOK_GRAB;
+				break;
+			}
+		}
 	}
 
 	/// Grabs ewok. 
@@ -50,17 +69,15 @@ public:
 		int side;
 		int stuffy;
 		// Gets side and stuffy parameters
-		// 0 = left, ewok
-		// 1 = right, chewie
 		if(nextEwok == 3) {
-			side = 0;
-			stuffy = 0;
+			side = LEFT;
+			stuffy = EWOK;
 		} else if(nextEwok == 5) {
-			side = 0;
-			stuffy = 1;
+			side = LEFT;
+			stuffy = CHEWIE;
 		} else {
-			side = 1;
-			stuffy = 0;
+			side = RIGHT;
+			stuffy = EWOK;
 		}
 
 		// If don't get ewok, try again on either side

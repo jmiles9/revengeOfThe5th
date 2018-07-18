@@ -6,40 +6,87 @@
 #include <LiquidCrystal.h>     
 
 //setting up sensor ports
-#define LEFT_SENSOR 10  //digital
-#define RIGHT_SENSOR 9  //digital
-#define EDGE_SENSOR 8  
+#define TAPE_QRD_LEFT 10  //digital
+#define TAPE_QRD_RIGHT 9  //digital
+#define EDGE_QRD 8  
 #define LEFT_MOTOR 1   //motor port
 #define RIGHT_MOTOR 0  //motor port
+#define EWOK_SENSOR 2  //analog
 
 //motor speeds
-#define FULL_F 180
-#define HALF_F 120
-#define FULL_R -180
-#define HALF_R -120
+#define FULL_F 255
+#define HALF_F 220
+#define FULL_R -255
+#define HALF_R -220
 
 //PD constants
 #define KP 16    
 #define KD 10    
 #define GAIN 23
 
+#define EWOK_THRESH 30
+
+#define ROTATE_SERVO 0
+#define CLOSE_SERVO 1
+#define CLAW_ARM_RAISED_POSITION 0 
+#define CLAW_ARM_LOWERED_POSITION 115
+#define CLAW_TONG_CLOSED_POSITION 0
+#define CLAW_TONG_OPEN_POSITION 110
+
 void setup() {
   #include <phys253setup.txt>
   Serial.begin(9600);
   LCD.clear();  LCD.home() ;
   LCD.setCursor(0,0); LCD.print("hello there");
+  RCServo0.write(CLAW_ARM_RAISED_POSITION);
+  RCServo1.write(CLAW_TONG_CLOSED_POSITION);
 }
 
 int count;
 int error = 0;
 
 void loop() {
-  tapeFollow(16,7,10);
+  tapeFollow(16,10,10);
+  /*if(ewokDetect()){
+    delay(200);
+    setMotorPower(0,0);
+    delay(500);
+    grabEwok();
+    delay(1000);
+  }*/
 }
 
 
 //MAIN FUNCTIONS/////////////////////////////////////////////////////////////////////
+/**
+ * grab ewok - grabs the ewok
+ */
+void grabEwok(){
+  //assume starts vertical, closed
+  //RCServo0 is rotation arm
+  //RCServo1 is claw tong
 
+  RCServo0.write(CLAW_ARM_LOWERED_POSITION);
+  delay(1000);
+  RCServo1.write(CLAW_TONG_CLOSED_POSITION);
+  delay(1500);
+  RCServo0.write(CLAW_ARM_RAISED_POSITION);
+  delay(2000);
+  RCServo1.write(CLAW_TONG_OPEN_POSITION);
+
+  
+}
+
+/**
+ * ewok detecting - reads IR sensor, decides if it's looking at an ewok
+ * return: true if ewok, false if not
+ */
+bool ewokDetect(){
+  int ewokValue = analogRead(EWOK_SENSOR);
+  if(ewokValue > EWOK_THRESH) return true;
+  return false;
+}
+ 
 /**
  * tape following - reads sensor values, sets motor speeds using pd
  * param: kp = proportional constant
@@ -47,9 +94,10 @@ void loop() {
  *        gain = gain for pd
  */
 void tapeFollow(int kp, int kd, int gain){
-  boolean rightOnTape = digitalRead(RIGHT_SENSOR);
-  boolean leftOnTape = digitalRead(LEFT_SENSOR);
-  boolean edgeDetect = digitalRead(EDGE_SENSOR);
+  boolean rightOnTape = digitalRead(TAPE_QRD_RIGHT);
+  boolean leftOnTape = digitalRead(TAPE_QRD_LEFT);
+  boolean edgeDetect = digitalRead(EDGE_QRD);
+  //boolean edgeDetect = false; //this turns off edge detecting for testing purposes
 
   //setting error values
   int lasterr = error; //saving the old error value
@@ -57,11 +105,9 @@ void tapeFollow(int kp, int kd, int gain){
   if(rightOnTape && leftOnTape){
     if(edgeDetect){
       hardStop(10);
+      LCD.clear();  LCD.home() ;
+    LCD.setCursor(0,0); LCD.print("AAHH");
       delay(1000);
-      setMotorPower(FULL_R,HALF_R);
-      delay(250);
-      setMotorPower(HALF_F,FULL_F);
-      delay(100);
     }
     error = 0; 
   }
@@ -126,6 +172,6 @@ void hardStop(int t){
 }
 
 void setMotorPower(int l, int r){
-  motor.speed(RIGHT_MOTOR, r);
-  motor.speed(LEFT_MOTOR, l);
+  motor.speed(RIGHT_MOTOR, -r);
+  motor.speed(LEFT_MOTOR, -l);
 }

@@ -7,14 +7,17 @@
 namespace funcs {
     class Funcs {
         private:
-            void tapeFollow(int kp, int kd, int gain, int speed);
+            bool tapeFollow(int kp, int kd, int gain, int speed);
             void tapeFollowForDistance(int distance);
-            void stop();
+            void hardStop();
             bool pickUp(int side, int stuffy);
             double record1KIRBeacon();
             double record10KIRBeacon();
             void lowerBridge();
             int checkBeacon();
+            void steer(int deg);
+            void setMotorPower(int l, int r);
+            bool ewokDetect();
             void turn(int deg);
             void move(int distance);
             void dumpBasket();
