@@ -1,3 +1,5 @@
+#include <phys253.h>  
+
 #ifndef CONFIGS
 #define CONFIGS
 
@@ -22,15 +24,22 @@ namespace configs {
     const int ZIP_SWITCH_EXTENDED = 13;
     const int ZIP_SWITCH_CLOSED = 12;
     const int ZIPPED_UP_SWITCH = 11;
-    const int TAPE_QRD_LEFT = 10
+    const int TAPE_QRD_LEFT = 10;
     const int TAPE_QRD_RIGHT = 9;  
     const int EDGE_QRD = 8;
+    const int RCSERVO7 = 7;
+    const int RCSERVO6 = 6;
 
     // Servo ports
-    #define ARMS RCServo0
-    #define CLAWS RCServo1
-    #define CLAWS RCServo1
-    #define DRAWBRIDGE RCServo1
+    
+    //need to instantiate all servo objects using digital pins here 
+    TINAH::Servo RCServo7(RCSERVO7);
+    TINAH::Servo RCServo6(RCSERVO6);
+    
+    #define ARM_RIGHT RCServo0
+    #define TONGS_RIGHT RCServo1
+    #define ARM_LEFT RCServo7
+    #define TONGS_LEFT RCServo6
     #define BASKET RCServo2
 
     // Motor ports
