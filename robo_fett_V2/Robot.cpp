@@ -17,8 +17,7 @@ public:
 		Menu menu;
 	}
 
-	void STARTUP() {
-		//TODO: Add button to begin - ie. from menu 
+	void STARTUP() { 
 		while(!menu.quitMenu){
 			bool start = false;
    			bool stopp = false;
