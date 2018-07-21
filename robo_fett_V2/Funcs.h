@@ -20,12 +20,16 @@ namespace funcs {
             bool ewokDetect();
             void turn(int deg);
             void move(int distance);
+            void moveLeftWheel(int distance, int speed);
+            void moveRightWheel(int distance, int speed);
+            int speedToPower(int speed);
             void dumpBasket();
             void moveZipline(int distance);
             void zipppp();
             void findEdge();
             void bridgeFollow();
             bool isOnEdge();
+            double distanceTravelled(int newIndex, int oldIndex);
 
     };
 }

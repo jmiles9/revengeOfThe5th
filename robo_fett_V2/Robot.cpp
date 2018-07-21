@@ -13,8 +13,11 @@ public:
         nextEwok = 1;
 		leftWheelIndex = 0;
         rightWheelIndex = 0;
+		leftWheelLastTime = 0;
+        rightWheelLastTime = 0;
+        leftSpeed = 0;
+        rightSpeed = 0;
 		cruiseIndex = 0;
-		Menu menu;
 	}
 
 	void STARTUP() { 
@@ -35,7 +38,8 @@ public:
 	void CRUISE_PLAT1() {
 		while() {
 			int temp = tapeFollow(PROPORTIONAL1,DERIVITIVE1,TAPEFOLLOW_GAIN1,TAPEFOLLOW_SPEED1);
-			if(temp == ON_EDGE){
+			if(temp == ON_EDGE) {
+				hardStop();
 				state = DRAWBRIDGE;
 				break;
 			}
@@ -46,15 +50,15 @@ public:
 	//backing up will probably not use tape since inaccurate, maybe encoders?
 	void DRAWBRIDGE() {
 		lowerBridge();
-		tapeFollowForDistance(-10);
+		tapeFollowForDistance(-15);
 	}
 
 	// TODO: write
 	// look for extrema in value?
 	void EWOK_SEARCH() {
-		while(){
+		while() {
 			tapeFollow(16, 10, 10, PUT_SOME_STUFF_HERE);
-			if(ewokDetect()){
+			if(ewokDetect()) {
 				setMotorPower(0,0);
 				state = EWOK_GRAB;
 				break;

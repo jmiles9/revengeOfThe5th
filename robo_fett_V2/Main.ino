@@ -11,6 +11,8 @@ robot::Robot roboFett;
 
 void setup() {
 	roboFett = robot::Robot();
+	attachInterrupt(3, encoderLeft, RISING);
+	attachInterrupt(4, encoderRight, RISING);
 	//startUp sequence
 }
 
@@ -58,5 +60,19 @@ void loop() {
 		case ZIP_DOWN :
 			roboFett.ZIP_DOWN();
 			break;
+	}
+
+	void encoderLeft() {
+  		    roboFett.leftWheelIndex++;
+			time = millis();
+			roboFett.leftSpeed = cmPerWheelIndex / (time - roboFett.leftWheelLastTime);
+            roboFett.leftWheelLastTime = time;
+	}
+
+	void encoderRight() {
+  		    roboFett.rightWheelIndex++;
+			time = millis();
+			roboFett.rightSpeed = cmPerWheelIndex / (time - roboFett.rightWheelLastTime);
+            roboFett.rightWheelLastTime = time;
 	}
 }

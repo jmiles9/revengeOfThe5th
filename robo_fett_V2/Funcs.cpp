@@ -1,7 +1,7 @@
 #include <phys253.h>
 #include "configs.h"
+#include "Funcs.h"
 
-//what is usleep????
 
 using namespace configs;
 
@@ -28,9 +28,9 @@ class Funcs {
                 break;
         }
 
-        boolean rightOnTape = digitalRead(TAPE_QRD_RIGHT);
-        boolean leftOnTape = digitalRead(TAPE_QRD_LEFT);
-        boolean edgeDetect = digitalRead(EDGE_QRD);
+        bool rightOnTape = digitalRead(TAPE_QRD_RIGHT);
+        bool leftOnTape = digitalRead(TAPE_QRD_LEFT);
+        bool edgeDetect = digitalRead(EDGE_QRD);
         //boolean edgeDetect = false; //this turns off edge detecting for testing purposes
 
         //setting error values
@@ -53,15 +53,46 @@ class Funcs {
         steer((kp*error + kd*(error - lasterr))*gain) ;
     }
 
-    // TODO: complete
-    void tapeFollowForDistance(int distance) {
-        //?? we should talk about the logistics of this
-    }
-
     void hardStop() {
         setMotorPower(FULL_R, FULL_R);
         delay(10); //DO WE WANT A DELAY HERE?? check this
         setMotorPower(0,0);
+    }
+
+    // Used in tapefollow
+    void FUNCS::steer(int deg, int speed) {
+        if(deg > 0) {
+            if(deg > speed*2) {
+                deg = speed*2;
+            }
+            setMotorPower(speed - deg, speed);
+        } else if(deg < 0) {
+            if(-deg > speed*2) {
+                deg = -speed*2;
+            }
+            setMotorPower(speed, speed + deg);
+        } else {
+            setMotorPower(speed, speed);
+        }
+    }
+
+    // Used in tapeFollow
+    void FUNCS::setMotorPower(int left, int right) {
+        motor.speed(RIGHT_MOTOR, right);
+        motor.speed(LEFT_MOTOR, left);
+    }
+
+    // TODO: complete
+    // Param - distance in cm
+    // NOTE: currently assuming only one set of pid constants
+    void FUNCS::tapeFollowForDistance(int distance) {
+        originalLeftIndex = leftWheelIndex;
+        originalRightIndex = rightWheelIndex;
+        while((distanceTravelled(leftWheelIndex, originalLeftIndex) 
+        + distanceTravelled(rightWheelIndex, originalRightIndex)) / 2 < distance) {
+            tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,TF_SPEED1);
+        }
+        stop();
     }
 
     /// Parameters:
@@ -72,11 +103,11 @@ class Funcs {
         if(stuffy == EWOK) ARMS.write(ARMS_DOWN_EWOK);
         else ARMS.write(ARMS_DOWN_CHEWIE);
 
-        usleep(1000);
+        delay(1000);
 
         CLAWS.write(CLAWS_CLOSED);
 
-        usleep(1000);
+        delay(1000);
 
         if(side == LEFT && digitalRead(LEFT_CLAW_STUFFY_SWITCH) || side == RIGHT && digitalRead(RIGHT_CLAW_STUFFY_SWITCH)) {
             stuffyPicked = true;
@@ -91,7 +122,7 @@ class Funcs {
 
         else {
             ARMS.write(ARMS_UP);
-            usleep(1000);
+            delay(1000);
             CLAWS.write(CLAWS_OPEN);
             return stuffyPicked;
         }
@@ -107,9 +138,10 @@ class Funcs {
     }
 
     void FUNCS::lowerBridge() {
-        DRAWBRIDGE.write(DRAWBRIDGE_OPENED);
-        usleep(1000);
-        DRAWBRIDGE.write(DRAWBRIDGE_CLOSED);
+        BASKET.write(BASKET_DROPBRIDGE);
+        delay(1000);
+        // may not need to close
+        BASKET.write(BASKET_CLOSED);
     }
 
     bool FUNCS::checkBeacon() {
@@ -137,25 +169,102 @@ class Funcs {
     * ewok detecting - reads IR sensor, decides if it's looking at an ewok
     * return: true if ewok, false if not
     */
-    bool ewokDetect(){
-        int ewokValue = analogRead(EWOK_SENSOR);
-        if(ewokValue > EWOK_THRESH) return true;
-        return false;
+    bool ewokDetect() {
+        digitalWrite(IR_OUT,HIGH);
+        double without = analogRead(EWOK_SENSOR);
+        digitalWrite(IR_OUT,LOW);
+        double with = analogReaD(EWOK_SENSOR);
+        if(ewokValue > EWOK_THRESH) { 
+            return true; 
+        } else {
+            return false;
+        }
     }
 
-    //TODO: Write this
+    //PARAM: deg - degrees to turn clockwise
     void FUNCS::turn(int deg) {
+        std::thread right(moveRightWheel, -1 * deg / degreesPerCm, MAX_SPEED / 2);
+        std::thread left(moveLeftWheel, deg / degreesPerCm, MAX_SPEED / 2);
 
+        right.join();
+        left.join();
     }
 
-    //TODO: Write this
+    //PARAM: deg - degrees to turn clockwise
     void FUNCS::move(int distance) {
+        std::thread right (moveRightWheel,distance,MAX_SPEED);
+        std::thread left (moveLeftWheel,distance,MAX_SPEED);
 
+        right.join();
+        left.join();
+    }
+
+    //PARAM: distance - distance in cm (positive or negative)
+    //       speed    - speed in cm/s (always positive)
+    void FUNCS::moveRightWheel(int distance, int speed) {
+        // makes distance absoute value, speed directional
+        if(distance < 0) {
+            distance = distance * -1;
+            speed = speed * -1;
+        }
+        int currIndex = rightWheelIndex;
+        int currDistance = 0;
+        int currSpeed = speed;
+        motor.speed(RIGHT_MOTOR, speedToPower(currSpeed));
+        while(currIndex - rightWheelIndex < 2) {
+            if currDistance >= distance {
+                break;
+            }
+        }
+        while(currDistance < distance) {
+            if(rightSpeed < speed) {
+                currSpeed--;
+            }
+            motor.speed(RIGHT_MOTOR, speedToPower(currSpeed));
+        }
+        motor.stop(RIGHT_MOTOR);
+    }
+
+    //PARAM: distance - distance in cm (positive or negative)
+    //       speed    - speed in cm/s (always positive)
+    void FUNCS::moveLeftWheel(int distance, int speed) {
+        // makes distance absoute value, speed directional
+        if(distance < 0) {
+            distance = distance * -1;
+            speed = speed * -1;
+        }
+        int currIndex = leftWheelIndex;
+        int currDistance = 0;
+        int currSpeed = speed;
+        motor.speed(LEFT_MOTOR, speedToPower(currSpeed));
+        while(currIndex - leftWheelIndex < 2) {
+            if(currDistance >= distance) {
+                break;
+            }
+        }
+        while(currDistance < distance) {
+            if(rightSpeed < speed) {
+                currSpeed--;
+            }
+            motor.speed(LEFT_MOTOR, speedToPower(currSpeed));
+        }
+        motor.stop(LEFT_MOTOR);
+    }
+
+    int speedToPower(int speed) {
+        int power = nt(float(speed) / MAX_SPEED * 255);
+        if(power > MAX_SPEED) {
+            return MAX_SPEED;
+        } else if(power < MAX_SPEED * -1) {
+            return MAX_SPEED * -1;
+        } else {
+            return power;
+        }
     }
 
     void FUNCS::dumpBasket() {
         BASKET.write(BASKET_OPENED);
-        usleep(1000);
+        delay(1000);
         BASKET.write(BASKET_CLOSED);
     }
 
@@ -209,5 +318,9 @@ class Funcs {
     //TODO: Write this
     bool FUNCS::isOnEdge() {
         //probs dont need this since it finds edge with tapefollow?
+    }
+
+    double distanceTravelled(int newIndex, int oldIndex) {
+        return newIndex - oldIndex * cmPerWheelIndex;
     }
 }

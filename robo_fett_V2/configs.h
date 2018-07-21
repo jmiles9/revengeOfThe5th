@@ -52,7 +52,12 @@ namespace configs {
     #define LEFT_HANDICAP
     #define RIGHT_HANDICAP
     #define ENCODER_WHEEL_RATIO
+    const float wheelRadius = 3;
+    const float cmPerWheelIndex = wheelRadius * 3.1415 * 2 / 6;
     #define WHEEL_DIAM
+    const float wheelSeparation = 17.5;
+    // amount of rotation if left and right wheels move in opposite directions
+    const float degreesPerCm = 360 / (3.1415 * wheelSeparation);
 
 
     // Speeds
@@ -61,9 +66,17 @@ namespace configs {
     const int FULL_R = -255;
     const int HALF_R = -220;
 
+    #define TF_KP1
+    #define TF_KD1
+    #define TF_SPEED1
+    #define TF_SPEED2
+    #define TF_GAIN1
+    #define TF_GAIN2
     const int ZIP_ARM_EXTENDING = 255;
     const int ZIP_ARM_CONTRACTING = -255;
     const int ZIPPING_UP = 255;
+    // in cm/s
+    const int MAX_SPEED = 50;
 
     enum Speed{
         PUT_SOME_STUFF_HERE
@@ -77,9 +90,11 @@ namespace configs {
     const int CLAW_TONG_CLOSED_POSITION = 0;
     const int CLAW_TONG_OPEN_POSITION = 110;
 
-    //more threshhold stuff
+    //IR
     const int IR_THRESHOLD = 512;
     const int EWOK_THRESH = 30;
+    //digitalOut
+    const int IR_OUT = 0;
 
     //claws
 
@@ -95,6 +110,7 @@ namespace configs {
     const int DRAWBRIDGE_OPENED = 90;
     const int DRAWBRIDGE_CLOSED = 0;
     const int BASKET_OPENED = 90;
+    const int BASKET_DROPBRIDGE = 45;
     const int BASKET_CLOSED = 0;
 
     //maneuvering

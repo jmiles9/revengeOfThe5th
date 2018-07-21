@@ -45,10 +45,15 @@ namespace robot {
             void CHEWIE();
             void ZIP_DOWN();
 
+            uint16_t leftWheelIndex;
+            uint16_t rightWheelIndex;
+            uint32_t leftWheelLastTime;
+            uint32_t rightWheelLastTime;
+            uint8_t leftSpeed;
+            uint8_t rightSpeed;
+
         private:
             //define fields
             uint8_t nextEwok;
-            uint16_t leftWheelIndex;
-            uint16_t rightWheelIndex;
     };
 }
