@@ -29,6 +29,8 @@ namespace configs {
     const int EDGE_QRD = 8;
     const int RCSERVO7 = 7;
     const int RCSERVO6 = 6;
+    const int BRIDGE_QRD_RIGHT = 5;
+    const int BRIDGE_QRD_LEFT = 4;
 
     // Servo ports
     
