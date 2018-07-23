@@ -16,6 +16,7 @@ namespace configs {
     // KNOB is using port 0. keep in mind they are reversed on TINAH
     const int IR_1KHZ = 1;
     const int IR_10KHZ = 2;
+    const int EWOK_SENSOR = 3;
     
     // Digital ports
     // pls go backwards. don't use interrupt ports (0-3) for switches

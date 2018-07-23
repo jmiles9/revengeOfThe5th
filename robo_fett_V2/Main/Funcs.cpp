@@ -2,7 +2,8 @@
 #include "configs.h"
 #include "Funcs.h"
 
-
+//rightSpeed; //can't get this from Robot?? how?
+//same with other vals
 using namespace configs;
 
 class Funcs {
@@ -86,13 +87,13 @@ class Funcs {
     // Param - distance in cm
     // NOTE: currently assuming only one set of pid constants
     void FUNCS::tapeFollowForDistance(int distance) {
-        originalLeftIndex = leftWheelIndex;
+        /*originalLeftIndex = leftWheelIndex;
         originalRightIndex = rightWheelIndex;
         while((distanceTravelled(leftWheelIndex, originalLeftIndex) 
         + distanceTravelled(rightWheelIndex, originalRightIndex)) / 2 < distance) {
             tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,TF_SPEED1);
         }
-        stop();
+        stop();*/
     }
 
     /// Parameters:
@@ -169,41 +170,39 @@ class Funcs {
     * ewok detecting - reads IR sensor, decides if it's looking at an ewok
     * return: true if ewok, false if not
     */
+   //TODO: CHECK THIS
     bool ewokDetect() {
         digitalWrite(IR_OUT,HIGH);
         double without = analogRead(EWOK_SENSOR);
         digitalWrite(IR_OUT,LOW);
-        double with = analogReaD(EWOK_SENSOR);
-        if(ewokValue > EWOK_THRESH) { 
-            return true; 
-        } else {
-            return false;
-        }
+        double with = analogRead(EWOK_SENSOR);
+        if(with-without > EWOK_THRESH) return true; 
+        else return false;
     }
 
     //PARAM: deg - degrees to turn clockwise
     void FUNCS::turn(int deg) {
-        std::thread right(moveRightWheel, -1 * deg / degreesPerCm, MAX_SPEED / 2);
+        /*std::thread right(moveRightWheel, -1 * deg / degreesPerCm, MAX_SPEED / 2);
         std::thread left(moveLeftWheel, deg / degreesPerCm, MAX_SPEED / 2);
 
         right.join();
-        left.join();
+        left.join();*/
     }
 
     //PARAM: deg - degrees to turn clockwise
     void FUNCS::move(int distance) {
-        std::thread right (moveRightWheel,distance,MAX_SPEED);
+        /*std::thread right (moveRightWheel,distance,MAX_SPEED);
         std::thread left (moveLeftWheel,distance,MAX_SPEED);
 
         right.join();
-        left.join();
+        left.join();*/
     }
 
     //PARAM: distance - distance in cm (positive or negative)
     //       speed    - speed in cm/s (always positive)
     void FUNCS::moveRightWheel(int distance, int speed) {
         // makes distance absoute value, speed directional
-        if(distance < 0) {
+        /*if(distance < 0) {
             distance = distance * -1;
             speed = speed * -1;
         }
@@ -222,14 +221,14 @@ class Funcs {
             }
             motor.speed(RIGHT_MOTOR, speedToPower(currSpeed));
         }
-        motor.stop(RIGHT_MOTOR);
+        motor.stop(RIGHT_MOTOR);*/
     }
 
     //PARAM: distance - distance in cm (positive or negative)
     //       speed    - speed in cm/s (always positive)
     void FUNCS::moveLeftWheel(int distance, int speed) {
         // makes distance absoute value, speed directional
-        if(distance < 0) {
+        /*if(distance < 0) {
             distance = distance * -1;
             speed = speed * -1;
         }
@@ -248,11 +247,12 @@ class Funcs {
             }
             motor.speed(LEFT_MOTOR, speedToPower(currSpeed));
         }
-        motor.stop(LEFT_MOTOR);
+        motor.stop(LEFT_MOTOR);*/
     }
 
+    //TODO: check float calculation (slow af??)
     int speedToPower(int speed) {
-        int power = nt(float(speed) / MAX_SPEED * 255);
+        int power = int(float(speed) / MAX_SPEED * 255);
         if(power > MAX_SPEED) {
             return MAX_SPEED;
         } else if(power < MAX_SPEED * -1) {
@@ -283,7 +283,7 @@ class Funcs {
     void FUNCS::contractZipline() {
         motor.speed(ZIP_ARM_MOTOR, ZIP_ARM_CONTRACTING);
         double startTime = millis();
-        while(!digitalRead(ZIP_SWITCH_CONTRACTED)) {
+        while(!digitalRead(ZIP_SWITCH_CLOSED)) {
             // Give the arm 5 seconds to extend
             if(millis() > startTime + 5000) {
                 break;
