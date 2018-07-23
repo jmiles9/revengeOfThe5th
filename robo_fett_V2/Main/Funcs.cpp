@@ -99,23 +99,39 @@ class Funcs {
     /// Parameters:
     /// side and stuffy are defined in config now.
     /// returns true if pickup was successful.
+    //TODO: finish this
     bool FUNCS::pickUp(int side, int stuffy) {
         bool stuffyPicked = false;
-        if(stuffy == EWOK) ARMS.write(ARMS_DOWN_EWOK);
-        else ARMS.write(ARMS_DOWN_CHEWIE);
 
-        delay(1000);
+        if(side == LEFT){
+            if(stuffy == EWOK) ARM_LEFT.write(ARMS_DOWN_EWOK);
+            else ARM_LEFT.write(ARMS_DOWN_CHEWIE);
 
-        CLAWS.write(CLAWS_CLOSED);
+            delay(1000);
 
-        delay(1000);
+            TONGS_LEFT.write(CLAWS_CLOSED);
 
-        if(side == LEFT && digitalRead(LEFT_CLAW_STUFFY_SWITCH) || side == RIGHT && digitalRead(RIGHT_CLAW_STUFFY_SWITCH)) {
-            stuffyPicked = true;
+            delay(1000);
+
+            if(digitalRead(LEFT_CLAW_STUFFY_SWITCH)) stuffyPicked = true;
         }
 
+        if(side == RIGHT){
+            if(stuffy == EWOK) ARM_RIGHT.write(ARMS_DOWN_EWOK);
+            else ARM_RIGHT.write(ARMS_DOWN_CHEWIE);
+
+            delay(1000);
+
+            TONGS_RIGHT.write(CLAWS_CLOSED);
+
+            delay(1000);
+
+            if(digitalRead(RIGHT_CLAW_STUFFY_SWITCH)) stuffyPicked = true;
+        }
+        
+
         // If pickup is unsuccessful, can raise arm and open claw at the same time.
-        if(!stuffyPicked) {
+       /* if(!stuffyPicked) {
             ARMS.write(ARMS_UP);
             CLAWS.write(CLAWS_OPEN);
             return stuffyPicked;
@@ -126,7 +142,7 @@ class Funcs {
             delay(1000);
             CLAWS.write(CLAWS_OPEN);
             return stuffyPicked;
-        }
+        }*/
     }
 
     // CURRENTLY ASSUMINE ONE IR SENSOR
