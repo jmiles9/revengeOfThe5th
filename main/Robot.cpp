@@ -125,58 +125,54 @@ public:
 	}
 	// TODO: Write
 	void ZIP_HOOK() {
-		//need to find zipline, hook up
-		//assume is started from already being on tape directly under line
-		//likely need to do something other than turning
-		turn(15);
-		extendZipline();
-		turn(-15);
-		contractZipline();
+
 	}
 	//TODO: WRite
 	void ZIP_UP() {
-		zipUp();
-		//zipUp function checks for contact switch and has a time limit 
+
 	}
 	// TODO: Write
 	void ZIP_UNHOOK() {
-		extendZipline();
-		turn(10);
-		contractZipline();
-		turn(-10);
+
 	}
 	// TODO: Write
 	void EWOK_4() {
-		//may need to reverse a bit first
-		EWOK_SEARCH();
-		//may need to have something in here about edge detecting also, or should add to ewok search
-	
+
 	}
 	// TODO: Write
 	void BRIDGE_FOLLOW() {
-		
-		turn(90);
-
-		// this assumes when they are on tape they read HI = true
-		//follows side of bridge until sees tape indicating zipline
-        while(!(digitalRead(TAPE_QRD_LEFT) && digitalRead(TAPE_QRD_RIGHT))){
-			bridgeFollow();
-		}
 
 	}
 	// TODO: WRite
 	void CHEWIE() {
-		//will end on tape so can follow tape for a little bit longer
-		EWOK_SEARCH();
+
 	}
 	// TODO: Write
 	void ZIP_DOWN() {
-		turn(190);
-		//turn around 180 degrees so goes down with sensor going outwards
-		extendZipline();
-		turn(-10);
-		contractZipline();
-		zipUp();
+
 	}
 
+	void cruisePlat2_1() {
+
+		//just dropped bridge
+
+		uint16_t initialDist = cmTravelled;
+
+		while ((cmTravelled - initialDist) < 69) {
+			tapeFollow();
+		}
+
+		state = runState::EwokPickup;
+	}
+
+	void IRHandle() {
+
+		//move until IR signal is strong?
+
+		while (!(readIR())) {
+		}
+
+		state = runState::CruisePlat2_2;
+
+	}
 }
