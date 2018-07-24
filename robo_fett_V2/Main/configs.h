@@ -1,7 +1,7 @@
 #include <phys253.h>  
 
-#ifndef CONFIGS
-#define CONFIGS
+#ifndef CONFIGS_H
+#define CONFIGS_H
 
 namespace configs {
 

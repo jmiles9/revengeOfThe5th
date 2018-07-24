@@ -1,23 +1,26 @@
+//Functions for use in robot.
+#include <phys253.h> //this is for the uints
+
 #ifndef FUNCS_H
 #define FUNCS_H
 
 namespace funcs {
     class Funcs {
         public:
-            uint16_t leftWheelIndex;
-            uint16_t rightWheelIndex;
-            uint32_t leftWheelLastTime;
-            uint32_t rightWheelLastTime;
-            uint8_t leftSpeed;
-            uint8_t rightSpeed;
-            uint8_t nextEwok;
-            uint8_t error;
+            static uint16_t leftWheelIndex;
+            static uint16_t rightWheelIndex;
+            static uint32_t leftWheelLastTime;
+            static uint32_t rightWheelLastTime;
+            static uint8_t leftSpeed;
+            static uint8_t rightSpeed;
+            static uint8_t nextEwok;
+            static uint8_t error;
 
         private:
             void setMotorPower(int left, int right);
             void steer(int deg);
             void hardStop();
-            bool tapeFollow(int kp, int kd, int gain, int speed);
+            bool tapeFollow(int kp, int kd, int gain, Speed speed);
             void tapeFollowForDistance(int distance);
             bool pickUp(int side, int stuffy);
             double record1KIRBeacon();

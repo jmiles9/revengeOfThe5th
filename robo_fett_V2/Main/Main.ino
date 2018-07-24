@@ -8,8 +8,13 @@
 
 using namespace std;
 
-robot::Robot roboFett;
-int cmPerWheelIndex;
+void setup(){}
+
+void loop(){
+  
+}
+
+/*robot::Robot roboFett;
 
 void setup() {
 	roboFett = robot::Robot();
@@ -24,7 +29,7 @@ void loop() {
 			roboFett.STARTUP();
 			break;
 		case CRUISE_PLAT1 :
-			roboFett.CRUISE();
+  			roboFett.CRUISE();
 			break;
 		case EWOK_SEARCH :
 			roboFett.EWOK_SEARCH();
@@ -62,21 +67,21 @@ void loop() {
 		case ZIP_DOWN :
 			roboFett.ZIP_DOWN();
 			break;
-		default: break;
 	}
-}
 
-void encoderLeft() {
-	roboFett.leftWheelIndex++;
-	time = millis();
-	roboFett.leftSpeed = cmPerWheelIndex / (time - roboFett.leftWheelLastTime);
-    roboFett.leftWheelLastTime = time;
-}
+	void encoderLeft() {
+  		    roboFett.leftWheelIndex++;
+			time = millis();
+			roboFett.leftSpeed = cmPerWheelIndex / (time - roboFett.leftWheelLastTime);
+            roboFett.leftWheelLastTime = time;
+	}
 
-void encoderRight() {
-  	roboFett.rightWheelIndex++;
-	time = millis();
-	roboFett.rightSpeed = cmPerWheelIndex / (time - roboFett.rightWheelLastTime);
-    roboFett.rightWheelLastTime = time;
-}
+	void encoderRight() {
+  		    roboFett.rightWheelIndex++;
+			time = millis();
+			roboFett.rightSpeed = cmPerWheelIndex / (time - roboFett.rightWheelLastTime);
+            roboFett.rightWheelLastTime = time;
+	}
+}*/
+
 

@@ -4,7 +4,6 @@
 //rightSpeed; //can't get this from Robot?? how?
 //same with other vals
 using namespace configs;
-using namespace funcs;
 
  // Used in tapeFollow
 void setMotorPower(int left, int right) {
@@ -69,8 +68,8 @@ bool tapeFollow(int kp, int kd, int gain, Speed speed_) {
             return true;
         }
     }
-    if(!rightOnTape && leftOnTape)error = -1;
-    if(rightOnTape && !leftOnTape)error = 1;
+    if(!rightOnTape && leftOnTape) error = -1;
+    if(rightOnTape && !leftOnTape) error = 1;
     if(!rightOnTape && !leftOnTape){
         if(error == -1 || error == -5) error = -5;
         else error = 5;
