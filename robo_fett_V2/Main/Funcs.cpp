@@ -6,13 +6,13 @@
 using namespace configs;
 
  // Used in tapeFollow
-void setMotorPower(int left, int right) {
+void Funcs::setMotorPower(int left, int right) {
     motor.speed(RIGHT_MOTOR, right);
     motor.speed(LEFT_MOTOR, left);
 }
     
 // Used in tapefollow
-void steer(int deg, int speed) {
+void Funcs::steer(int deg, int speed) {
     if(deg > 0) {
         if(deg > speed*2) {
             deg = speed*2;
@@ -26,7 +26,7 @@ void steer(int deg, int speed) {
     } else setMotorPower(speed, speed);
 }
 
-void hardStop() {
+void Funcs::hardStop() {
     setMotorPower(FULL_R, FULL_R);
     delay(10); //DO WE WANT A DELAY HERE?? check this
     setMotorPower(0,0);
@@ -39,15 +39,11 @@ void hardStop() {
  *        kd = derivative constant
  *        gain = gain for pd
  */
-bool tapeFollow(int kp, int kd, int gain, Speed speed_) {
+bool Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
     //defining what speeds to use
     int highSpeed;
     int lowSpeed;
     switch(speed_){
-        case PUT_SOME_STUFF_HERE:
-            highSpeed = 11000000;
-            lowSpeed = 31324;
-            break;
         default:
             highSpeed = 255;
             lowSpeed = 200;
@@ -75,14 +71,14 @@ bool tapeFollow(int kp, int kd, int gain, Speed speed_) {
         else error = 5;
     }
     //steering for error
-    steer((kp*error + kd*(error - lasterr))*gain) ;
+    steer((kp*error + kd*(error - lasterr))*gain, FULL_F) ;
     return false;
 }
 
 // TODO: complete
 // Param - distance in cm
 // NOTE: currently assuming only one set of pid constants
-void tapeFollowForDistance(int distance) {
+void Funcs::tapeFollowForDistance(int distance) {
     /*originalLeftIndex = leftWheelIndex;
     originalRightIndex = rightWheelIndex;
     while((distanceTravelled(leftWheelIndex, originalLeftIndex) 
@@ -96,7 +92,7 @@ void tapeFollowForDistance(int distance) {
 /// side and stuffy are defined in config now.
 /// returns true if pickup was successful.
 //TODO: finish this
-bool pickUp(int side, int stuffy) {
+bool Funcs::pickUp(int side, int stuffy) {
     bool stuffyPicked = false;
 
     if(side == LEFT){
@@ -142,43 +138,32 @@ bool pickUp(int side, int stuffy) {
 }
 
 // CURRENTLY ASSUMINE ONE IR SENSOR
-double record1KIRBeacon() {
+double Funcs::record1KIRBeacon() {
     return analogRead(IR_1KHZ);
 }
 
-double record10KIRBeacon() {
+double Funcs::record10KIRBeacon() {
     return analogRead(IR_10KHZ);
 }
 
-void lowerBridge() {
+void Funcs::lowerBridge() {
     BASKET.write(BASKET_DROPBRIDGE);
     delay(1000);
     // may not need to close
     BASKET.write(BASKET_CLOSED);
 }
 
-bool checkBeacon() {
+bool Funcs::checkBeacon() {
     return record10KIRBeacon() > record1KIRBeacon();
 }
 
-void steer(int deg){
-    if(deg > 0){
-        if(deg > FULL_F*2) deg = FULL_F*2;
-        setMotorPower(FULL_F - deg, FULL_F);
-    }
-    else if(deg < 0){
-        if(-deg > FULL_F*2) deg = -FULL_F*2;
-        setMotorPower(FULL_F, FULL_F + deg);
-    }
-    else setMotorPower(FULL_F, FULL_F);
-}
 
 /**
 * ewok detecting - reads IR sensor, decides if it's looking at an ewok
 * return: true if ewok, false if not
 */
 //TODO: CHECK THIS
-bool ewokDetect() {
+bool Funcs::ewokDetect() {
     digitalWrite(IR_OUT,HIGH);
     double without = analogRead(EWOK_SENSOR);
     digitalWrite(IR_OUT,LOW);
@@ -188,7 +173,7 @@ bool ewokDetect() {
 }
 
 //PARAM: deg - degrees to turn clockwise
-void turn(int deg) {
+void Funcs::turn(int deg) {
     /*std::thread right(moveRightWheel, -1 * deg / degreesPerCm, MAX_SPEED / 2);
     std::thread left(moveLeftWheel, deg / degreesPerCm, MAX_SPEED / 2);
 
@@ -197,7 +182,7 @@ void turn(int deg) {
 }
 
 //PARAM: deg - degrees to turn clockwise
-void move(int distance) {
+void Funcs::move(int distance) {
     /*std::thread right (moveRightWheel,distance,MAX_SPEED);
     std::thread left (moveLeftWheel,distance,MAX_SPEED);
 
@@ -207,7 +192,7 @@ void move(int distance) {
 
 //PARAM: distance - distance in cm (positive or negative)
 //       speed    - speed in cm/s (always positive)
-void moveRightWheel(int distance, int speed) {
+void Funcs::moveRightWheel(int distance, int speed) {
     // makes distance absoute value, speed directional
     /*if(distance < 0) {
         distance = distance * -1;
@@ -233,7 +218,7 @@ void moveRightWheel(int distance, int speed) {
 
 //PARAM: distance - distance in cm (positive or negative)
 //       speed    - speed in cm/s (always positive)
-void moveLeftWheel(int distance, int speed) {
+void Funcs::moveLeftWheel(int distance, int speed) {
     // makes distance absoute value, speed directional
     /*if(distance < 0) {
         distance = distance * -1;
@@ -258,7 +243,7 @@ void moveLeftWheel(int distance, int speed) {
 }
 
 //TODO: check float calculation (slow af??)
-int speedToPower(int speed) {
+int Funcs::speedToPower(int speed) {
     int power = int(float(speed) / MAX_SPEED * 255);
     if(power > MAX_SPEED) {
         return MAX_SPEED;
@@ -269,13 +254,13 @@ int speedToPower(int speed) {
     }
 }
 
-void dumpBasket() {
+void Funcs::dumpBasket() {
     BASKET.write(BASKET_OPENED);
     delay(1000);
     BASKET.write(BASKET_CLOSED);
 }
 
-void extendZipline() {
+void Funcs::extendZipline() {
     motor.speed(ZIP_ARM_MOTOR, ZIP_ARM_EXTENDING);
     double startTime = millis();
     while(!digitalRead(ZIP_SWITCH_EXTENDED)) {
@@ -287,7 +272,7 @@ void extendZipline() {
     motor.stop(ZIP_ARM_MOTOR);
 }
 
-void contractZipline() {
+void Funcs::contractZipline() {
     motor.speed(ZIP_ARM_MOTOR, ZIP_ARM_CONTRACTING);
     double startTime = millis();
     while(!digitalRead(ZIP_SWITCH_CLOSED)) {
@@ -299,7 +284,7 @@ void contractZipline() {
     motor.stop(ZIP_ARM_MOTOR);
 }
 
-void zipUp() {
+void Funcs::zipUp() {
     motor.speed(ZIP_WHEEL_MOTOR, ZIPPING_UP);
     double startTime = millis();
     while(!digitalRead(ZIPPED_UP_SWITCH)) {
@@ -312,7 +297,7 @@ void zipUp() {
 }
 
 //TODO:
-void findEdge() {
+void Funcs::findEdge() {
     //dont think we need this since it finds the edge in the 
     //tape follow function?
 }
@@ -339,14 +324,13 @@ void FUNCS::bridgeFollow(int kp, int kd, int gain, Speed speed_) {
     }
     
     steer((kp*err + kd*(err - lasterr))*gain) ;
-
 }
 
 //TODO: Write this
-bool isOnEdge() {
+bool Funcs::isOnEdge() {
     //probs dont need this since it finds edge with tapefollow?
 }
 
-double distanceTravelled(int newIndex, int oldIndex) {
+double Funcs::distanceTravelled(int newIndex, int oldIndex) {
     return newIndex - oldIndex * cmPerWheelIndex;
 }

@@ -1,5 +1,6 @@
 #include "Robot.h"
 #include "Funcs.h"
+#include "configs.h"
 
 //reference https://github.com/WalkervilleElementary/robot/blob/master/src/main.cpp
 
@@ -8,28 +9,23 @@
 
 using namespace std;
 
-void setup(){}
 
-void loop(){
-  
-}
-
-/*robot::Robot roboFett;
+Robot roboFett;
 
 void setup() {
-	roboFett = robot::Robot();
+	roboFett = Robot();
 	attachInterrupt(3, encoderLeft, RISING);
 	attachInterrupt(4, encoderRight, RISING);
 	//startUp sequence
 }
 
 void loop() {
-	switch(roboFett.state) {
+	switch(roboFett.runState) {
 		case STARTUP :
 			roboFett.STARTUP();
 			break;
 		case CRUISE_PLAT1 :
-  			roboFett.CRUISE();
+  			roboFett.CRUISE_PLAT1();
 			break;
 		case EWOK_SEARCH :
 			roboFett.EWOK_SEARCH();
@@ -68,20 +64,19 @@ void loop() {
 			roboFett.ZIP_DOWN();
 			break;
 	}
+}
 
-	void encoderLeft() {
-  		    roboFett.leftWheelIndex++;
-			time = millis();
-			roboFett.leftSpeed = cmPerWheelIndex / (time - roboFett.leftWheelLastTime);
-            roboFett.leftWheelLastTime = time;
-	}
+void encoderLeft() {
+		roboFett.leftWheelIndex++;
+		int time = millis();
+		roboFett.leftSpeed = configs::cmPerWheelIndex / (time - roboFett.leftWheelLastTime);
+		roboFett.leftWheelLastTime = time;
+}
 
-	void encoderRight() {
-  		    roboFett.rightWheelIndex++;
-			time = millis();
-			roboFett.rightSpeed = cmPerWheelIndex / (time - roboFett.rightWheelLastTime);
-            roboFett.rightWheelLastTime = time;
-	}
-}*/
-
+void encoderRight() {
+		roboFett.rightWheelIndex++;
+		int time = millis();
+		roboFett.rightSpeed = configs::cmPerWheelIndex / (time - roboFett.rightWheelLastTime);
+		roboFett.rightWheelLastTime = time;
+}
 

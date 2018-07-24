@@ -29,7 +29,7 @@ namespace configs {
     
     //tinah outputs 0 to 7 (including interrupts)
     //must be inputs cuz interrupts
-    
+
     const int LEFT_CLAW_STUFFY_SWITCH = 15;
     const int RIGHT_CLAW_STUFFY_SWITCH = 14;
     const int ZIP_SWITCH_EXTENDED = 13;
@@ -79,12 +79,12 @@ namespace configs {
     const int FULL_R = -255;
     const int HALF_R = -220;
 
-    #define TF_KP1
-    #define TF_KD1
-    #define TF_SPEED1
-    #define TF_SPEED2
-    #define TF_GAIN1
-    #define TF_GAIN2
+    #define TF_KP1 0
+    #define TF_KD1 0
+    #define TF_SPEED1 0
+    #define TF_SPEED2 0
+    #define TF_GAIN1 0
+    #define TF_GAIN2 0
     const int ZIP_ARM_EXTENDING = 255;
     const int ZIP_ARM_CONTRACTING = -255;
     const int ZIPPING_UP = 255;
@@ -92,7 +92,7 @@ namespace configs {
     const int MAX_SPEED = 50;
 
     enum Speed{
-        PUT_SOME_STUFF_HERE
+        SPEED
     };
 
     //servo stuff

@@ -1,9 +1,9 @@
 //#include <cstdint>
 #include "Funcs.h"
 
-enum State {
+enum RunState {
     STARTUP,
-    CRUISE,
+    CRUISE_PLAT1,
     EWOK_SEARCH,
     EWOK_GRAB,
     DRAWBRIDGE,
@@ -19,31 +19,29 @@ enum State {
     ZIP_DOWN
 };
 
-namespace robot {
+class Robot : public Funcs {
 
-    class Robot : public Funcs {
+    public:
+        RunState runState;
 
-        public:
-            State state;
+        Robot();
+        void STARTUP();
+        void CRUISE_PLAT1();
+        void DRAWBRIDGE();
+        void EWOK_SEARCH();
+        void EWOK_GRAB();
+        void CRUISE_IR();
+        void IR_WAIT();
+        void CRUISE_PLAT2();
+        void DUMP_PREP();
+        void DUMP_EWOKS();
+        void ZIP_HOOK();
+        void ZIP_UP();
+        void ZIP_UNHOOK();
+        void EWOK_4();
+        void BRIDGE_FOLLOW();
+        void CHEWIE();
+        void ZIP_DOWN();
+        void IRHANDLE();
 
-            Robot();
-            void STARTUP();
-            void CRUISE_PLAT1();
-            void DRAWBRIDGE();
-			void EWOK_SEARCH();
-            void EWOK_GRAB();
-			void CRUISE_IR();
-            void IR_WAIT();
-            void CRUISE_PLAT2();
-            void DUMP_PREP();
-            void DUMP_EWOKS();
-            void ZIP_HOOK();
-            void ZIP_UP();
-            void ZIP_UNHOOK();
-            void EWOK_4();
-            void BRIDGE_FOLLOW();
-            void CHEWIE();
-            void ZIP_DOWN();
- 
-    };
-}
+};
