@@ -19,6 +19,16 @@ namespace configs {
     
     // Digital ports
     // pls go backwards. don't use interrupt ports (0-3) for switches
+    
+    //multiplexer inputs 16 to 23 (0 on multiplexer is 16 for here)
+    //all must be inputs
+       
+    //tinah inputs 15 to 8
+    //must be outputs
+    
+    //tinah outputs 0 to 7 (including interrupts)
+    //must be inputs cuz interrupts
+    
     const int LEFT_CLAW_STUFFY_SWITCH = 15;
     const int RIGHT_CLAW_STUFFY_SWITCH = 14;
     const int ZIP_SWITCH_EXTENDED = 13;
