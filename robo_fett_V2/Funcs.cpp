@@ -295,7 +295,7 @@ class Funcs {
     void FUNCS::zipUp() {
         motor.speed(ZIP_WHEEL_MOTOR, ZIPPING_UP);
         double startTime = millis();
-        while(!digitalRead(ZIPPED_UP)) {
+        while(!digitalRead(ZIPPED_UP_SWITCH)) {
             // Give 10 seconds to make it up zipline
             if(millis() > startTime + 10000) {
                 break;
@@ -311,7 +311,35 @@ class Funcs {
     }
 
     //TODO: write this. Should pretty much be tapefollow, different sensors.
-    void FUNCS::bridgeFollow() {
+    void FUNCS::bridgeFollow(int kp, int kd, int gain, Speed speed_) {
+
+        //should be true if they are on the bridge
+        bool rightOnBridge = digitalRead(BRIDGE_QRD_RIGHT);
+        bool leftOnBridge = digitalRead(BRIDGE_QRD_LEFT);
+            
+        int lasterr = err;
+
+        if (leftOnBridge && !(rightOnBridge)){
+            err = 0;
+                //is good
+        }
+        if (leftOnBridge && rightOnBridge){
+            //need to turn right
+            err = 1;
+        }
+         if (!(leftOnBridge) && (!(rightOnBridge))){
+            err = -1;
+        }
+
+        steer((kp*err + kd*(err - lasterr))*gain) ;
+
+        }
+
+        
+        
+
+
+        //should be trying to detect the tape on tape following qrds to stop
 
     }
 
