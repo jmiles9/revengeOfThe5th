@@ -82,13 +82,13 @@ bool Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
 // Param - distance in cm
 // NOTE: currently assuming only one set of pid constants
 void Funcs::tapeFollowForDistance(int distance) {
-    /*originalLeftIndex = leftWheelIndex;
-    originalRightIndex = rightWheelIndex;
+    int originalLeftIndex = leftWheelIndex;
+    int originalRightIndex = rightWheelIndex;
     while((distanceTravelled(leftWheelIndex, originalLeftIndex) 
     + distanceTravelled(rightWheelIndex, originalRightIndex)) / 2 < distance) {
-        tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,TF_SPEED1);
+        tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,SPEED);
     }
-    stop();*/
+    hardStop();
 }
 
 /// Parameters:
@@ -98,46 +98,43 @@ void Funcs::tapeFollowForDistance(int distance) {
 bool Funcs::pickUp(int side, int stuffy) {
     bool stuffyPicked = false;
 
-    if(side == LEFT){
-        if(stuffy == EWOK) ARM_LEFT.write(ARMS_DOWN_EWOK);
-        else ARM_LEFT.write(ARMS_DOWN_CHEWIE);
+    TINAH::Servo ARM;
+    TINAH::Servo CLAW;
+    int stuffySwitch;
 
-        delay(1000);
-
-        TONGS_LEFT.write(CLAWS_CLOSED);
-
-        delay(1000);
-
-        if(digitalRead(LEFT_CLAW_STUFFY_SWITCH)) stuffyPicked = true;
+    if(side == LEFT) {
+        ARM = ARM_LEFT;
+        CLAW = CLAW_LEFT;
+        stuffySwitch = LEFT_CLAW_STUFFY_SWITCH;
+    } else {
+        ARM = ARM_RIGHT;
+        CLAW = CLAW_RIGHT;
+        stuffySwitch = RIGHT_CLAW_STUFFY_SWITCH;
     }
 
-    if(side == RIGHT){
-        if(stuffy == EWOK) ARM_RIGHT.write(ARMS_DOWN_EWOK);
-        else ARM_RIGHT.write(ARMS_DOWN_CHEWIE);
-
-        delay(1000);
-
-        TONGS_RIGHT.write(CLAWS_CLOSED);
-
-        delay(1000);
-
-        if(digitalRead(RIGHT_CLAW_STUFFY_SWITCH)) stuffyPicked = true;
+    if(stuffy == EWOK) {
+        ARM.write(ARMS_DOWN_EWOK);
+    } else {
+        ARM.write(ARMS_DOWN_CHEWIE);
     }
-    
+
+    delay(1000);
+
+    CLAW.write(CLAWS_CLOSED);
+
+    delay(1000);
+
+    if(digitalRead(stuffySwitch)) {
+        stuffyPicked = true;
+    }
 
     // If pickup is unsuccessful, can raise arm and open claw at the same time.
-    /* if(!stuffyPicked) {
-        ARMS.write(ARMS_UP);
-        CLAWS.write(CLAWS_OPEN);
-        return stuffyPicked;
-    }
-
-    else {
-        ARMS.write(ARMS_UP);
+    ARM.write(ARMS_UP);
+    if(!stuffyPicked) {
         delay(1000);
-        CLAWS.write(CLAWS_OPEN);
-        return stuffyPicked;
-    }*/
+    }
+    CLAW.write(CLAWS_OPEN);
+    return stuffyPicked;
 }
 
 // CURRENTLY ASSUMINE ONE IR SENSOR
@@ -177,72 +174,43 @@ bool Funcs::ewokDetect() {
 
 //PARAM: deg - degrees to turn clockwise
 void Funcs::turn(int deg) {
-    /*std::thread right(moveRightWheel, -1 * deg / degreesPerCm, MAX_SPEED / 2);
-    std::thread left(moveLeftWheel, deg / degreesPerCm, MAX_SPEED / 2);
-
-    right.join();
-    left.join();*/
+    moveWheels(deg / degreesPerCm, -1 * deg / degreesPerCm, MAX_SPEED / 2);
 }
 
 //PARAM: deg - degrees to turn clockwise
 void Funcs::move(int distance) {
-    /*std::thread right (moveRightWheel,distance,MAX_SPEED);
-    std::thread left (moveLeftWheel,distance,MAX_SPEED);
-
-    right.join();
-    left.join();*/
+    moveWheels(distance, distance, MAX_SPEED);
 }
 
-//PARAM: distance - distance in cm (positive or negative)
-//       speed    - speed in cm/s (always positive)
-void Funcs::moveRightWheel(int distance, int speed) {
-    // makes distance absoute value, speed directional
-    /*if(distance < 0) {
-        distance = distance * -1;
-        speed = speed * -1;
+void Funcs::moveWheels(int leftDistance, int rightDistance, int speed) {
+    int leftPower = speedToPower(speed);
+    int rightPower = leftPower;
+    int leftFactor = 1;
+    int rightFactor = 1;
+    if(leftDistance < 0) {
+        leftFactor = -1;
     }
-    int currIndex = rightWheelIndex;
-    int currDistance = 0;
-    int currSpeed = speed;
-    motor.speed(RIGHT_MOTOR, speedToPower(currSpeed));
-    while(currIndex - rightWheelIndex < 2) {
-        if currDistance >= distance {
-            break;
+    if(rightDistance < 0) {
+        rightFactor = -1;
+    }
+    leftPower *= leftFactor;
+    rightPower *= rightFactor;
+    int rightStartIndex = rightWheelIndex;
+    int rightCurrDistance = 0;
+    int leftStartIndex = leftWheelIndex;
+    int leftCurrDistance = 0;
+    setMotorPower(leftPower, rightPower);
+    while(rightWheelIndex - rightStartIndex < 2 && 
+    leftWheelIndex - leftStartIndex < 2) {}
+    while(!rightCurrDistance < rightDistance && !leftCurrDistance < rightDistance) {
+        if(rightSpeed != speed) {
+            rightSpeed -= rightSpeed - speed;
         }
-    }
-    while(currDistance < distance) {
-        if(rightSpeed < speed) {
-            currSpeed--;
+        if(leftSpeed != speed) {
+            leftSpeed -= leftSpeed - speed;
         }
-        motor.speed(RIGHT_MOTOR, speedToPower(currSpeed));
+        setMotorPower(speedToPower(leftSpeed), speedToPower(rightSpeed));
     }
-    motor.stop(RIGHT_MOTOR);*/
-}
-
-//PARAM: distance - distance in cm (positive or negative)
-//       speed    - speed in cm/s (always positive)
-void Funcs::moveLeftWheel(int distance, int speed) {
-    // makes distance absoute value, speed directional
-    /*if(distance < 0) {
-        distance = distance * -1;
-        speed = speed * -1;
-    }
-    int currIndex = leftWheelIndex;
-    int currDistance = 0;
-    int currSpeed = speed;
-    motor.speed(LEFT_MOTOR, speedToPower(currSpeed));
-    while(currIndex - leftWheelIndex < 2) {
-        if(currDistance >= distance) {
-            break;
-        }
-    }
-    while(currDistance < distance) {
-        if(rightSpeed < speed) {
-            currSpeed--;
-        }
-        motor.speed(LEFT_MOTOR, speedToPower(currSpeed));
-    }
-    motor.stop(LEFT_MOTOR);*/
 }
 
 //TODO: check float calculation (slow af??)
@@ -306,27 +274,27 @@ void Funcs::findEdge() {
 }
 
 //TODO: write this. Should pretty much be tapefollow, different sensors.
-void FUNCS::bridgeFollow(int kp, int kd, int gain, Speed speed_) {
+void Funcs::bridgeFollow(int kp, int kd, int gain, Speed speed_) {
 
     //should be true if they are on the bridge
     bool rightOnBridge = digitalRead(BRIDGE_QRD_RIGHT);
     bool leftOnBridge = digitalRead(BRIDGE_QRD_LEFT);
 
-    int lasterr = err;
+    int lastError = error;
 
     if (leftOnBridge && !(rightOnBridge)){
-        err = 0;
+        error = 0;
         //is good
     }
     if (leftOnBridge && rightOnBridge){
         //need to turn right
-        err = 1;
+        error = 1;
     }
     if (!(leftOnBridge) && (!(rightOnBridge))){
-        err = -1;
+        error = -1;
     }
     
-    steer((kp*err + kd*(err - lasterr))*gain) ;
+    steer((kp*error + kd*(error - lastError))*gain, speed_) ;
 }
 
 //TODO: Write this

@@ -47,11 +47,9 @@ namespace configs {
     
     
     #define ARM_RIGHT RCServo0
-    #define TONGS_RIGHT RCServo1
-    // ARM_LEFT should be RCServo7
-    // TONGS_LEFT should be RCServo6
+    #define CLAW_RIGHT RCServo1
     #define ARM_LEFT RCServo7
-    #define TONGS_LEFT RCServo6
+    #define CLAW_LEFT RCServo6
     #define BASKET RCServo2
 
     // Motor ports

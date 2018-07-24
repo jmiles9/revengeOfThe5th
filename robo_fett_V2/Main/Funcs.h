@@ -29,8 +29,7 @@ class Funcs {
         bool ewokDetect();
         void turn(int deg);
         void move(int distance);
-        void moveLeftWheel(int distance, int speed);
-        void moveRightWheel(int distance, int speed);
+        void moveWheels(int leftDistance, int rightDistance, int speed);
         int speedToPower(int speed);
         void dumpBasket();
         void extendZipline();
@@ -39,7 +38,7 @@ class Funcs {
         void moveZipline(int distance);
         void zipppp();
         void findEdge();
-        void bridgeFollow();
+        void bridgeFollow(int kp, int kd, int gain, configs::Speed speed_);
         bool isOnEdge();
         double distanceTravelled(int newIndex, int oldIndex);
 };
