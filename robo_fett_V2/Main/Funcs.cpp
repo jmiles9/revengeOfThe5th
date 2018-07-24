@@ -5,6 +5,9 @@
 //same with other vals
 using namespace configs;
 
+TINAH::Servo RCServo7(RCSERVO7);
+TINAH::Servo RCServo6(RCSERVO6);
+
  // Used in tapeFollow
 void Funcs::setMotorPower(int left, int right) {
     motor.speed(RIGHT_MOTOR, right);

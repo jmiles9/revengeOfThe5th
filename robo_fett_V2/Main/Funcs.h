@@ -16,7 +16,6 @@ class Funcs {
         uint8_t nextEwok;
         uint8_t error;
 
-        Funcs();
         void setMotorPower(int left, int right);
         void steer(int deg, int speed);
         void hardStop();
