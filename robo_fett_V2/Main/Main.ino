@@ -1,4 +1,5 @@
 #include "Robot.h"
+#include "Funcs.h"
 
 //reference https://github.com/WalkervilleElementary/robot/blob/master/src/main.cpp
 
@@ -8,6 +9,7 @@
 using namespace std;
 
 robot::Robot roboFett;
+int cmPerWheelIndex;
 
 void setup() {
 	roboFett = robot::Robot();
@@ -60,19 +62,21 @@ void loop() {
 		case ZIP_DOWN :
 			roboFett.ZIP_DOWN();
 			break;
-	}
-
-	void encoderLeft() {
-  		    roboFett.leftWheelIndex++;
-			time = millis();
-			roboFett.leftSpeed = cmPerWheelIndex / (time - roboFett.leftWheelLastTime);
-            roboFett.leftWheelLastTime = time;
-	}
-
-	void encoderRight() {
-  		    roboFett.rightWheelIndex++;
-			time = millis();
-			roboFett.rightSpeed = cmPerWheelIndex / (time - roboFett.rightWheelLastTime);
-            roboFett.rightWheelLastTime = time;
+		default: break;
 	}
 }
+
+void encoderLeft() {
+	roboFett.leftWheelIndex++;
+	time = millis();
+	roboFett.leftSpeed = cmPerWheelIndex / (time - roboFett.leftWheelLastTime);
+    roboFett.leftWheelLastTime = time;
+}
+
+void encoderRight() {
+  	roboFett.rightWheelIndex++;
+	time = millis();
+	roboFett.rightSpeed = cmPerWheelIndex / (time - roboFett.rightWheelLastTime);
+    roboFett.rightWheelLastTime = time;
+}
+

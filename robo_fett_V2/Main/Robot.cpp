@@ -199,6 +199,7 @@ public:
         leftSpeed = 0;
         rightSpeed = 0;
 		cruiseIndex = 0;
+		uint8_t error = 0;
 	}
 
 	void STARTUP() { 
