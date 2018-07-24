@@ -6,5 +6,6 @@ Tongs
 * set gear facing to side of servo that the spinny boi isnt on (ie it is closer to one side, put it facing the other side)
 
 Arm
-* Set Servo to 15 deg
+* Stbd: Set Servo to 15 deg
+* Port: Set Servo to 130 deg
 * Attach arm to be parrallel to ground
