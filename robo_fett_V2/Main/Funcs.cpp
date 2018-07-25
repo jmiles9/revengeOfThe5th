@@ -36,6 +36,7 @@ void Funcs::hardStop() {
     setMotorPower(0,0);
 }
 
+
 // TODO: do something about error
 /**
  * tape following - reads sensor values, sets motor speeds using pd
@@ -49,7 +50,7 @@ bool Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
     switch(speed_){
         default:
             highSpeed = 255;
-            lowSpeed = 200;
+            lowSpeed = 220;
             break;
     }
 
@@ -169,7 +170,7 @@ bool Funcs::checkBeacon() {
 * ewok detecting - reads IR sensor, decides if it's looking at an ewok
 * return: true if ewok, false if not
 */
-//TODO: CHECK THIS
+//TODO: MAKE THIS WORK ON EITHER SIDE SENSOR!1!!
 bool Funcs::ewokDetect() {
     digitalWrite(IR_OUT,HIGH);
     double without = analogRead(EWOK_SENSOR);
@@ -234,7 +235,10 @@ int Funcs::speedToPower(int speed) {
 
 void Funcs::dumpBasket() {
     BASKET.write(BASKET_OPENED);
-    delay(1000);
+    delay(200);
+    move(-DUMP_RAM_DISTANCE);
+    move(DUMP_RAM_DISTANCE + 1);
+    delay(500);
     BASKET.write(BASKET_CLOSED);
 }
 
@@ -281,24 +285,26 @@ void Funcs::findEdge() {
 }
 
 //TODO: write this. Should pretty much be tapefollow, different sensors.
-void Funcs::bridgeFollow(int kp, int kd, int gain, Speed speed_) {
+void Funcs::bridgeFollow(int kp, int kd, int gain) {
 
-    //should be true if they are on the bridge
-    bool rightOnBridge = digitalRead(BRIDGE_QRD_RIGHT);
-    bool leftOnBridge = digitalRead(BRIDGE_QRD_LEFT);
+    //should be true if they are OFF the bridge
+    bool rightOffBridge = digitalRead(BRIDGE_QRD_RIGHT);
+    bool leftOffBridge = digitalRead(BRIDGE_QRD_LEFT);
 
     int lastError = error;
+    //use same static error that tapefollow uses, shouldn't be issue as don't tapefollow again
 
-    if (leftOnBridge && !(rightOnBridge)){
+    if (!(leftOffBridge) && rightOffBridge){
         error = 0;
         //is good
     }
-    if (leftOnBridge && rightOnBridge){
+    if (leftOffBridge && rightOffBridge){
+        //need to turn left
+        error = -1;
+    }
+    if (!(leftOffBridge) && (!(rightOffBridge))){
         //need to turn right
         error = 1;
-    }
-    if (!(leftOnBridge) && (!(rightOnBridge))){
-        error = -1;
     }
     
     steer((kp*error + kd*(error - lastError))*gain) ;
@@ -307,6 +313,19 @@ void Funcs::bridgeFollow(int kp, int kd, int gain, Speed speed_) {
 //TODO: Write this
 bool Funcs::isOnEdge() {
     //probs dont need this since it finds edge with tapefollow?
+}
+
+void Funcs::tapeFollowToEdge(){
+
+    while(true) {
+    bool temp = Funcs::tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,Speed::SPEED);
+    if(temp == ON_EDGE) {
+        hardStop();
+        //Serial.println("on edge"); delay(1000);
+        break;
+    }
+}
+
 }
 
 double Funcs::distanceTravelled(int newIndex, int oldIndex) {

@@ -2,13 +2,7 @@
 #include "Funcs.h"
 #include "configs.h"
 
-//reference https://github.com/WalkervilleElementary/robot/blob/master/src/main.cpp
-
-//will need to do imports for all other stuff
-//need to be very mindful of ints being used!
-
 using namespace std;
-
 
 Robot roboFett;
 
@@ -45,11 +39,17 @@ void loop() {
 		case IR_WAIT :
 			roboFett.IR_WAIT();
 			break;
+    case CRUISE_PLAT2 :
+      roboFett.CRUISE_PLAT2();
+      break;
 		case DUMP_PREP :
 			roboFett.DUMP_PREP();
 			break;
 		case DUMP_EWOKS :
 			roboFett.DUMP_EWOKS();
+			break;
+		case FIND_ZIP_PLAT2 :
+			roboFett.FIND_ZIP_PLAT2();
 			break;
 		case ZIP_HOOK :
 			roboFett.ZIP_HOOK();

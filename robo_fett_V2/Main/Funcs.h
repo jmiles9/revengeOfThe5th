@@ -38,9 +38,10 @@ class Funcs {
         void moveZipline(int distance);
         void zipppp();
         void findEdge();
-        void bridgeFollow(int kp, int kd, int gain, configs::Speed speed_);
+        void bridgeFollow(int kp, int kd, int gain);
         bool isOnEdge();
         double distanceTravelled(int newIndex, int oldIndex);
+        void tapeFollowToEdge();
 };
 
 #endif

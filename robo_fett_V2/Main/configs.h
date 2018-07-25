@@ -110,6 +110,15 @@ namespace configs {
 
 
     //distances to move
+    const int STUFFY_GRAB_MANEUVER = 10;
+
+    const int PLAT1_CRUISE = 130;
+    const int BRIDGE_REVERSE = -10;
+    const int BRIDGE_CRUISE = 60;
+    const int PLAT2_CRUISE = 130;
+    const int DUMP_PREP_DIST = 15;
+    const int DUMP_RAM_DISTANCE = 10;
+    
 
     // Angles
     const int ARMS_UP = 120;
@@ -122,6 +131,8 @@ namespace configs {
     const int BASKET_OPENED = 90;
     const int BASKET_DROPBRIDGE = 45;
     const int BASKET_CLOSED = 0;
+    const int ZIPLINE_ATTACH_ROTATION = 15;
+    const int TURN_90 = 90;
 
     //maneuvering
 
