@@ -7,29 +7,30 @@ using namespace configs;
 
 TINAH::Servo RCServo7(RCSERVO7);
 TINAH::Servo RCServo6(RCSERVO6);
+int highSpeed;
+int lowSpeed;
 
  // Used in tapeFollow
 void Funcs::setMotorPower(int left, int right) {
-    motor.speed(RIGHT_MOTOR, right);
+    motor.speed(RIGHT_MOTOR, -right);
     motor.speed(LEFT_MOTOR, left);
 }
     
 // Used in tapefollow
-void Funcs::steer(int deg, int speed) {
+void Funcs::steer(int deg) {
     if(deg > 0) {
-        if(deg > speed*2) {
-            deg = speed*2;
-        }
-        setMotorPower(speed - deg, speed);
-    } else if(deg < 0) {
-        if(-deg > speed*2) {
-            deg = -speed*2;
-        }
-        setMotorPower(speed, speed + deg);
-    } else setMotorPower(speed, speed);
+        if(deg > highSpeed) deg = highSpeed;
+        setMotorPower(highSpeed - deg, highSpeed);
+    } 
+    else if(deg < 0) {
+        if(-deg > highSpeed) deg = -highSpeed;
+        setMotorPower(highSpeed, highSpeed + deg);
+    } 
+    else setMotorPower(highSpeed, highSpeed);
 }
 
 void Funcs::hardStop() {
+    Serial.println("STOP");
     setMotorPower(FULL_R, FULL_R);
     delay(10); //DO WE WANT A DELAY HERE?? check this
     setMotorPower(0,0);
@@ -43,9 +44,8 @@ void Funcs::hardStop() {
  *        gain = gain for pd
  */
 bool Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
+    //Serial.println("in tapefollow");
     //defining what speeds to use
-    int highSpeed;
-    int lowSpeed;
     switch(speed_){
         default:
             highSpeed = 255;
@@ -56,6 +56,9 @@ bool Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
     bool rightOnTape = digitalRead(TAPE_QRD_RIGHT);
     bool leftOnTape = digitalRead(TAPE_QRD_LEFT);
     bool edgeDetect = digitalRead(EDGE_QRD);
+    LCD.clear();  LCD.home() ;
+    LCD.setCursor(0,0); LCD.print("left= "); LCD.print(leftOnTape); LCD.print("righ= "); LCD.print(rightOnTape);
+    LCD.setCursor(0,1); LCD.print("edge= "); LCD.print(edgeDetect);
     //boolean edgeDetect = false; //this turns off edge detecting for testing purposes
 
     //setting error values
@@ -63,9 +66,13 @@ bool Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
 
     if(rightOnTape && leftOnTape){
         if(edgeDetect){
-            hardStop();
-            return true;
+            //hardStop();
+            LCD.clear();  LCD.home() ;
+            LCD.setCursor(0,0); LCD.print("edge "); 
+    
+            return ON_EDGE;
         }
+        error = 0;
     }
     if(!rightOnTape && leftOnTape) error = -1;
     if(rightOnTape && !leftOnTape) error = 1;
@@ -74,8 +81,8 @@ bool Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
         else error = 5;
     }
     //steering for error
-    steer((kp*error + kd*(error - lasterr))*gain, FULL_F) ;
-    return false;
+    steer((kp*error + kd*(error - lasterr))*gain) ;
+    return NOT_ON_EDGE;
 }
 
 // TODO: complete
@@ -294,7 +301,7 @@ void Funcs::bridgeFollow(int kp, int kd, int gain, Speed speed_) {
         error = -1;
     }
     
-    steer((kp*error + kd*(error - lastError))*gain, speed_) ;
+    steer((kp*error + kd*(error - lastError))*gain) ;
 }
 
 //TODO: Write this

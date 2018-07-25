@@ -13,18 +13,24 @@ using namespace std;
 Robot roboFett;
 
 void setup() {
+  Serial.begin(9600);
+  LCD.begin();
 	roboFett = Robot();
-	attachInterrupt(3, encoderLeft, RISING);
-	attachInterrupt(4, encoderRight, RISING);
+	//attachInterrupt(3, encoderLeft, RISING);
+	//attachInterrupt(4, encoderRight, RISING);
 	//startUp sequence
+  LCD.clear();  LCD.home() ;
+    LCD.setCursor(0,0); LCD.print("HELLOOOO "); 
 }
 
 void loop() {
 	switch(roboFett.runState) {
 		case STARTUP :
+      Serial.println("MAIN STARTUP");
 			roboFett.STARTUP();
 			break;
 		case CRUISE_PLAT1 :
+        Serial.println("MAIN CRUISE");
   			roboFett.CRUISE_PLAT1();
 			break;
 		case EWOK_SEARCH :

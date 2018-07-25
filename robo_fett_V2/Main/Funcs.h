@@ -17,7 +17,7 @@ class Funcs {
         uint8_t error;
 
         void setMotorPower(int left, int right);
-        void steer(int deg, int speed);
+        void steer(int deg);
         void hardStop();
         bool tapeFollow(int kp, int kd, int gain, configs::Speed speed);
         void tapeFollowForDistance(int distance);

@@ -17,6 +17,7 @@ Robot::Robot() {
 }
 
 void Robot::STARTUP() {
+    Serial.println("in startup");
     // while(!menu.quitMenu){
     //     bool start = false;
     //     bool stopp = false;
@@ -33,10 +34,12 @@ void Robot::STARTUP() {
 /// Tape follows until reaching the first gap.
 void Robot::CRUISE_PLAT1() {
     while(true) {
-        int temp = Funcs::tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,Speed::SPEED);
+        //Serial.println("in cruise plat1");
+        bool temp = Funcs::tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,Speed::SPEED);
         if(temp == ON_EDGE) {
             hardStop();
-            runState = RunState::DRAWBRIDGE;
+            Serial.println("on edge"); delay(1000);
+            //runState = RunState::DRAWBRIDGE;
             break;
         }
     }
