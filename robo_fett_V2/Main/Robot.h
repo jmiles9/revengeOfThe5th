@@ -8,8 +8,10 @@ enum RunState {
     EWOK_GRAB,
     DRAWBRIDGE,
     IR_WAIT,
+    CRUISE_PLAT2,
     DUMP_PREP,
     DUMP_EWOKS,
+    FIND_ZIP_PLAT2,
     ZIP_HOOK,
     ZIP_UP,
     ZIP_UNHOOK,
@@ -35,6 +37,7 @@ class Robot : public Funcs {
         void CRUISE_PLAT2();
         void DUMP_PREP();
         void DUMP_EWOKS();
+        void FIND_ZIP_PLAT2();
         void ZIP_HOOK();
         void ZIP_UP();
         void ZIP_UNHOOK();

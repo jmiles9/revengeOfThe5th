@@ -16,6 +16,8 @@ Robot::Robot() {
     error = 0;
 }
 
+//starts at start
+//goes into cruise_plat1
 void Robot::STARTUP() {
     Serial.println("in startup");
     // while(!menu.quitMenu){
@@ -31,28 +33,16 @@ void Robot::STARTUP() {
     runState = RunState::CRUISE_PLAT1;
 }
 
-/// Tape follows until reaching the first gap.
+// Starts at start
+//end when near first ewok 
+//goes into ewok search
 void Robot::CRUISE_PLAT1() {
-    while(true) {
-        //Serial.println("in cruise plat1");
-        bool temp = Funcs::tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,Speed::SPEED);
-        if(temp == ON_EDGE) {
-            hardStop();
-            Serial.println("on edge"); delay(1000);
-            //runState = RunState::DRAWBRIDGE;
-            break;
-        }
-    }
+
+    tapeFollowForDistance(PLAT1_CRUISE);
+    runState = RunState::EWOK_SEARCH;
+    
 }
 
-/// Lowers drawbridge then backs up.
-//backing up will probably not use tape since inaccurate, maybe encoders?
-void Robot::DRAWBRIDGE() {
-    lowerBridge();
-    tapeFollowForDistance(-15);
-}
-
-// TODO: write
 // look for extrema in value?
 void Robot::EWOK_SEARCH() {
     while(true) {
@@ -71,12 +61,18 @@ void Robot::EWOK_GRAB() {
     int side;
     int stuffy;
     // Gets side and stuffy parameters
-    if(nextEwok == 3) {
+    if(nextEwok == 1 ) {
         side = LEFT;
         stuffy = configs::EWOK;
-    } else if(nextEwok == 5) {
+        runState = RunState::DRAWBRIDGE;
+    } else if(nextEwok == 2) {
+        side = RIGHT;
+        stuffy = configs::EWOK;
+        runState = RunState::IR_WAIT;
+    } else if(nextEwok == 3) {
         side = LEFT;
-        stuffy = configs::CHEWIE;
+        stuffy = configs::EWOK;
+        runState = RunState::DUMP_PREP;        
     } else {
         side = RIGHT;
         stuffy = configs::EWOK;
@@ -89,9 +85,9 @@ void Robot::EWOK_GRAB() {
             break;
         }
         if(count == 1) {
-            tapeFollowForDistance(10);
+            tapeFollowForDistance(STUFFY_GRAB_MANEUVER);
         } else {
-            tapeFollowForDistance(-10);
+            tapeFollowForDistance(-2*STUFFY_GRAB_MANEUVER);
         }
         count++;
     }
@@ -99,27 +95,86 @@ void Robot::EWOK_GRAB() {
     nextEwok++;
 }
 
-/// Follows tape until IR signals are strong.
-void Robot::CRUISE_IR() {
-    while(record10KIRBeacon() < IR_THRESHOLD && record1KIRBeacon() < IR_THRESHOLD) {
-        tapeFollow(TF_KP1, TF_KD1, TF_GAIN1, SPEED);
-    }
-    hardStop();
+//starts after picking up first ewok
+//ends when near second ewok
+//goes into ewok_search
+void Robot::DRAWBRIDGE() {
+
+   tapeFollowToEdge();
+    
+    lowerBridge();
+    tapeFollowForDistance(BRIDGE_REVERSE);
+    tapeFollowForDistance(BRIDGE_CRUISE);
+    runState = RunState::EWOK_SEARCH;
+
 }
-// TODO: Write
+
+// starts right after first ewok is picked up
+//ends after right IR is detected
+//enters cruise_plat_2
 void Robot::IR_WAIT() {
 
+    while (record10KIRBeacon() < record1KIRBeacon()) {
+    }
+    runState = RunState::CRUISE_PLAT2;
 }
 
-// TODO: Write
+//starts right after 10khz has been detected
+//ends when ready to detect third ewok
+//enters ewok_search
+void Robot::CRUISE_PLAT2() {
+
+    tapeFollowForDistance(PLAT2_CRUISE);
+    runState = RunState::EWOK_SEARCH;
+
+}
+
+//starts after 3rd ewok is grabbed
+//ends when aligned and has front right at wall
+//goes into dump_ewoks
+void Robot::DUMP_PREP() {
+    turn(-TURN_90);
+    //can either TapeFollowForDistance or put contact sensor on front? 
+    tapeFollowForDistance(DUMP_PREP_DIST);
+    runState = RunState::DUMP_EWOKS;
+
+}
+
+//starts after robot is aligned and has front right at wall
+//ends after robots are dumped
+//goes into find_zip_Plat2
+void Robot::DUMP_EWOKS() {
+    dumpBasket();
+    runState = RunState::ZIP_HOOK;
+}
+
+//ALL STATES ABOVE THIS READY TO RUN
+
+//starts after dump is finished
+//ends when located under zipline on the 2nd platform
+//enters zip_hook
+void Robot::FIND_ZIP_PLAT2(){
+    //need to move around
+}
+
+// starts when ewoks are dumped
+//ends when attached to zipline and ready to go 
 void Robot::ZIP_HOOK() {
     //need to find zipline, hook up
     //assume is started from already being on tape directly under line
     //likely need to do something other than turning
-    turn(15);
+    turn(ZIPLINE_ATTACH_ROTATION);
     extendZipline();
-    turn(-15);
+    turn(-ZIPLINE_ATTACH_ROTATION);
     contractZipline();
+
+    if (nextEwok ==  4){
+        //going up to 3rd platform
+    }else{
+        //going down to safe zone :')
+    }
+
+
 }
 //TODO: WRite
 void Robot::ZIP_UP() {
@@ -129,9 +184,9 @@ void Robot::ZIP_UP() {
 // TODO: Write
 void Robot::ZIP_UNHOOK() {
     extendZipline();
-    turn(10);
+    turn(ZIPLINE_ATTACH_ROTATION);
     contractZipline();
-    turn(-10);
+    turn(-ZIPLINE_ATTACH_ROTATION);
 }
 // TODO: Write
 void Robot::EWOK_4() {
@@ -148,7 +203,7 @@ void Robot::BRIDGE_FOLLOW() {
     // this assumes when they are on tape they read HI = true
     //follows side of bridge until sees tape indicating zipline
     while(!(digitalRead(TAPE_QRD_LEFT) && digitalRead(TAPE_QRD_RIGHT))){
-        bridgeFollow(TF_KP1,TF_KD1,TF_GAIN1,Speed::SPEED);
+        bridgeFollow(TF_KP1,TF_KD1,TF_GAIN1);
     }
 
 }
@@ -165,34 +220,4 @@ void Robot::ZIP_DOWN() {
     turn(-10);
     contractZipline();
     zipUp();
-}
-void Robot::DUMP_PREP() {
-
-}
-void Robot::DUMP_EWOKS() {
-    dumpBasket();
-}
-
-void Robot::CRUISE_PLAT2() {
-
-    //just dropped bridge
-
-    uint16_t initialDist = (leftWheelIndex + rightWheelIndex) * cmPerWheelIndex / 2 ;
-
-    while (((leftWheelIndex + rightWheelIndex) * cmPerWheelIndex / 2 - initialDist) < 69) {
-        tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,Speed::SPEED);
-    }
-
-    runState = RunState::EWOK_4;
-}
-
-void Robot::IRHANDLE() {
-
-    //move until IR signal is strong?
-
-    while (record10KIRBeacon() < record1KIRBeacon()) {
-    }
-
-    runState = RunState::CRUISE_PLAT1;
-
 }
