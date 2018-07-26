@@ -48,22 +48,19 @@ bool Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
     //Serial.println("in tapefollow");
     //defining what speeds to use
     switch(speed_){
-        case SLOW_SPEED :
-            highSpeed = 150;
-            lowSpeed = 120;
         default:
-            highSpeed = 255;
-            lowSpeed = 220;
+            highSpeed = 180;
+            lowSpeed = 150;
             break;
     }
 
     bool rightOnTape = digitalRead(TAPE_QRD_RIGHT);
     bool leftOnTape = digitalRead(TAPE_QRD_LEFT);
     bool edgeDetect = digitalRead(EDGE_QRD);
-    LCD.clear();  LCD.home() ;
-    LCD.setCursor(0,0); LCD.print("left= "); LCD.print(leftOnTape); LCD.print("righ= "); LCD.print(rightOnTape);
-    LCD.setCursor(0,1); LCD.print("edge= "); LCD.print(edgeDetect);
-    //boolean edgeDetect = false; //this turns off edge detecting for testing purposes
+//    LCD.clear();  LCD.home() ;
+//    LCD.setCursor(0,0); LCD.print("left= "); LCD.print(leftOnTape); LCD.print("righ= "); LCD.print(rightOnTape);
+//    LCD.setCursor(0,1); LCD.print("edge= "); LCD.print(edgeDetect);
+//    //boolean edgeDetect = false; //this turns off edge detecting for testing purposes
 
     //setting error values
     int lasterr = error; //saving the old error value
@@ -71,8 +68,8 @@ bool Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
     if(rightOnTape && leftOnTape){
         if(edgeDetect){
             //hardStop();
-            LCD.clear();  LCD.home() ;
-            LCD.setCursor(0,0); LCD.print("edge "); 
+//            LCD.clear();  LCD.home() ;
+//            LCD.setCursor(0,0); LCD.print("edge "); 
     
             return ON_EDGE;
         }
@@ -93,10 +90,12 @@ bool Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
 // Param - distance in cm
 // NOTE: currently assuming only one set of pid constants
 void Funcs::tapeFollowForDistance(int distance) {
+    leftWheelIndex = 0;
+    rightWheelIndex = 0;
+    Serial.println("in tape distance");
     int originalLeftIndex = leftWheelIndex;
     int originalRightIndex = rightWheelIndex;
-    while((distanceTravelled(leftWheelIndex, originalLeftIndex) 
-    + distanceTravelled(rightWheelIndex, originalRightIndex)) / 2 < distance) {
+    while((distanceTravelled(leftWheelIndex, originalLeftIndex) + distanceTravelled(rightWheelIndex, originalRightIndex)) / 2 < distance) {
         tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,SPEED);
     }
     hardStop();
@@ -175,17 +174,26 @@ bool Funcs::checkBeacon() {
 */
 //TODO: MAKE THIS WORK ON EITHER SIDE SENSOR!1!!
 bool Funcs::ewokDetect() {
-    digitalWrite(IR_OUT,HIGH);
-    double without = analogRead(EWOK_SENSOR);
-    digitalWrite(IR_OUT,LOW);
+    digitalWrite(EWOK_IR_OUT,HIGH);
+    delay(50);
     double with = analogRead(EWOK_SENSOR);
+    digitalWrite(EWOK_IR_OUT,LOW);
+    delay(50);
+    double without = analogRead(EWOK_SENSOR);
+    Serial.println(with-without);
     int count = 0;
-    while(abs(with-without-EWOK_THRESH) < 20) {
-        count++;
-        delay(30);
-        if(count>= 3) {
-            return true; 
-        }
+    while(abs(with-without-EWOK_THRESH) < 150) {
+      count++;
+      if(count >= 3) {
+        return true;
+      }
+      digitalWrite(EWOK_IR_OUT,HIGH);
+      delay(50);
+      with = analogRead(EWOK_SENSOR);
+      digitalWrite(EWOK_IR_OUT,LOW);
+      delay(50);
+      without = analogRead(EWOK_SENSOR);
+      Serial.println(with-without);
     }
     return false;
 }

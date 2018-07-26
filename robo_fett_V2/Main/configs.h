@@ -26,25 +26,32 @@ namespace configs {
        
     //tinah inputs 15 to 8
     //must be outputs
+
+    const int EWOK_IR_OUT = 8; //when HI, the ewok IR
     
-    //tinah outputs 0 to 7 (including interrupts)
+    //tinah inputa 0 to 7 (including interrupts)
     //must be inputs cuz interrupts
 
+    const int ENCODER_LEFT = 0;
+    const int ENCODER_RIGHT = 1;
+    const int EDGE_QRD = 2;
+    const int TAPE_QRD_LEFT = 3;
+    const int TAPE_QRD_RIGHT = 4;  
+    const int RIGHT_CLAW_STUFFY_SWITCH = 5;
+    
+    //all ports below arbitrary
+
     const int LEFT_CLAW_STUFFY_SWITCH = 15;
-    const int RIGHT_CLAW_STUFFY_SWITCH = 14;
     const int ZIP_SWITCH_EXTENDED = 13;
     const int ZIP_SWITCH_CLOSED = 12;
     const int ZIPPED_UP_SWITCH = 11;
-    const int TAPE_QRD_LEFT = 10;
-    const int TAPE_QRD_RIGHT = 9;  
-    const int EDGE_QRD = 8;
+
     const int RCSERVO7 = 7;
     const int RCSERVO6 = 6;
     const int BRIDGE_QRD_RIGHT = 5;
     const int BRIDGE_QRD_LEFT = 4;
 
     // Servo ports
-    
     
     #define ARM_RIGHT RCServo0
     #define CLAW_RIGHT RCServo1
@@ -79,12 +86,9 @@ namespace configs {
     #define TF_KP1 16
     #define TF_KD1 10
     #define TF_SPEED1 0
-    #define TF_GAIN1 23
-
-    #define TF_KP2 10
-    #define TF_KD2 10
     #define TF_SPEED2 0
-    #define TF_GAIN2 10
+    #define TF_GAIN1 10
+    #define TF_GAIN2 0
     const int ZIP_ARM_EXTENDING = 255;
     const int ZIP_ARM_CONTRACTING = -255;
     const int ZIPPING_UP = 255;
@@ -92,8 +96,7 @@ namespace configs {
     const int MAX_SPEED = 50;
 
     enum Speed{
-        SPEED,
-        SLOW_SPEED
+        SPEED
     };
 
     //servo stuff
@@ -106,22 +109,25 @@ namespace configs {
 
     //IR
     const int IR_THRESHOLD = 512;
-    const int EWOK_THRESH = 45;
+    const int EWOK_THRESH = 650;
     //digitalOut
-    const int IR_OUT = 0;
 
     //claws
 
 
     //distances to move
-    const int STUFFY_GRAB_MANEUVER = 10;
 
-    const int PLAT1_CRUISE = 130;
-    const int BRIDGE_REVERSE = -10;
-    const int BRIDGE_CRUISE = 60;
-    const int PLAT2_CRUISE = 130;
-    const int DUMP_PREP_DIST = 15;
-    const int DUMP_RAM_DISTANCE = 10;
+    const int DIST_CONV = 2;
+    
+    const int STUFFY_GRAB_MANEUVER = 10/DIST_CONV;
+
+    const int PLAT1_CRUISE = 30/DIST_CONV;
+    const int PRE_BRIDGE_MOVE = 5/DIST_CONV;
+    const int BRIDGE_REVERSE = -10/DIST_CONV;
+    const int BRIDGE_CRUISE = 60/DIST_CONV;
+    const int PLAT2_CRUISE = 130/DIST_CONV;
+    const int DUMP_PREP_DIST = 15/DIST_CONV;
+    const int DUMP_RAM_DISTANCE = 10/DIST_CONV;
     
 
     // Angles
@@ -137,6 +143,7 @@ namespace configs {
     const int BASKET_CLOSED = 0;
     const int ZIPLINE_ATTACH_ROTATION = 15;
     const int TURN_90 = 90;
+    const int PRE_BRIDGE_TURN = 30;
 
     //maneuvering
 

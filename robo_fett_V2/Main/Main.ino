@@ -10,8 +10,9 @@ void setup() {
   Serial.begin(9600);
   LCD.begin();
 	roboFett = Robot();
-	//attachInterrupt(3, encoderLeft, RISING);
-	//attachInterrupt(4, encoderRight, RISING);
+	attachInterrupt(2, encoderLeft, RISING);
+	attachInterrupt(3, encoderRight, RISING);
+  pinMode(configs::EWOK_IR_OUT, OUTPUT);
 	//startUp sequence
   LCD.clear();  LCD.home() ;
     LCD.setCursor(0,0); LCD.print("HELLOOOO "); 
@@ -74,9 +75,15 @@ void loop() {
 
 void encoderLeft() {
 		roboFett.leftWheelIndex++;
+		int time = millis();
+		roboFett.leftSpeed = configs::cmPerWheelIndex / (time - roboFett.leftWheelLastTime);
+		roboFett.leftWheelLastTime = time;
 }
 
 void encoderRight() {
 		roboFett.rightWheelIndex++;
+		int time = millis();
+		roboFett.rightSpeed = configs::cmPerWheelIndex / (time - roboFett.rightWheelLastTime);
+		roboFett.rightWheelLastTime = time;
 }
 

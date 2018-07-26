@@ -30,6 +30,8 @@ void Robot::STARTUP() {
     //     while(stopbutton()){stopp = true;}
     //     if(stopp) menu.handleInput(BTN_STOP);
     // }
+    CLAW_RIGHT.write(CLAW_TONG_CLOSED_POSITION);
+    ARM_RIGHT.write(CLAW_ARM_RAISED_POSITION);
     runState = RunState::CRUISE_PLAT1;
 }
 
@@ -37,16 +39,23 @@ void Robot::STARTUP() {
 //end when near first ewok 
 //goes into ewok search
 void Robot::CRUISE_PLAT1() {
-
+    LCD.clear();
+    LCD.setCursor(0,0);
+    LCD.print("CRUISE_PLAT1");
     tapeFollowForDistance(PLAT1_CRUISE);
     runState = RunState::EWOK_SEARCH;
-    
 }
 
-// look for extrema in value?
 void Robot::EWOK_SEARCH() {
+
+    LCD.clear();
+    LCD.setCursor(0,0);
+    LCD.print("EWOK_SEARCH");
+
+    int i = 0;
+  
     while(true) {
-        tapeFollow(TF_KP2, 12, 10, SLOW_SPEED);
+        tapeFollow(TF_KP1, TF_KD1, TF_GAIN1, SPEED);
         if(ewokDetect()) {
             setMotorPower(0,0);
             runState = RunState::EWOK_GRAB;
@@ -58,6 +67,10 @@ void Robot::EWOK_SEARCH() {
 /// Grabs ewok.
 /// If fails, attemps twice more, once a little in front, once behind.
 void Robot::EWOK_GRAB() {
+    LCD.clear();
+    LCD.setCursor(0,0);
+    LCD.print("EWOK_GRAB");
+    
     int side;
     int stuffy;
     // Gets side and stuffy parameters
@@ -100,7 +113,10 @@ void Robot::EWOK_GRAB() {
 //goes into ewok_search
 void Robot::DRAWBRIDGE() {
 
-   tapeFollowToEdge();
+    move(PRE_BRIDGE_MOVE);
+    turn(PRE_BRIDGE_TURN);
+   
+    tapeFollowToEdge();
     
     lowerBridge();
     tapeFollowForDistance(BRIDGE_REVERSE);

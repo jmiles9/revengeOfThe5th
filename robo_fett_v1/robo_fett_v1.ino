@@ -9,15 +9,15 @@
 #define TAPE_QRD_LEFT 9  //digital
 #define TAPE_QRD_RIGHT 10  //digital
 #define EDGE_QRD 8  
-#define LEFT_MOTOR 1   //motor port
-#define RIGHT_MOTOR 0  //motor port
+#define LEFT_MOTOR 0   //motor port
+#define RIGHT_MOTOR 1  //motor port
 #define EWOK_SENSOR 2  //analog
 
 //motor speeds
-#define FULL_F 255
-#define HALF_F 220
-#define FULL_R -255
-#define HALF_R -220
+#define FULL_F 150
+#define HALF_F 120
+#define FULL_R -150
+#define HALF_R -120
 
 //PD constants
 #define KP 16    
@@ -118,6 +118,10 @@ void tapeFollow(int kp, int kd, int gain){
     else error = 5;
   }
 
+  if(error == 5) {
+    error = -0.5;
+  }
+
   //steering for error
   steer((kp*error + kd*(error - lasterr))*gain) ;
 
@@ -125,7 +129,7 @@ void tapeFollow(int kp, int kd, int gain){
     //printing k values on LCD -- for debugging purposes
     LCD.clear();  LCD.home() ;
     LCD.setCursor(0,0); LCD.print("left= "); LCD.print(leftOnTape); LCD.print("righ= "); LCD.print(rightOnTape);
-    LCD.setCursor(0,1); LCD.print("edge= "); LCD.print(edgeDetect);
+    LCD.setCursor(0,1); LCD.print("edge= "); LCD.print(edgeDetect); LCD.print("err = "); LCD.print(error);
     count = 0;
   }
   count ++;
@@ -141,16 +145,16 @@ void tapeFollow(int kp, int kd, int gain){
  */
 void steer(int deg){
   if(deg > 0){
-    if(deg > FULL_F*2) deg = FULL_F*2;
-    setMotorPower(FULL_F - deg, FULL_F);
+    if(deg > FULL_F) deg = FULL_F;
+    setMotorPower(FULL_F, FULL_F - deg);
     Serial.println("deg > 0");
     Serial.println(deg);
   }
   else if(deg < 0){
-    if(-deg > FULL_F*2) deg = -FULL_F*2;
+    if(-deg > FULL_F) deg = -FULL_F;
     Serial.println("deg < 0");
     Serial.println(deg);
-    setMotorPower(FULL_F, FULL_F + deg);
+    setMotorPower(FULL_F + deg, FULL_F);
   }
   else{
     Serial.println("deg = 0");
