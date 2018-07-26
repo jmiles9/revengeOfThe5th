@@ -48,6 +48,9 @@ bool Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
     //Serial.println("in tapefollow");
     //defining what speeds to use
     switch(speed_){
+        case SLOW_SPEED :
+            highSpeed = 150;
+            lowSpeed = 120;
         default:
             highSpeed = 255;
             lowSpeed = 220;
@@ -176,8 +179,15 @@ bool Funcs::ewokDetect() {
     double without = analogRead(EWOK_SENSOR);
     digitalWrite(IR_OUT,LOW);
     double with = analogRead(EWOK_SENSOR);
-    if(with-without > EWOK_THRESH) return true; 
-    else return false;
+    int count = 0;
+    while(abs(with-without-EWOK_THRESH) < 20) {
+        count++;
+        delay(30);
+        if(count>= 3) {
+            return true; 
+        }
+    }
+    return false;
 }
 
 //PARAM: deg - degrees to turn clockwise

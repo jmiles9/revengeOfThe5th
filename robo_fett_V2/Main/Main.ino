@@ -74,15 +74,9 @@ void loop() {
 
 void encoderLeft() {
 		roboFett.leftWheelIndex++;
-		int time = millis();
-		roboFett.leftSpeed = configs::cmPerWheelIndex / (time - roboFett.leftWheelLastTime);
-		roboFett.leftWheelLastTime = time;
 }
 
 void encoderRight() {
 		roboFett.rightWheelIndex++;
-		int time = millis();
-		roboFett.rightSpeed = configs::cmPerWheelIndex / (time - roboFett.rightWheelLastTime);
-		roboFett.rightWheelLastTime = time;
 }
 

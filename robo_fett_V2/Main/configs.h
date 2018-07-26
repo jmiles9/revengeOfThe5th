@@ -79,9 +79,12 @@ namespace configs {
     #define TF_KP1 16
     #define TF_KD1 10
     #define TF_SPEED1 0
-    #define TF_SPEED2 0
     #define TF_GAIN1 23
-    #define TF_GAIN2 0
+
+    #define TF_KP2 10
+    #define TF_KD2 10
+    #define TF_SPEED2 0
+    #define TF_GAIN2 10
     const int ZIP_ARM_EXTENDING = 255;
     const int ZIP_ARM_CONTRACTING = -255;
     const int ZIPPING_UP = 255;
@@ -89,7 +92,8 @@ namespace configs {
     const int MAX_SPEED = 50;
 
     enum Speed{
-        SPEED
+        SPEED,
+        SLOW_SPEED
     };
 
     //servo stuff
@@ -102,7 +106,7 @@ namespace configs {
 
     //IR
     const int IR_THRESHOLD = 512;
-    const int EWOK_THRESH = 30;
+    const int EWOK_THRESH = 45;
     //digitalOut
     const int IR_OUT = 0;
 

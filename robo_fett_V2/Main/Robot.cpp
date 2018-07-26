@@ -46,7 +46,7 @@ void Robot::CRUISE_PLAT1() {
 // look for extrema in value?
 void Robot::EWOK_SEARCH() {
     while(true) {
-        tapeFollow(16, 10, 10, SPEED);
+        tapeFollow(TF_KP2, 12, 10, SLOW_SPEED);
         if(ewokDetect()) {
             setMotorPower(0,0);
             runState = RunState::EWOK_GRAB;
