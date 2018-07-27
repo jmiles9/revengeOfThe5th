@@ -70,7 +70,7 @@ void Robot::CRUISE_PLAT1() {
     }
     hardStop();
     delay(1000);
-    turn(-105);
+    turn(-50);
     runState = RunState::EWOK_SEARCH;
 }
 
@@ -157,21 +157,32 @@ void Robot::EWOK_GRAB() {
         stuffy = configs::EWOK;
     }
     Funcs::sweepServo(RCServo1, CLAWS_CLOSED, CLAWS_OPEN);
-    delay(1000);
+    delay(3000);
     Funcs::sweepServo(RCServo0, ARMS_UP, ARMS_DOWN_EWOK);
-    delay(1000);
+    delay(3000);
     //Serial.println("closing claws");
     Funcs::sweepServo(RCServo1, CLAWS_OPEN, CLAWS_CLOSED);
-    delay(1000);
+    delay(3000);
     //Serial.println("raising arms");
     Funcs::sweepServo(RCServo0, ARMS_DOWN_EWOK, ARMS_UP);
     delay(650);
     Funcs::sweepServo(RCServo1, 80, CLAWS_OPEN);
-    Funcs::turn(150);
     Funcs::rotateUntilTape();
-    delay(1000);
-    tapeFollowForDistance(140);
-    delay(1000000);
+    Funcs::tapeFollowForDistance(140);
+    // delay(100);
+    // Funcs::tapeFollowToEdge();
+    // Funcs::setMotorPower(-180,-180);
+	// delay(600);
+	// Funcs::setMotorPower(180,180);
+	// Funcs::setMotorPower(0,0);
+	// delay(2000);
+	// Funcs::sweepServo(RCServo2,configs::DRAWBRIDGE_CLOSED,90);
+	// Funcs::sweepServo(RCServo2,90,configs::DRAWBRIDGE_CLOSED);
+	// delay(2000);
+	// Funcs::setMotorPower(-180,-180);
+	// delay(500);
+	// Funcs::setMotorPower(0,0);
+    // delay(1000000);
 }
 
 //starts after picking up first ewok

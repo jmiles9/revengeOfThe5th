@@ -460,11 +460,15 @@ int Funcs::tapeFollow2(int kp, int kd, int gain, Speed speed_) {
           error = 0;
         }
     }
-    if(error == -5) {
+    if(error == 5 || error == -5) {
         error = 2;
     }
     Serial.println(error);
-    //steering for error
-    steer((kp*error + kd*(error - lasterr))*gain) ;
+
+
+
+
+ 
+ ar   steer((kp*error + kd*(error - lasterr))*gain) ;
     return error;
 }
