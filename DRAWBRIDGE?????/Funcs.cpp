@@ -44,13 +44,13 @@ void Funcs::hardStop() {
  *        kd = derivative constant
  *        gain = gain for pd
  */
-int Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
+bool Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
     //Serial.println("in tapefollow");
     //defining what speeds to use
     switch(speed_){
         case LOWSPEED:
-            highSpeed = 220; 
-            lowSpeed = 190;
+            highSpeed = 180; 
+            lowSpeed = 100;
             break;
         default:
             highSpeed = 255;
@@ -92,7 +92,7 @@ int Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
     Serial.println(error);
     //steering for error
     steer((kp*error + kd*(error - lasterr))*gain) ;
-    return error;
+    return NOT_ON_EDGE;
 }
 
 // TODO: complete
@@ -105,14 +105,8 @@ void Funcs::tapeFollowForDistance(int distance) {
     int originalLeftIndex = leftWheelIndex;
     int originalRightIndex = rightWheelIndex;
     setMotorPower(100,100);
-    int count = 0;
     while((distanceTravelled(leftWheelIndex, originalLeftIndex) < distance && distanceTravelled(rightWheelIndex, originalRightIndex)) < distance) {
-      if(abs(tapeFollow(TF_KP1,TF_KD1,TF_GAIN1 + 5,LOWSPEED)) == 5){
-        count++;
-      }
-      if(count>=150){
-        break;
-      }
+        tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,LOWSPEED);
     }
     hardStop();
 }
@@ -122,7 +116,7 @@ void Funcs::tapeFollowForDistance(int distance) {
 /// returns true if pickup was successful.
 //TODO: finish this
 bool Funcs::pickUp(int side, int stuffy) {
-   bool stuffyPicked = false;
+    bool stuffyPicked = false;
 
     TINAH::Servo ARM;
     TINAH::Servo CLAW;
@@ -150,6 +144,14 @@ bool Funcs::pickUp(int side, int stuffy) {
     sweepServo(RCServo1,CLAWS_OPEN,CLAWS_CLOSED);
     delay(1000);
     sweepServo(RCServo0,ARMS_DOWN_EWOK,ARMS_UP);
+    delay(1000);
+    sweepServo(RCServo1,CLAWS_CLOSED,CLAWS_OPEN);
+
+    // if(digitalRead(stuffySwitch)) {
+    //     stuffyPicked = true;
+    // }
+
+    return stuffyPicked;
 }
 
 void Funcs::pickUpAndHoldHalfway(int side, int stuffy) {
@@ -244,7 +246,7 @@ void Funcs::rotateUntilTape() {
     setMotorPower(100,-100);
     while(true) {
         if(digitalRead(TAPE_QRD_RIGHT) || digitalRead(TAPE_QRD_LEFT)) {
-            delay(50);
+            setMotorPower(-100,100);
             setMotorPower(0,0);
             break;
         }
@@ -255,7 +257,7 @@ void Funcs::rotateUntilTapeCCW() {
     setMotorPower(-100,100);
     while(true) {
         if(digitalRead(TAPE_QRD_RIGHT) || digitalRead(TAPE_QRD_LEFT)) {
-            delay(50);
+            setMotorPower(100,-100);
             setMotorPower(0,0);
             break;
         }
@@ -359,9 +361,10 @@ bool Funcs::isOnEdge() {
 void Funcs::tapeFollowToEdge(){
 
     while(true) {
-        bool temp = Funcs::tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,Speed::SPEED);
-        if(temp == ON_EDGE) {
+        bool temp = Funcs::tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,LOWSPEED);
+        if(digitalRead(EDGE_QRD)) {
             hardStop();
+            delay(1000);
             //Serial.println("on edge"); delay(1000);
             break;
         }
@@ -415,56 +418,24 @@ void Funcs::sweepServo(TINAH::Servo servo, int startAngle, int endAngle) {
     }
 }
 
-int Funcs::tapeFollow2(int kp, int kd, int gain, Speed speed_) {
-    //Serial.println("in tapefollow");
-    //defining what speeds to use
-    switch(speed_){
-        case LOWSPEED:
-            highSpeed = 200; 
-            lowSpeed = 190;
-            break;
-        default:
-            highSpeed = 255;
-            lowSpeed = 220;
-            break;
-    }
-
-    bool rightOnTape = digitalRead(TAPE_QRD_RIGHT);
-    bool leftOnTape = digitalRead(TAPE_QRD_LEFT);
-    bool edgeDetect = digitalRead(EDGE_QRD);
-//     LCD.clear();  LCD.home() ;
-//     LCD.setCursor(0,0); LCD.print("left= "); LCD.print(leftOnTape); LCD.print("righ= "); LCD.print(rightOnTape);
-//     LCD.setCursor(0,1); LCD.print("edge= "); LCD.print(edgeDetect);
-// //    //boolean edgeDetect = false; //this turns off edge detecting for testing purposes
-
-    //setting error values
-    int lasterr = error; //saving the old error value
-
-    if(rightOnTape && leftOnTape){
-        error = 0;
-    }
-    if(!rightOnTape && leftOnTape) {
-      error = -1;
-      Serial.println("");
-    }
-    if(rightOnTape && !leftOnTape) {
-      error = 1;
-    }
-    if(!rightOnTape && !leftOnTape) {
-        if(lasterr == -1 || lasterr == -5) {
-          error = -5;
-        } else if(lasterr == 1 || lasterr == 5) {
-          error = 5;
-        } else if(lasterr == 0) {
-          Serial.println("DFJSODIJFSAOGHD");
-          error = 0;
+void Funcs::findTape() {
+    int time = millis();
+    setMotorPower(-100,100);
+    while(millis() - time < 1000) {
+        if( digitalRead(TAPE_QRD_RIGHT) || digitalRead(TAPE_QRD_LEFT) ) {
+            setMotorPower(100,-100);
+            setMotorPower(0,0);
+            return;
         }
     }
-    if(error == -5) {
-        error = 2;
+    time = millis();
+    setMotorPower(100,-100); {
+        while(millis() - time < 2000) {
+            if( digitalRead(TAPE_QRD_RIGHT) || digitalRead(TAPE_QRD_LEFT) ) {
+            setMotorPower(-100,100);
+            setMotorPower(0,0);
+            return;
+        }
+        }
     }
-    Serial.println(error);
-    //steering for error
-    steer((kp*error + kd*(error - lasterr))*gain) ;
-    return error;
 }

@@ -16,6 +16,12 @@ void setup() {
   	LCD.clear();  LCD.home() ;
     LCD.setCursor(0,0); LCD.print("HELLOOOO "); 
     roboFett.sweepServo(RCServo2, 20, configs::DRAWBRIDGE_CLOSED);
+		roboFett.sweepServo(RCServo0,configs::ARMS_UP,configs::ARMS_DOWN_EWOK);
+		delay(500);
+		roboFett.sweepServo(RCServo0,configs::ARMS_DOWN_EWOK,configs::ARMS_UP);
+		roboFett.sweepServo(RCServo1,configs::CLAWS_CLOSED,configs::CLAWS_OPEN);
+		delay(500);
+		roboFett.sweepServo(RCServo1,configs::CLAWS_OPEN,configs::CLAWS_CLOSED);
 }
 
 void loop() {

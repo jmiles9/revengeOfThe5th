@@ -88,7 +88,7 @@ namespace configs {
     #define TF_KD1 12
     #define TF_SPEED1 0
     #define TF_SPEED2 0
-    #define TF_GAIN1 9
+    #define TF_GAIN1 10
     #define TF_GAIN2 0
     const int ZIP_ARM_EXTENDING = 255;
     const int ZIP_ARM_CONTRACTING = -255;
@@ -111,7 +111,7 @@ namespace configs {
 
     //IR
     const int IR_THRESHOLD = 512;
-    const int EWOK_THRESH = 250;
+    const int EWOK_THRESH = 350;
     //digitalOut
 
     //claws
@@ -133,11 +133,11 @@ namespace configs {
 
 
     // Angles
-    const int ARMS_UP = 140;
+    const int ARMS_UP = 130;
     const int ARM_HALF = 70;
     const int ARMS_DOWN_EWOK = 0;
     const int ARMS_DOWN_CHEWIE = 30;
-    const int CLAWS_CLOSED = 0;
+    const int CLAWS_CLOSED = 5;
     const int CLAWS_OPEN = 110;
     const int DRAWBRIDGE_OPENED = 90;
     const int DRAWBRIDGE_CLOSED = 0;

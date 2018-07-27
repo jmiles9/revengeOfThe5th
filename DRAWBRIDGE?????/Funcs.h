@@ -19,7 +19,7 @@ class Funcs {
         void setMotorPower(int left, int right);
         void steer(int deg);
         void hardStop();
-        int tapeFollow(int kp, int kd, int gain, configs::Speed speed);
+        bool tapeFollow(int kp, int kd, int gain, configs::Speed speed);
         void tapeFollowForDistance(int distance);
         bool pickUp(int side, int stuffy);
         void pickUpAndHoldHalfway(int side, int stuffy);
@@ -46,8 +46,7 @@ class Funcs {
         void rotateUntilTape();
         void rotateUntilTapeCCW();
         void sweepServo(TINAH::Servo servo, int startAngle, int endAngle);
-        int tapeFollow2(int kp, int kd, int gain, configs::Speed speed_);
-
+        void findTape();
 };
 
 #endif

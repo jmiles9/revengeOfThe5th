@@ -52,13 +52,6 @@ int error = 0;
 
 void loop() {
   tapeFollow(9,12,10);
-  if(ewokDetect()){
-    delay(200);
-    setMotorPower(0,0);
-    delay(500);
-    grabEwok();
-    delay(1000);
-  }
 }
 
 

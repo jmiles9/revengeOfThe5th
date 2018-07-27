@@ -30,6 +30,12 @@ void Robot::STARTUP() {
     //     while(stopbutton()){stopp = true;}
     //     if(stopp) menu.handleInput(BTN_STOP);
     // }
+    Funcs::sweepServo(RCServo1, CLAWS_OPEN, CLAWS_CLOSED);
+    Serial.println("CLAW CLOSING");
+    delay(1000);
+    Funcs::sweepServo(RCServo0, ARMS_DOWN_CHEWIE, ARMS_UP);
+    Serial.println("Arm Up");
+    delay(1000);
     runState = RunState::CRUISE_PLAT1;
 }
 
@@ -40,37 +46,7 @@ void Robot::CRUISE_PLAT1() {
     LCD.clear();
     LCD.setCursor(0,0);
     LCD.print("CRUISE_PLAT1");
-    int startTime = millis();
-    int count = 0;
-    int time = startTime;
-    setMotorPower(255,255);
-    while(true) {
-      tapeFollow(TF_KP1, TF_KD1, TF_GAIN1,SPEED);
-      count++;
-      if(count >= 100) {
-        time = millis();
-        count = 0;
-        if((time - startTime) >= 3000) {
-            LCD.clear(); LCD.setCursor(0,0);
-            LCD.print("PAST THRESHOLD");
-            break;
-        }
-      }
-    }
-    int count2 = 0;
-    while(true) {
-        if(tapeFollow2(TF_KP1,TF_KD1,TF_GAIN1,SPEED) == 2) {
-            count2++;
-        } else {
-            count2 = 0;
-        }
-        if(count2 >= 40) {
-            break;
-        }
-    }
-    hardStop();
-    delay(1000);
-    turn(-105);
+    move(200);
     runState = RunState::EWOK_SEARCH;
 }
 
@@ -79,10 +55,9 @@ void Robot::EWOK_SEARCH() {
     Serial.println("ARMS_UP");
     delay(2000);
     while(true) {
-        Funcs::setMotorPower(100,100);
+        Funcs::setMotorPower(80,80);
         if(ewokDetect()) {
-            
-            delay(60);
+            delay(350);
             Funcs::hardStop();
             LCD.clear();LCD.home();
             LCD.setCursor(0,0); LCD.print("EWOK DETECTED");
@@ -99,43 +74,6 @@ void Robot::EWOK_GRAB() {
     LCD.clear();
     LCD.setCursor(0,0);
     LCD.print("EWOK_GRAB");
-    digitalWrite(configs::EWOK_IR_OUT,HIGH);
-    delay(50);
-    double with = analogRead(configs::EWOK_SENSOR);
-    digitalWrite(configs::EWOK_IR_OUT,LOW);
-    delay(50);
-    double without = analogRead(configs::EWOK_SENSOR);
-    Serial.println(with-without);
-    int count = 0;
-    while(with-without < 540) {
-        setMotorPower(200,20);
-        digitalWrite(configs::EWOK_IR_OUT,HIGH);
-        delay(50);
-        with = analogRead(configs::EWOK_SENSOR);
-        digitalWrite(configs::EWOK_IR_OUT,LOW);
-        delay(50);
-        without = analogRead(configs::EWOK_SENSOR);
-        Serial.println(with-without);
-        count++;
-        if(count > 10) {
-            break;
-        }
-    }
-    while(with-without > 540) {
-        setMotorPower(-200,0);
-        digitalWrite(configs::EWOK_IR_OUT,HIGH);
-        delay(50);
-        with = analogRead(configs::EWOK_SENSOR);
-        digitalWrite(configs::EWOK_IR_OUT,LOW);
-        delay(50);
-        without = analogRead(configs::EWOK_SENSOR);
-        Serial.println(with-without);
-        count++;
-        if(count > 40) {
-            break;
-        }
-    }
-    setMotorPower(0,0);
     
     int side;
     int stuffy;
@@ -165,13 +103,13 @@ void Robot::EWOK_GRAB() {
     delay(1000);
     //Serial.println("raising arms");
     Funcs::sweepServo(RCServo0, ARMS_DOWN_EWOK, ARMS_UP);
-    delay(650);
-    Funcs::sweepServo(RCServo1, 80, CLAWS_OPEN);
-    Funcs::turn(150);
-    Funcs::rotateUntilTape();
     delay(1000);
-    tapeFollowForDistance(140);
-    delay(1000000);
+    //Serial.println("opening");
+    Funcs::sweepServo(RCServo1, CLAWS_CLOSED, CLAWS_OPEN);
+    delay(1000);
+    Funcs::rotateUntilTapeCCW();
+    delay(1000);
+    Funcs::tapeFollowToEdge();
 }
 
 //starts after picking up first ewok
