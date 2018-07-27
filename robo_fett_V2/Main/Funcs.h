@@ -19,7 +19,7 @@ class Funcs {
         void setMotorPower(int left, int right);
         void steer(int deg);
         void hardStop();
-        bool tapeFollow(int kp, int kd, int gain, configs::Speed speed);
+        int tapeFollow(int kp, int kd, int gain, configs::Speed speed);
         void tapeFollowForDistance(int distance);
         bool pickUp(int side, int stuffy);
         void pickUpAndHoldHalfway(int side, int stuffy);
@@ -44,6 +44,7 @@ class Funcs {
         float distanceTravelled(int newIndex, int oldIndex);
         void tapeFollowToEdge();
         void rotateUntilTape();
+        void rotateUntilTapeCCW();
         void sweepServo(TINAH::Servo servo, int startAngle, int endAngle);
 };
 

@@ -46,7 +46,7 @@ void Robot::CRUISE_PLAT1() {
     LCD.clear();
     LCD.setCursor(0,0);
     LCD.print("CRUISE_PLAT1");
-    move(200);
+    move(320);
     runState = RunState::EWOK_SEARCH;
 }
 
@@ -57,7 +57,7 @@ void Robot::EWOK_SEARCH() {
     while(true) {
         Funcs::setMotorPower(80,80);
         if(ewokDetect()) {
-            delay(350);
+            delay(150);
             Funcs::hardStop();
             LCD.clear();LCD.home();
             LCD.setCursor(0,0); LCD.print("EWOK DETECTED");
@@ -104,12 +104,10 @@ void Robot::EWOK_GRAB() {
     //Serial.println("raising arms");
     Funcs::sweepServo(RCServo0, ARMS_DOWN_EWOK, ARMS_UP);
     delay(1000);
-    //Serial.println("opening");
-    Funcs::sweepServo(RCServo1, CLAWS_CLOSED, CLAWS_OPEN);
-    delay(1000);
     Funcs::rotateUntilTape();
     delay(1000);
     tapeFollowForDistance(150);
+    delay(1000000);
 }
 
 //starts after picking up first ewok

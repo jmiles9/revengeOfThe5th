@@ -88,7 +88,7 @@ namespace configs {
     #define TF_KD1 12
     #define TF_SPEED1 0
     #define TF_SPEED2 0
-    #define TF_GAIN1 20
+    #define TF_GAIN1 10
     #define TF_GAIN2 0
     const int ZIP_ARM_EXTENDING = 255;
     const int ZIP_ARM_CONTRACTING = -255;

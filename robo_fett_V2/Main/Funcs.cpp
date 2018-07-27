@@ -44,7 +44,7 @@ void Funcs::hardStop() {
  *        kd = derivative constant
  *        gain = gain for pd
  */
-bool Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
+int Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
     //Serial.println("in tapefollow");
     //defining what speeds to use
     switch(speed_){
@@ -70,13 +70,6 @@ bool Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
     int lasterr = error; //saving the old error value
 
     if(rightOnTape && leftOnTape){
-        if(edgeDetect){
-            //hardStop();
-//            LCD.clear();  LCD.home() ;
-//            LCD.setCursor(0,0); LCD.print("edge "); 
-    
-            return ON_EDGE;
-        }
         error = 0;
     }
     if(!rightOnTape && leftOnTape) {
@@ -99,7 +92,7 @@ bool Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
     Serial.println(error);
     //steering for error
     steer((kp*error + kd*(error - lasterr))*gain) ;
-    return NOT_ON_EDGE;
+    return error;
 }
 
 // TODO: complete
@@ -112,8 +105,14 @@ void Funcs::tapeFollowForDistance(int distance) {
     int originalLeftIndex = leftWheelIndex;
     int originalRightIndex = rightWheelIndex;
     setMotorPower(100,100);
+    int count = 0;
     while((distanceTravelled(leftWheelIndex, originalLeftIndex) < distance && distanceTravelled(rightWheelIndex, originalRightIndex)) < distance) {
-        tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,LOWSPEED);
+      if(abs(tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,LOWSPEED)) == 5){
+        count++;
+      }
+      if(count>=350){
+        break;
+      }
     }
     hardStop();
 }
@@ -123,7 +122,7 @@ void Funcs::tapeFollowForDistance(int distance) {
 /// returns true if pickup was successful.
 //TODO: finish this
 bool Funcs::pickUp(int side, int stuffy) {
-    bool stuffyPicked = false;
+   bool stuffyPicked = false;
 
     TINAH::Servo ARM;
     TINAH::Servo CLAW;
@@ -144,42 +143,13 @@ bool Funcs::pickUp(int side, int stuffy) {
     // } else {
     //     ARM.write(ARMS_DOWN_CHEWIE);
     // }
-    RCServo1.write(CLAWS_OPEN);
+    sweepServo(RCServo1,CLAWS_CLOSED,CLAWS_OPEN);
     delay(1000);
-    RCServo0.write(ARMS_DOWN_EWOK);
+    sweepServo(RCServo0,ARMS_UP,ARMS_DOWN_EWOK);
     delay(1000);
-    Serial.println("closing claws");
-    RCServo1.write(CLAWS_CLOSED);
-    delay(3000);
-    Serial.println("raising arms");
-
-    // if(digitalRead(stuffySwitch)) {
-    //     stuffyPicked = true;
-    // }
-
-    // If pickup is unsuccessful, can raise arm and open claw at the same time.
-    RCServo0.write(ARMS_UP);
-    // if(!stuffyPicked) {
-    //     delay(1000);
-    // }
-    //stuffyPicked = true;
-    delay(3000);
-    Serial.println("opening");
-    RCServo1.write(CLAWS_OPEN);
-    delay(3000);
-
-    Serial.println("lowering");
-    RCServo0.write(ARMS_DOWN_EWOK);
-    delay(3000);
-    Serial.println("closing claws");
-    RCServo1.write(CLAWS_CLOSED);
-    delay(3000);
-    Serial.println("raising arms");
-    RCServo0.write(ARMS_UP);
-
-    Serial.println("done ewok grab");
-
-    return stuffyPicked;
+    sweepServo(RCServo1,CLAWS_OPEN,CLAWS_CLOSED);
+    delay(1000);
+    sweepServo(RCServo0,ARMS_DOWN_EWOK,ARMS_UP);
 }
 
 void Funcs::pickUpAndHoldHalfway(int side, int stuffy) {
@@ -275,6 +245,17 @@ void Funcs::rotateUntilTape() {
     while(true) {
         if(digitalRead(TAPE_QRD_RIGHT) || digitalRead(TAPE_QRD_LEFT)) {
             setMotorPower(-100,100);
+            setMotorPower(0,0);
+            break;
+        }
+    }
+}
+
+void Funcs::rotateUntilTapeCCW() {
+    setMotorPower(-100,100);
+    while(true) {
+        if(digitalRead(TAPE_QRD_RIGHT) || digitalRead(TAPE_QRD_LEFT)) {
+            setMotorPower(100,-100);
             setMotorPower(0,0);
             break;
         }
