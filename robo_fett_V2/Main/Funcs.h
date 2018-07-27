@@ -30,7 +30,7 @@ class Funcs {
         bool ewokDetect();
         void turn(int deg);
         void move(int distance);
-        void moveWheels(int leftDistance, int rightDistance, int speed);
+        void moveWheels(float leftDistance, float rightDistance, int leftPower, int rightPower);
         int speedToPower(int speed);
         void dumpBasket();
         void extendZipline();
@@ -41,8 +41,10 @@ class Funcs {
         void findEdge();
         void bridgeFollow(int kp, int kd, int gain);
         bool isOnEdge();
-        double distanceTravelled(int newIndex, int oldIndex);
+        float distanceTravelled(int newIndex, int oldIndex);
         void tapeFollowToEdge();
+        void rotateUntilTape();
+        void sweepServo(TINAH::Servo servo, int startAngle, int endAngle);
 };
 
 #endif

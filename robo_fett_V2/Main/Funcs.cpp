@@ -12,7 +12,7 @@ int lowSpeed;
 
  // Used in tapeFollow
 void Funcs::setMotorPower(int left, int right) {
-    motor.speed(RIGHT_MOTOR, -right * 0.8);
+    motor.speed(RIGHT_MOTOR, -right);
     motor.speed(LEFT_MOTOR, left);
 }
     
@@ -96,10 +96,6 @@ bool Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
           error = 0;
         }
     }
-
-    if(error == 5 && distanceTravelled(leftWheelIndex, 0) > 120) {
-      error = -0.5;
-    }
     Serial.println(error);
     //steering for error
     steer((kp*error + kd*(error - lasterr))*gain) ;
@@ -115,9 +111,9 @@ void Funcs::tapeFollowForDistance(int distance) {
     Serial.println("in tape distance");
     int originalLeftIndex = leftWheelIndex;
     int originalRightIndex = rightWheelIndex;
-    setMotorPower(255,255);
-    while((distanceTravelled(leftWheelIndex, originalLeftIndex) + distanceTravelled(rightWheelIndex, originalRightIndex)) / 2 < distance) {
-        tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,SPEED);
+    setMotorPower(100,100);
+    while((distanceTravelled(leftWheelIndex, originalLeftIndex) < distance && distanceTravelled(rightWheelIndex, originalRightIndex)) < distance) {
+        tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,LOWSPEED);
     }
     hardStop();
 }
@@ -243,17 +239,15 @@ bool Funcs::checkBeacon() {
 
 //PARAM: deg - degrees to turn clockwise
 void Funcs::turn(int deg) {
-    moveWheels(deg / degreesPerCm, -1 * deg / degreesPerCm, 150);
+    moveWheels((deg / degreesPerCm)*1.2*1.5, (-1 * deg / degreesPerCm)*1.2*1.5, 170,150);
 }
 
 //PARAM: distance - distance in cm
 void Funcs::move(int distance) {
-    moveWheels(distance, distance, 200);
+    moveWheels(distance, distance, 255,250);
 }
 
-void Funcs::moveWheels(int leftDistance, int rightDistance, int power) {
-    int leftPower = power;
-    int rightPower = power;
+void Funcs::moveWheels(float leftDistance, float rightDistance, int leftPower, int rightPower) {
     int leftFactor = 1;
     int rightFactor = 1;
     if(leftDistance < 0) {
@@ -271,18 +265,18 @@ void Funcs::moveWheels(int leftDistance, int rightDistance, int power) {
     setMotorPower(leftPower, rightPower);
     bool leftDone = false;
     bool rightDone = false;
-    while(distanceTravelled(leftWheelIndex, originalLeftIndex) < abs(leftDistance) || distanceTravelled(rightWheelIndex, originalRightIndex) < abs(rightDistance)) {
-        if(!leftDone) {
-            if(distanceTravelled(leftWheelIndex, originalLeftIndex) > abs(leftDistance)) {
-                motor.speed(LEFT_MOTOR, 0);
-                leftDone = true;
-            }
-        }
-        if(!rightDone) {
-            if(distanceTravelled(rightWheelIndex, originalRightIndex) > abs(rightDistance)) {
-                motor.speed(RIGHT_MOTOR, 0);
-                rightDone = true;
-            }
+    while(distanceTravelled(leftWheelIndex, originalLeftIndex) < abs(leftDistance) && distanceTravelled(rightWheelIndex, originalRightIndex) < abs(rightDistance)) {
+    }
+    sweepServo(RCServo2, 20, DRAWBRIDGE_CLOSED);
+    hardStop();
+}
+void Funcs::rotateUntilTape() {
+    setMotorPower(100,-100);
+    while(true) {
+        if(digitalRead(TAPE_QRD_RIGHT) || digitalRead(TAPE_QRD_LEFT)) {
+            setMotorPower(-100,100);
+            setMotorPower(0,0);
+            break;
         }
     }
 }
@@ -384,15 +378,15 @@ bool Funcs::isOnEdge() {
 void Funcs::tapeFollowToEdge(){
 
     while(true) {
-    bool temp = Funcs::tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,Speed::SPEED);
-    if(temp == ON_EDGE) {
-        hardStop();
-        //Serial.println("on edge"); delay(1000);
-        break;
+        bool temp = Funcs::tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,Speed::SPEED);
+        if(temp == ON_EDGE) {
+            hardStop();
+            //Serial.println("on edge"); delay(1000);
+            break;
+        }
     }
 }
-}
-double Funcs::distanceTravelled(int newIndex, int oldIndex) {
+float Funcs::distanceTravelled(int newIndex, int oldIndex) {
     return (newIndex - oldIndex) * cmPerWheelIndex * DIST_CONV;
 }
 
@@ -422,4 +416,20 @@ bool Funcs::ewokDetect() {
         Serial.println(with-without);
     }
     return false;
+}
+
+void Funcs::sweepServo(TINAH::Servo servo, int startAngle, int endAngle) {
+    int dA;
+    int currAngle = startAngle;
+    if(endAngle > startAngle) {
+        while(currAngle < endAngle) {
+            servo.write(currAngle);
+            currAngle += 3;
+        }
+    } else if(endAngle < startAngle) {
+        while(currAngle > endAngle) {
+            servo.write(currAngle);
+            currAngle -= 3;
+        }
+    }
 }

@@ -111,7 +111,7 @@ namespace configs {
 
     //IR
     const int IR_THRESHOLD = 512;
-    const int EWOK_THRESH = 500;
+    const int EWOK_THRESH = 350;
     //digitalOut
 
     //claws
@@ -119,11 +119,11 @@ namespace configs {
 
     //distances to move
 
-    const float DIST_CONV = 180/100 * (150 / 100) * 220 / 78*4/3 * 7/4;
+    const float DIST_CONV = 180/100 * (150 / 100) * 220 / 78*4/3 * 5.5/4;
     
     const int STUFFY_GRAB_MANEUVER = 10;
 
-    const float PLAT1_CRUISE = 190;
+    const float PLAT1_CRUISE = 150;
     const int PRE_BRIDGE_MOVE = 5;
     const int BRIDGE_REVERSE = -10;
     const int BRIDGE_CRUISE = 60/DIST_CONV;
@@ -133,7 +133,7 @@ namespace configs {
 
 
     // Angles
-    const int ARMS_UP = 110;
+    const int ARMS_UP = 130;
     const int ARM_HALF = 70;
     const int ARMS_DOWN_EWOK = 0;
     const int ARMS_DOWN_CHEWIE = 30;

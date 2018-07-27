@@ -15,71 +15,70 @@ void setup() {
 	//startUp sequence
   	LCD.clear();  LCD.home() ;
     LCD.setCursor(0,0); LCD.print("HELLOOOO "); 
+    roboFett.sweepServo(RCServo2, 20, configs::DRAWBRIDGE_CLOSED);
 }
 
 void loop() {
-	roboFett.turn(90);
-	delay(50000);
-	// switch(roboFett.runState) {
-	// 	case STARTUP :
-    //   //Serial.println("MAIN STARTUP");
-    //   LCD.clear();LCD.home();
-    //   LCD.setCursor(0,0); LCD.print("MAIN"); 
-	// 		roboFett.STARTUP();
-	// 		break;
-	// 	case CRUISE_PLAT1 :
-    //     //Serial.println("MAIN CRUISE");
-    //     LCD.clear();LCD.home();
-    //   LCD.setCursor(0,0); LCD.print("CRUISE");
-  	// 		roboFett.CRUISE_PLAT1();
-	// 		break;
-	// 	case EWOK_SEARCH :
-    // LCD.clear();LCD.home();
-    //   LCD.setCursor(0,0); LCD.print("SEARCH");
-	// 		roboFett.EWOK_SEARCH();
-	// 		break;
-	// 	case EWOK_GRAB :
-    // LCD.clear();LCD.home();
-    //   LCD.setCursor(0,0); LCD.print("GRABS");
-	// 		roboFett.EWOK_GRAB();
-	// 		break;
-	// 	case DRAWBRIDGE :
-	// 		roboFett.DRAWBRIDGE();
-	// 		break;
-	// 	case IR_WAIT :
-	// 		roboFett.IR_WAIT();
-	// 		break;
-    // case CRUISE_PLAT2 :
-    //   roboFett.CRUISE_PLAT2();
-    //   break;
-	// 	case DUMP_PREP :
-	// 		roboFett.DUMP_PREP();
-	// 		break;
-	// 	case DUMP_EWOKS :
-	// 		roboFett.DUMP_EWOKS();
-	// 		break;
-	// 	case FIND_ZIP_PLAT2 :
-	// 		roboFett.FIND_ZIP_PLAT2();
-	// 		break;
-	// 	case ZIP_HOOK :
-	// 		roboFett.ZIP_HOOK();
-	// 		break;
-	// 	case ZIP_UNHOOK :
-	// 		roboFett.ZIP_UNHOOK();
-	// 		break;
-	// 	case EWOK_4 :
-	// 		roboFett.EWOK_4();
-	// 		break;
-	// 	case BRIDGE_FOLLOW :
-	// 		roboFett.BRIDGE_FOLLOW();
-	// 		break;
-	// 	case CHEWIE :
-	// 		roboFett.CHEWIE();
-	// 		break;
-	// 	case ZIP_DOWN :
-	// 		roboFett.ZIP_DOWN();
-	// 		break;
-	// }
+	switch(roboFett.runState) {
+		case STARTUP :
+      //Serial.println("MAIN STARTUP");
+      LCD.clear();LCD.home();
+      LCD.setCursor(0,0); LCD.print("MAIN"); 
+			roboFett.STARTUP();
+			break;
+		case CRUISE_PLAT1 :
+        //Serial.println("MAIN CRUISE");
+        LCD.clear();LCD.home();
+      LCD.setCursor(0,0); LCD.print("CRUISE");
+  			roboFett.CRUISE_PLAT1();
+			break;
+		case EWOK_SEARCH :
+    LCD.clear();LCD.home();
+      LCD.setCursor(0,0); LCD.print("SEARCH");
+			roboFett.EWOK_SEARCH();
+			break;
+		case EWOK_GRAB :
+    LCD.clear();LCD.home();
+      LCD.setCursor(0,0); LCD.print("GRABS");
+			roboFett.EWOK_GRAB();
+			break;
+		case DRAWBRIDGE :
+			roboFett.DRAWBRIDGE();
+			break;
+		case IR_WAIT :
+			roboFett.IR_WAIT();
+			break;
+    case CRUISE_PLAT2 :
+      roboFett.CRUISE_PLAT2();
+      break;
+		case DUMP_PREP :
+			roboFett.DUMP_PREP();
+			break;
+		case DUMP_EWOKS :
+			roboFett.DUMP_EWOKS();
+			break;
+		case FIND_ZIP_PLAT2 :
+			roboFett.FIND_ZIP_PLAT2();
+			break;
+		case ZIP_HOOK :
+			roboFett.ZIP_HOOK();
+			break;
+		case ZIP_UNHOOK :
+			roboFett.ZIP_UNHOOK();
+			break;
+		case EWOK_4 :
+			roboFett.EWOK_4();
+			break;
+		case BRIDGE_FOLLOW :
+			roboFett.BRIDGE_FOLLOW();
+			break;
+		case CHEWIE :
+			roboFett.CHEWIE();
+			break;
+		case ZIP_DOWN :
+			roboFett.ZIP_DOWN();
+			break;
+	}
 }
 
 void encoderLeft() {
