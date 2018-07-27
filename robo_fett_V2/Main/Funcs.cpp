@@ -12,7 +12,7 @@ int lowSpeed;
 
  // Used in tapeFollow
 void Funcs::setMotorPower(int left, int right) {
-    motor.speed(RIGHT_MOTOR, -right);
+    motor.speed(RIGHT_MOTOR, -right * 0.8);
     motor.speed(LEFT_MOTOR, left);
 }
     
@@ -20,11 +20,11 @@ void Funcs::setMotorPower(int left, int right) {
 void Funcs::steer(int deg) {
     if(deg > 0) {
         if(deg > highSpeed) deg = highSpeed;
-        setMotorPower(highSpeed - deg, highSpeed);
+        setMotorPower(highSpeed, highSpeed - deg);
     } 
     else if(deg < 0) {
         if(-deg > highSpeed) deg = -highSpeed;
-        setMotorPower(highSpeed, highSpeed + deg);
+        setMotorPower(highSpeed + deg, highSpeed);
     } 
     else setMotorPower(highSpeed, highSpeed);
 }
@@ -48,19 +48,23 @@ bool Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
     //Serial.println("in tapefollow");
     //defining what speeds to use
     switch(speed_){
+        case LOWSPEED:
+            highSpeed = 220; 
+            lowSpeed = 190;
+            break;
         default:
-            highSpeed = 180;
-            lowSpeed = 150;
+            highSpeed = 255;
+            lowSpeed = 220;
             break;
     }
 
     bool rightOnTape = digitalRead(TAPE_QRD_RIGHT);
     bool leftOnTape = digitalRead(TAPE_QRD_LEFT);
     bool edgeDetect = digitalRead(EDGE_QRD);
-//    LCD.clear();  LCD.home() ;
-//    LCD.setCursor(0,0); LCD.print("left= "); LCD.print(leftOnTape); LCD.print("righ= "); LCD.print(rightOnTape);
-//    LCD.setCursor(0,1); LCD.print("edge= "); LCD.print(edgeDetect);
-//    //boolean edgeDetect = false; //this turns off edge detecting for testing purposes
+//     LCD.clear();  LCD.home() ;
+//     LCD.setCursor(0,0); LCD.print("left= "); LCD.print(leftOnTape); LCD.print("righ= "); LCD.print(rightOnTape);
+//     LCD.setCursor(0,1); LCD.print("edge= "); LCD.print(edgeDetect);
+// //    //boolean edgeDetect = false; //this turns off edge detecting for testing purposes
 
     //setting error values
     int lasterr = error; //saving the old error value
@@ -75,12 +79,28 @@ bool Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
         }
         error = 0;
     }
-    if(!rightOnTape && leftOnTape) error = -1;
-    if(rightOnTape && !leftOnTape) error = 1;
-    if(!rightOnTape && !leftOnTape){
-        if(error == -1 || error == -5) error = -5;
-        else error = 5;
+    if(!rightOnTape && leftOnTape) {
+      error = -1;
+      Serial.println("");
     }
+    if(rightOnTape && !leftOnTape) {
+      error = 1;
+    }
+    if(!rightOnTape && !leftOnTape) {
+        if(lasterr == -1 || lasterr == -5) {
+          error = -5;
+        } else if(lasterr == 1 || lasterr == 5) {
+          error = 5;
+        } else if(lasterr == 0) {
+          Serial.println("DFJSODIJFSAOGHD");
+          error = 0;
+        }
+    }
+
+    if(error == 5 && distanceTravelled(leftWheelIndex, 0) > 120) {
+      error = -0.5;
+    }
+    Serial.println(error);
     //steering for error
     steer((kp*error + kd*(error - lasterr))*gain) ;
     return NOT_ON_EDGE;
@@ -95,6 +115,7 @@ void Funcs::tapeFollowForDistance(int distance) {
     Serial.println("in tape distance");
     int originalLeftIndex = leftWheelIndex;
     int originalRightIndex = rightWheelIndex;
+    setMotorPower(255,255);
     while((distanceTravelled(leftWheelIndex, originalLeftIndex) + distanceTravelled(rightWheelIndex, originalRightIndex)) / 2 < distance) {
         tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,SPEED);
     }
@@ -122,6 +143,61 @@ bool Funcs::pickUp(int side, int stuffy) {
         stuffySwitch = RIGHT_CLAW_STUFFY_SWITCH;
     }
 
+    // if(stuffy == EWOK) {
+    //     ARM.write(ARMS_DOWN_EWOK);
+    // } else {
+    //     ARM.write(ARMS_DOWN_CHEWIE);
+    // }
+    RCServo1.write(CLAWS_OPEN);
+    delay(1000);
+    RCServo0.write(ARMS_DOWN_EWOK);
+    delay(1000);
+    Serial.println("closing claws");
+    RCServo1.write(CLAWS_CLOSED);
+    delay(3000);
+    Serial.println("raising arms");
+
+    // if(digitalRead(stuffySwitch)) {
+    //     stuffyPicked = true;
+    // }
+
+    // If pickup is unsuccessful, can raise arm and open claw at the same time.
+    RCServo0.write(ARMS_UP);
+    // if(!stuffyPicked) {
+    //     delay(1000);
+    // }
+    //stuffyPicked = true;
+    delay(3000);
+    Serial.println("opening");
+    RCServo1.write(CLAWS_OPEN);
+    delay(3000);
+
+    Serial.println("lowering");
+    RCServo0.write(ARMS_DOWN_EWOK);
+    delay(3000);
+    Serial.println("closing claws");
+    RCServo1.write(CLAWS_CLOSED);
+    delay(3000);
+    Serial.println("raising arms");
+    RCServo0.write(ARMS_UP);
+
+    Serial.println("done ewok grab");
+
+    return stuffyPicked;
+}
+
+void Funcs::pickUpAndHoldHalfway(int side, int stuffy) {
+    TINAH::Servo ARM;
+    TINAH::Servo CLAW;
+
+    if(side == LEFT) {
+        ARM = ARM_LEFT;
+        CLAW = CLAW_LEFT;
+    } else {
+        ARM = ARM_RIGHT;
+        CLAW = CLAW_RIGHT;
+    }
+
     if(stuffy == EWOK) {
         ARM.write(ARMS_DOWN_EWOK);
     } else {
@@ -134,17 +210,7 @@ bool Funcs::pickUp(int side, int stuffy) {
 
     delay(1000);
 
-    if(digitalRead(stuffySwitch)) {
-        stuffyPicked = true;
-    }
-
-    // If pickup is unsuccessful, can raise arm and open claw at the same time.
-    ARM.write(ARMS_UP);
-    if(!stuffyPicked) {
-        delay(1000);
-    }
-    CLAW.write(CLAWS_OPEN);
-    return stuffyPicked;
+    ARM.write(ARM_HALF);
 }
 
 // CURRENTLY ASSUMINE ONE IR SENSOR
@@ -173,44 +239,21 @@ bool Funcs::checkBeacon() {
 * return: true if ewok, false if not
 */
 //TODO: MAKE THIS WORK ON EITHER SIDE SENSOR!1!!
-bool Funcs::ewokDetect() {
-    digitalWrite(EWOK_IR_OUT,HIGH);
-    delay(50);
-    double with = analogRead(EWOK_SENSOR);
-    digitalWrite(EWOK_IR_OUT,LOW);
-    delay(50);
-    double without = analogRead(EWOK_SENSOR);
-    Serial.println(with-without);
-    int count = 0;
-    while(abs(with-without-EWOK_THRESH) < 150) {
-      count++;
-      if(count >= 3) {
-        return true;
-      }
-      digitalWrite(EWOK_IR_OUT,HIGH);
-      delay(50);
-      with = analogRead(EWOK_SENSOR);
-      digitalWrite(EWOK_IR_OUT,LOW);
-      delay(50);
-      without = analogRead(EWOK_SENSOR);
-      Serial.println(with-without);
-    }
-    return false;
-}
+
 
 //PARAM: deg - degrees to turn clockwise
 void Funcs::turn(int deg) {
-    moveWheels(deg / degreesPerCm, -1 * deg / degreesPerCm, MAX_SPEED / 2);
+    moveWheels(deg / degreesPerCm, -1 * deg / degreesPerCm, 150);
 }
 
-//PARAM: deg - degrees to turn clockwise
+//PARAM: distance - distance in cm
 void Funcs::move(int distance) {
-    moveWheels(distance, distance, MAX_SPEED);
+    moveWheels(distance, distance, 200);
 }
 
-void Funcs::moveWheels(int leftDistance, int rightDistance, int speed) {
-    int leftPower = speedToPower(speed);
-    int rightPower = leftPower;
+void Funcs::moveWheels(int leftDistance, int rightDistance, int power) {
+    int leftPower = power;
+    int rightPower = power;
     int leftFactor = 1;
     int rightFactor = 1;
     if(leftDistance < 0) {
@@ -221,21 +264,26 @@ void Funcs::moveWheels(int leftDistance, int rightDistance, int speed) {
     }
     leftPower *= leftFactor;
     rightPower *= rightFactor;
-    int rightStartIndex = rightWheelIndex;
+    int originalRightIndex = rightWheelIndex;
     int rightCurrDistance = 0;
-    int leftStartIndex = leftWheelIndex;
+    int originalLeftIndex = leftWheelIndex;
     int leftCurrDistance = 0;
     setMotorPower(leftPower, rightPower);
-    while(rightWheelIndex - rightStartIndex < 2 && 
-    leftWheelIndex - leftStartIndex < 2) {}
-    while(!rightCurrDistance < rightDistance && !leftCurrDistance < rightDistance) {
-        if(rightSpeed != speed) {
-            rightSpeed -= rightSpeed - speed;
+    bool leftDone = false;
+    bool rightDone = false;
+    while(distanceTravelled(leftWheelIndex, originalLeftIndex) < abs(leftDistance) || distanceTravelled(rightWheelIndex, originalRightIndex) < abs(rightDistance)) {
+        if(!leftDone) {
+            if(distanceTravelled(leftWheelIndex, originalLeftIndex) > abs(leftDistance)) {
+                motor.speed(LEFT_MOTOR, 0);
+                leftDone = true;
+            }
         }
-        if(leftSpeed != speed) {
-            leftSpeed -= leftSpeed - speed;
+        if(!rightDone) {
+            if(distanceTravelled(rightWheelIndex, originalRightIndex) > abs(rightDistance)) {
+                motor.speed(RIGHT_MOTOR, 0);
+                rightDone = true;
+            }
         }
-        setMotorPower(speedToPower(leftSpeed), speedToPower(rightSpeed));
     }
 }
 
@@ -343,9 +391,35 @@ void Funcs::tapeFollowToEdge(){
         break;
     }
 }
-
+}
+double Funcs::distanceTravelled(int newIndex, int oldIndex) {
+    return (newIndex - oldIndex) * cmPerWheelIndex * DIST_CONV;
 }
 
-double Funcs::distanceTravelled(int newIndex, int oldIndex) {
-    return newIndex - oldIndex * cmPerWheelIndex;
+bool Funcs::ewokDetect() {
+    digitalWrite(EWOK_IR_OUT,HIGH);
+    delay(50);
+    double with = analogRead(EWOK_SENSOR);
+    digitalWrite(EWOK_IR_OUT,LOW);
+    delay(50);
+    double without = analogRead(EWOK_SENSOR);
+    int count = 0;
+      Serial.println(with-without-EWOK_THRESH);
+      while(abs(with-without > EWOK_THRESH)) {
+        Serial.println(with-without-EWOK_THRESH);
+        Serial.println(count);
+        count++;
+        if(count >= 2) {
+            Serial.println("RETURNING TRUE");
+         return true;
+        }
+        digitalWrite(EWOK_IR_OUT,HIGH);
+        delay(50);
+        with = analogRead(EWOK_SENSOR);
+        digitalWrite(EWOK_IR_OUT,LOW);
+        delay(50);
+        without = analogRead(EWOK_SENSOR);
+        Serial.println(with-without);
+    }
+    return false;
 }

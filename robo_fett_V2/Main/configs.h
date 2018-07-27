@@ -30,13 +30,14 @@ namespace configs {
     const int EWOK_IR_OUT = 8; //when HI, the ewok IR
     
     //tinah inputa 0 to 7 (including interrupts)
-    //must be inputs cuz interrupts
+    //must be inputs cuz interrupts are 0-3
+    //pins 0-3 can only be interrupts!!!!!!!!!!!!
 
-    const int ENCODER_LEFT = 0;
-    const int ENCODER_RIGHT = 1;
-    const int EDGE_QRD = 2;
-    const int TAPE_QRD_LEFT = 3;
-    const int TAPE_QRD_RIGHT = 4;  
+    const int ENCODER_LEFT = 2;
+    const int ENCODER_RIGHT = 3;
+    const int EDGE_QRD = 6;
+    const int TAPE_QRD_LEFT = 7;
+    const int TAPE_QRD_RIGHT = 5;  
     const int RIGHT_CLAW_STUFFY_SWITCH = 5;
     
     //all ports below arbitrary
@@ -70,7 +71,7 @@ namespace configs {
     #define RIGHT_HANDICAP
     #define ENCODER_WHEEL_RATIO
     const float wheelRadius = 3;
-    const float cmPerWheelIndex = wheelRadius * 3.1415 * 2 / 6;
+    const float cmPerWheelIndex = wheelRadius * 3.1415 * 2 / 16;
     #define WHEEL_DIAM
     const float wheelSeparation = 17.5;
     // amount of rotation if left and right wheels move in opposite directions
@@ -83,11 +84,11 @@ namespace configs {
     const int FULL_R = -255;
     const int HALF_R = -220;
 
-    #define TF_KP1 16
-    #define TF_KD1 10
+    #define TF_KP1 9
+    #define TF_KD1 12
     #define TF_SPEED1 0
     #define TF_SPEED2 0
-    #define TF_GAIN1 10
+    #define TF_GAIN1 20
     #define TF_GAIN2 0
     const int ZIP_ARM_EXTENDING = 255;
     const int ZIP_ARM_CONTRACTING = -255;
@@ -96,7 +97,8 @@ namespace configs {
     const int MAX_SPEED = 50;
 
     enum Speed{
-        SPEED
+        SPEED,
+        LOWSPEED
     };
 
     //servo stuff
@@ -109,7 +111,7 @@ namespace configs {
 
     //IR
     const int IR_THRESHOLD = 512;
-    const int EWOK_THRESH = 650;
+    const int EWOK_THRESH = 500;
     //digitalOut
 
     //claws
@@ -117,25 +119,26 @@ namespace configs {
 
     //distances to move
 
-    const int DIST_CONV = 2;
+    const float DIST_CONV = 180/100 * (150 / 100) * 220 / 78*4/3 * 7/4;
     
-    const int STUFFY_GRAB_MANEUVER = 10/DIST_CONV;
+    const int STUFFY_GRAB_MANEUVER = 10;
 
-    const int PLAT1_CRUISE = 30/DIST_CONV;
-    const int PRE_BRIDGE_MOVE = 5/DIST_CONV;
-    const int BRIDGE_REVERSE = -10/DIST_CONV;
+    const float PLAT1_CRUISE = 190;
+    const int PRE_BRIDGE_MOVE = 5;
+    const int BRIDGE_REVERSE = -10;
     const int BRIDGE_CRUISE = 60/DIST_CONV;
     const int PLAT2_CRUISE = 130/DIST_CONV;
     const int DUMP_PREP_DIST = 15/DIST_CONV;
     const int DUMP_RAM_DISTANCE = 10/DIST_CONV;
-    
+
 
     // Angles
-    const int ARMS_UP = 120;
+    const int ARMS_UP = 110;
+    const int ARM_HALF = 70;
     const int ARMS_DOWN_EWOK = 0;
     const int ARMS_DOWN_CHEWIE = 30;
-    const int CLAWS_CLOSED = 90;
-    const int CLAWS_OPEN = 90;
+    const int CLAWS_CLOSED = 5;
+    const int CLAWS_OPEN = 110;
     const int DRAWBRIDGE_OPENED = 90;
     const int DRAWBRIDGE_CLOSED = 0;
     const int BASKET_OPENED = 90;

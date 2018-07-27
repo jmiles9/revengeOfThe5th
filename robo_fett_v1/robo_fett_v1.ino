@@ -6,12 +6,14 @@
 #include <LiquidCrystal.h>     
 
 //setting up sensor ports
-#define TAPE_QRD_LEFT 9  //digital
-#define TAPE_QRD_RIGHT 10  //digital
-#define EDGE_QRD 8  
-#define LEFT_MOTOR 0   //motor port
-#define RIGHT_MOTOR 1  //motor port
-#define EWOK_SENSOR 2  //analog
+    const int ENCODER_LEFT = 2;
+    const int ENCODER_RIGHT = 3;
+    const int EDGE_QRD = 6;
+    const int TAPE_QRD_LEFT = 7;
+    const int TAPE_QRD_RIGHT = 5;  
+    const int RIGHT_CLAW_STUFFY_SWITCH = 5;
+    const int LEFT_MOTOR = 0;
+    const int RIGHT_MOTOR = 1;
 
 //motor speeds
 #define FULL_F 150
@@ -40,6 +42,9 @@ void setup() {
   LCD.setCursor(0,0); LCD.print("hello there");
   RCServo0.write(CLAW_ARM_RAISED_POSITION);
   RCServo1.write(CLAW_TONG_CLOSED_POSITION);
+  attachInterrupt(2, encoderLeft, RISING);
+  attachInterrupt(3, encoderRight, RISING);
+  
 }
 
 int count;
@@ -47,13 +52,13 @@ int error = 0;
 
 void loop() {
   tapeFollow(9,12,10);
-  /*if(ewokDetect()){
+  if(ewokDetect()){
     delay(200);
     setMotorPower(0,0);
     delay(500);
     grabEwok();
     delay(1000);
-  }*/
+  }
 }
 
 
@@ -76,16 +81,6 @@ void grabEwok(){
 
   
 }
-
-/**
- * ewok detecting - reads IR sensor, decides if it's looking at an ewok
- * return: true if ewok, false if not
- */
-bool ewokDetect(){
-  int ewokValue = analogRead(EWOK_SENSOR);
-  if(ewokValue > EWOK_THRESH) return true;
-  return false;
-}
  
 /**
  * tape following - reads sensor values, sets motor speeds using pd
@@ -96,8 +91,8 @@ bool ewokDetect(){
 void tapeFollow(int kp, int kd, int gain){
   boolean rightOnTape = digitalRead(TAPE_QRD_RIGHT);
   boolean leftOnTape = digitalRead(TAPE_QRD_LEFT);
-  //boolean edgeDetect = digitalRead(EDGE_QRD);
-  boolean edgeDetect = false; //this turns off edge detecting for testing purposes
+  boolean edgeDetect = digitalRead(EDGE_QRD);
+  //boolean edgeDetect = false; //this turns off edge detecting for testing purposes
 
   //setting error values
   int lasterr = error; //saving the old error value
@@ -176,6 +171,14 @@ void hardStop(int t){
 }
 
 void setMotorPower(int l, int r){
-  motor.speed(RIGHT_MOTOR, -r);
-  motor.speed(LEFT_MOTOR, l);
+//  motor.speed(RIGHT_MOTOR, -r);
+//  motor.speed(LEFT_MOTOR, l);
+}
+
+void encoderLeft() {
+    int time = millis();
+}
+
+void encoderRight() {
+    int time = millis();
 }

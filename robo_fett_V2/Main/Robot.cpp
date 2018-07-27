@@ -30,8 +30,12 @@ void Robot::STARTUP() {
     //     while(stopbutton()){stopp = true;}
     //     if(stopp) menu.handleInput(BTN_STOP);
     // }
-    CLAW_RIGHT.write(CLAW_TONG_CLOSED_POSITION);
-    ARM_RIGHT.write(CLAW_ARM_RAISED_POSITION);
+    RCServo1.write(CLAWS_CLOSED);
+    Serial.println("CLAW CLOSING");
+    delay(1000);
+    Serial.println("Arm Up");
+    RCServo0.write(ARMS_UP);
+    delay(1000);
     runState = RunState::CRUISE_PLAT1;
 }
 
@@ -44,24 +48,26 @@ void Robot::CRUISE_PLAT1() {
     LCD.print("CRUISE_PLAT1");
     tapeFollowForDistance(PLAT1_CRUISE);
     runState = RunState::EWOK_SEARCH;
+    hardStop();
+    delay(500);
 }
 
 void Robot::EWOK_SEARCH() {
-
-    LCD.clear();
-    LCD.setCursor(0,0);
-    LCD.print("EWOK_SEARCH");
-
-    int i = 0;
-  
+    RCServo0.write(ARMS_UP);
+    Serial.println("ARMS_UP");
+    //setMotorPower(150,150);
+    delay(1000);
     while(true) {
-        tapeFollow(TF_KP1, TF_KD1, TF_GAIN1, SPEED);
+        tapeFollow(TF_KP1, TF_KD1, TF_GAIN1, LOWSPEED);
         if(ewokDetect()) {
-            setMotorPower(0,0);
-            runState = RunState::EWOK_GRAB;
+            hardStop();
+            LCD.clear();LCD.home();
+            LCD.setCursor(0,0); LCD.print("EWOK DETECTED");
+            delay(2000);
             break;
         }
     }
+    runState = RunState::EWOK_GRAB;
 }
 
 /// Grabs ewok.
@@ -75,7 +81,7 @@ void Robot::EWOK_GRAB() {
     int stuffy;
     // Gets side and stuffy parameters
     if(nextEwok == 1 ) {
-        side = LEFT;
+        side = RIGHT;
         stuffy = configs::EWOK;
         runState = RunState::DRAWBRIDGE;
     } else if(nextEwok == 2) {
@@ -90,22 +96,63 @@ void Robot::EWOK_GRAB() {
         side = RIGHT;
         stuffy = configs::EWOK;
     }
+    //RCServo0.write(ARMS_UP);
+    //delay(3000);
+    RCServo1.write(CLAWS_OPEN);
+    delay(1000);
+    RCServo0.write(ARMS_DOWN_EWOK);
+    delay(1000);
+    //Serial.println("closing claws");
+    RCServo1.write(CLAWS_CLOSED);
+    delay(1000);
+    //Serial.println("raising arms");
+    RCServo0.write(ARMS_UP);
+    delay(1000);
+    //Serial.println("opening");
+    RCServo1.write(CLAWS_OPEN);
+    delay(1000);
+
+    //PROBS SHOULDN'T EVEN WRITE CLAWS OPEN, CUZ WE JUST WANNA RIP AROUND 
+
+    Serial.println("done");
+    
+    //pickUp(side, stuffy);
+    //Serial.println("Out of pickup");
 
     // If don't get ewok, try again on either side
-    int count = 1;
-    while(count <= 3) {
-        if(pickUp(side, stuffy)) {
-            break;
-        }
-        if(count == 1) {
-            tapeFollowForDistance(STUFFY_GRAB_MANEUVER);
-        } else {
-            tapeFollowForDistance(-2*STUFFY_GRAB_MANEUVER);
-        }
-        count++;
-    }
+    // int count = 1;
+    // while(count <= 3) {
+    //     if(pickUp(side, stuffy)) {
+    //         break;
+    //     }
+    //     if(count == 1) {
+    //         tapeFollowForDistance(STUFFY_GRAB_MANEUVER);
+    //     } else {
+    //         tapeFollowForDistance(-2*STUFFY_GRAB_MANEUVER);
+    //     }
+    //     count++;
+    // }
+
     // Update ewok count
     nextEwok++;
+    // while(true) {
+    //     RCServo1.write(CLAWS_OPEN);
+    //     Serial.println("Claws Open");
+    //     delay(1000);
+    //     RCServo1.write(CLAWS_CLOSED);
+    //     Serial.println("Claw closed");
+    //     delay(1000);
+    //     RCServo0.write(ARMS_UP);
+    //     Serial.println("Arm up");
+    //     delay(1000);
+    // }
+
+    RCServo0.write(ARMS_UP);
+    delay(42069);
+    LCD.clear();
+    LCD.setCursor(0,0);
+    LCD.print("gang shit");
+
 }
 
 //starts after picking up first ewok
@@ -122,7 +169,6 @@ void Robot::DRAWBRIDGE() {
     tapeFollowForDistance(BRIDGE_REVERSE);
     tapeFollowForDistance(BRIDGE_CRUISE);
     runState = RunState::EWOK_SEARCH;
-
 }
 
 // starts right after first ewok is picked up

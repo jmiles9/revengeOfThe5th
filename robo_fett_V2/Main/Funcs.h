@@ -14,7 +14,7 @@ class Funcs {
         uint8_t leftSpeed;
         uint8_t rightSpeed;
         uint8_t nextEwok;
-        uint8_t error;
+        int8_t error;
 
         void setMotorPower(int left, int right);
         void steer(int deg);
@@ -22,6 +22,7 @@ class Funcs {
         bool tapeFollow(int kp, int kd, int gain, configs::Speed speed);
         void tapeFollowForDistance(int distance);
         bool pickUp(int side, int stuffy);
+        void pickUpAndHoldHalfway(int side, int stuffy);
         double record1KIRBeacon();
         double record10KIRBeacon();
         void lowerBridge();
