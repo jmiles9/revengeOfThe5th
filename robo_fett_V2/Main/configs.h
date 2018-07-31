@@ -17,6 +17,11 @@ namespace configs {
     const int IR_1KHZ = 1;
     const int IR_10KHZ = 2;
     const int EWOK_SENSOR = 3;
+    const int TAPE_QRD_FAR_LEFT = 4;
+    const int TAPE_QRD_MID_LEFT = 5;
+    const int TAPE_QRD_MID_RIGHT = 6;
+    const int TAPE_QRD_FAR_RIGHT = 7; 
+
     
     // Digital ports
     // pls go backwards. don't use interrupt ports (0-3) for switches
@@ -36,8 +41,6 @@ namespace configs {
     const int ENCODER_LEFT = 2;
     const int ENCODER_RIGHT = 3;
     const int EDGE_QRD = 6;
-    const int TAPE_QRD_LEFT = 7;
-    const int TAPE_QRD_RIGHT = 5;  
     const int RIGHT_CLAW_STUFFY_SWITCH = 5;
     
     //all ports below arbitrary
@@ -109,9 +112,10 @@ namespace configs {
     const int CLAW_TONG_CLOSED_POSITION = 0;
     const int CLAW_TONG_OPEN_POSITION = 110;
 
-    //IR
+    //TRESHHOLDS
     const int IR_THRESHOLD = 512;
     const int EWOK_THRESH = 250;
+    const int TAPE_QRD_THRESHOLD = 512;
     //digitalOut
 
     //claws
@@ -149,6 +153,13 @@ namespace configs {
     const int PRE_BRIDGE_TURN = 30;
 
     //maneuvering
+    const int LARGE_LEFT_ERROR = 5;
+    const int MED_LEFT_ERROR = 3;
+    const int SMALL_LEFT_ERROR = 1;
+    const int CENTERED_ERROR = 0;
+    const int SMALL_RIGHT_ERROR = -1;
+    const int MED_RIGHT_ERROR = -3;
+    const int LARGE_RIGHT_ERROR = -5;
 
     //other
     const int LEFT = 0;
@@ -157,5 +168,7 @@ namespace configs {
     const int CHEWIE = 1;
     const int ON_EDGE = 0;
     const int NOT_ON_EDGE = 1;
+    const int ON_TAPE = 0;
+    const int OFF_TAPE = 1;
 }
 #endif //CONFIGS

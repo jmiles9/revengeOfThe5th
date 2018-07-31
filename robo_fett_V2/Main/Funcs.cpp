@@ -5,114 +5,84 @@
 //same with other vals
 using namespace configs;
 
-TINAH::Servo RCServo7(RCSERVO7);
-TINAH::Servo RCServo6(RCSERVO6);
-int highSpeed;
-int lowSpeed;
+int tf_power;
 
  // Used in tapeFollow
 void Funcs::setMotorPower(int left, int right) {
     motor.speed(RIGHT_MOTOR, -right);
     motor.speed(LEFT_MOTOR, left);
 }
-    
-// Used in tapefollow
-void Funcs::steer(int deg) {
-    if(deg > 0) {
-        if(deg > highSpeed) deg = highSpeed;
-        setMotorPower(highSpeed, highSpeed - deg);
-    } 
-    else if(deg < 0) {
-        if(-deg > highSpeed) deg = -highSpeed;
-        setMotorPower(highSpeed + deg, highSpeed);
-    } 
-    else setMotorPower(highSpeed, highSpeed);
-}
-
-void Funcs::hardStop() {
-    Serial.println("STOP");
-    setMotorPower(FULL_R, FULL_R);
-    delay(10); //DO WE WANT A DELAY HERE?? check this
-    setMotorPower(0,0);
-}
 
 
-// TODO: do something about error
+
 /**
  * tape following - reads sensor values, sets motor speeds using pd
  * param: kp = proportional constant
  *        kd = derivative constant
  *        gain = gain for pd
  */
-int Funcs::tapeFollow(int kp, int kd, int gain, Speed speed_) {
-    //Serial.println("in tapefollow");
-    //defining what speeds to use
-    switch(speed_){
-        case LOWSPEED:
-            highSpeed = 220; 
-            lowSpeed = 190;
-            break;
-        default:
-            highSpeed = 255;
-            lowSpeed = 220;
-            break;
-    }
-
-    bool rightOnTape = digitalRead(TAPE_QRD_RIGHT);
-    bool leftOnTape = digitalRead(TAPE_QRD_LEFT);
-    bool edgeDetect = digitalRead(EDGE_QRD);
-//     LCD.clear();  LCD.home() ;
-//     LCD.setCursor(0,0); LCD.print("left= "); LCD.print(leftOnTape); LCD.print("righ= "); LCD.print(rightOnTape);
-//     LCD.setCursor(0,1); LCD.print("edge= "); LCD.print(edgeDetect);
-// //    //boolean edgeDetect = false; //this turns off edge detecting for testing purposes
+void Funcs::tapeFollow(int kp, int kd, int gain, int power) {
+    tf_power = power;
+    bool farLeftOnTape = (analogRead(TAPE_QRD_FAR_LEFT) > TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
+    bool midLeftOnTape = (analogRead(TAPE_QRD_MID_LEFT) > TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
+    bool midRightOnTape = (analogRead(TAPE_QRD_MID_RIGHT) > TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
+    bool farRightOnTape = (analogRead(TAPE_QRD_FAR_RIGHT) > TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
 
     //setting error values
     int lasterr = error; //saving the old error value
 
-    if(rightOnTape && leftOnTape){
+    if(farLeftOnTape && !midLeftOnTape && !midRightOnTape && !farRightOnTape) {
+        error = LARGE_LEFT_ERROR;
+    } else if(farLeftOnTape && midLeftOnTape && !midRightOnTape && !farRightOnTape) {
+        error = MED_LEFT_ERROR;
+    } else if(!farLeftOnTape && midLeftOnTape && !midRightOnTape && !farRightOnTape) {
+        error = SMALL_LEFT_ERROR;
+    } else if(!farLeftOnTape && midLeftOnTape && midRightOnTape && !farRightOnTape) {
+        error = CENTERED_ERROR;
+    } else if(!farLeftOnTape && !midLeftOnTape && midRightOnTape && !farRightOnTape) {
+        error = SMALL_RIGHT_ERROR;
+    } else if(!farLeftOnTape && !midLeftOnTape && midRightOnTape && farRightOnTape) {
+        error = MED_RIGHT_ERROR;
+    } else if(!farLeftOnTape && !midLeftOnTape && !midRightOnTape && farRightOnTape) {
+        error = LARGE_RIGHT_ERROR;
+    } else {
+        // if QRDs read other values, let robot go straight until they do.
         error = 0;
     }
-    if(!rightOnTape && leftOnTape) {
-      error = -1;
-      Serial.println("");
-    }
-    if(rightOnTape && !leftOnTape) {
-      error = 1;
-    }
-    if(!rightOnTape && !leftOnTape) {
-        if(lasterr == -1 || lasterr == -5) {
-          error = -5;
-        } else if(lasterr == 1 || lasterr == 5) {
-          error = 5;
-        } else if(lasterr == 0) {
-          Serial.println("DFJSODIJFSAOGHD");
-          error = 0;
-        }
-    }
-    Serial.println(error);
-    //steering for error
-    steer((kp*error + kd*(error - lasterr))*gain) ;
-    return error;
+
+    steer((kp*error + kd*(error - lasterr))*gain);
 }
 
-// TODO: complete
+// Used in tapefollow
+void Funcs::steer(int error) {
+    if(error > 0) {
+        if(error > tf_power) error = tf_power;
+        setMotorPower(tf_power, tf_power - error);
+    } 
+    else if(error < 0) {
+        if(-error > tf_power) error = -tf_power;
+        setMotorPower(tf_power + error, tf_power);
+    } 
+    else setMotorPower(tf_power, tf_power);
+}
+
+// Stops hard
+void Funcs::hardStop() {
+    Serial.println("STOP");
+    setMotorPower(FULL_R, FULL_R);
+    delay(10);
+    setMotorPower(0,0);
+}
+
 // Param - distance in cm
-// NOTE: currently assuming only one set of pid constants
-void Funcs::tapeFollowForDistance(int distance) {
+void Funcs::tapeFollowForDistance(int distance, int speed) {
     leftWheelIndex = 0;
     rightWheelIndex = 0;
-    Serial.println("in tape distance");
     int originalLeftIndex = leftWheelIndex;
     int originalRightIndex = rightWheelIndex;
-    setMotorPower(100,100);
-    int count = 0;
-    while((distanceTravelled(leftWheelIndex, originalLeftIndex) < distance && distanceTravelled(rightWheelIndex, originalRightIndex)) < distance) {
-      if(abs(tapeFollow(TF_KP1,TF_KD1,TF_GAIN1 + 5,LOWSPEED)) == 5){
-        count++;
-      }
-      if(count>=150){
-        break;
-      }
+    setMotorPower(255,255);
+    while((distanceTravelled(leftWheelIndex, originalLeftIndex) + distanceTravelled(rightWheelIndex, originalRightIndex)) / 2 < distance) {
+        tapeFollow(TF_KP1, TF_KD1, TF_GAIN1, speed);
     }
     hardStop();
 }
@@ -120,66 +90,32 @@ void Funcs::tapeFollowForDistance(int distance) {
 /// Parameters:
 /// side and stuffy are defined in config now.
 /// returns true if pickup was successful.
-//TODO: finish this
-bool Funcs::pickUp(int side, int stuffy) {
-   bool stuffyPicked = false;
-
-    TINAH::Servo ARM;
-    TINAH::Servo CLAW;
-    int stuffySwitch;
+void Funcs::pickUp(int side, int stuffy) {
+    TINAH::Servo arm;
+    TINAH::Servo claw;
 
     if(side == LEFT) {
-        ARM = ARM_LEFT;
-        CLAW = CLAW_LEFT;
-        stuffySwitch = LEFT_CLAW_STUFFY_SWITCH;
+        arm = ARM_LEFT;
+        claw = CLAW_LEFT;
     } else {
-        ARM = ARM_RIGHT;
-        CLAW = CLAW_RIGHT;
-        stuffySwitch = RIGHT_CLAW_STUFFY_SWITCH;
+        arm = ARM_RIGHT;
+        claw = CLAW_RIGHT;
     }
-
-    // if(stuffy == EWOK) {
-    //     ARM.write(ARMS_DOWN_EWOK);
-    // } else {
-    //     ARM.write(ARMS_DOWN_CHEWIE);
-    // }
-    sweepServo(RCServo1,CLAWS_CLOSED,CLAWS_OPEN);
-    delay(1000);
-    sweepServo(RCServo0,ARMS_UP,ARMS_DOWN_EWOK);
-    delay(1000);
-    sweepServo(RCServo1,CLAWS_OPEN,CLAWS_CLOSED);
-    delay(1000);
-    sweepServo(RCServo0,ARMS_DOWN_EWOK,ARMS_UP);
-}
-
-void Funcs::pickUpAndHoldHalfway(int side, int stuffy) {
-    TINAH::Servo ARM;
-    TINAH::Servo CLAW;
-
-    if(side == LEFT) {
-        ARM = ARM_LEFT;
-        CLAW = CLAW_LEFT;
-    } else {
-        ARM = ARM_RIGHT;
-        CLAW = CLAW_RIGHT;
-    }
-
+    int armDown;
     if(stuffy == EWOK) {
-        ARM.write(ARMS_DOWN_EWOK);
+        armDown = ARMS_DOWN_EWOK;
     } else {
-        ARM.write(ARMS_DOWN_CHEWIE);
+        armDown = ARMS_DOWN_CHEWIE;
     }
-
+    sweepServo(claw, CLAWS_CLOSED, CLAWS_OPEN);
     delay(1000);
-
-    CLAW.write(CLAWS_CLOSED);
-
+    sweepServo(arm, ARMS_UP, armDown);
     delay(1000);
-
-    ARM.write(ARM_HALF);
+    sweepServo(claw, CLAWS_OPEN, CLAWS_CLOSED);
+    delay(1000);
+    sweepServo(arm, armDown, ARMS_UP);
 }
 
-// CURRENTLY ASSUMINE ONE IR SENSOR
 double Funcs::record1KIRBeacon() {
     return analogRead(IR_1KHZ);
 }
@@ -199,17 +135,9 @@ bool Funcs::checkBeacon() {
     return record10KIRBeacon() > record1KIRBeacon();
 }
 
-
-/**
-* ewok detecting - reads IR sensor, decides if it's looking at an ewok
-* return: true if ewok, false if not
-*/
-//TODO: MAKE THIS WORK ON EITHER SIDE SENSOR!1!!
-
-
 //PARAM: deg - degrees to turn clockwise
 void Funcs::turn(int deg) {
-    moveWheels((deg / degreesPerCm)*1.2*1.5, (-1 * deg / degreesPerCm)*1.2*1.5, 170,150);
+    moveWheels(deg / degreesPerCm, -deg / degreesPerCm, 100, -100);
 }
 
 //PARAM: distance - distance in cm
@@ -237,14 +165,37 @@ void Funcs::moveWheels(float leftDistance, float rightDistance, int leftPower, i
     bool rightDone = false;
     while(distanceTravelled(leftWheelIndex, originalLeftIndex) < abs(leftDistance) && distanceTravelled(rightWheelIndex, originalRightIndex) < abs(rightDistance)) {
     }
-    sweepServo(RCServo2, 20, DRAWBRIDGE_CLOSED);
     hardStop();
 }
+
+// Maintains a speed for one side.
+// Param:
+//       power - current power of the motor
+// targetSpeed - desired speed
+//        side - side
+// Returns: Current power of motor.
+int Funcs::maintainSpeed(int side, int targetSpeed, int power) {
+    int currSpeed;
+    if(side == LEFT) {
+        currSpeed = leftSpeed;
+    } else {
+        currSpeed = rightSpeed;
+    }
+
+    if(currSpeed != targetSpeed) {
+        power = power + (targetSpeed - currSpeed) * 20;
+    }
+    power = max(FULL_R, power);
+    power = min(FULL_F, power);
+    setMotorPower(side, power);
+    return power;
+}
+
 void Funcs::rotateUntilTape() {
     setMotorPower(100,-100);
     while(true) {
-        if(digitalRead(TAPE_QRD_RIGHT) || digitalRead(TAPE_QRD_LEFT)) {
-            delay(50);
+        if(analogRead(TAPE_QRD_MID_LEFT > TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE == ON_TAPE 
+        || analogRead(TAPE_QRD_MID_RIGHT > TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE == ON_TAPE) {
             setMotorPower(0,0);
             break;
         }
@@ -254,32 +205,24 @@ void Funcs::rotateUntilTape() {
 void Funcs::rotateUntilTapeCCW() {
     setMotorPower(-100,100);
     while(true) {
-        if(digitalRead(TAPE_QRD_RIGHT) || digitalRead(TAPE_QRD_LEFT)) {
-            delay(50);
+        if(analogRead(TAPE_QRD_MID_LEFT > TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE == ON_TAPE 
+        || analogRead(TAPE_QRD_MID_RIGHT > TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE == ON_TAPE) {
             setMotorPower(0,0);
             break;
         }
     }
 }
 
-//TODO: check float calculation (slow af??)
 int Funcs::speedToPower(int speed) {
-    int power = int(float(speed) / MAX_SPEED * 255);
-    if(power > MAX_SPEED) {
-        return MAX_SPEED;
-    } else if(power < MAX_SPEED * -1) {
-        return MAX_SPEED * -1;
-    } else {
-        return power;
-    }
+    int power = speed * 20;
+    power = min(FULL_F, power);
+    power = max(FULL_R, power);
+    return power;
 }
 
 void Funcs::dumpBasket() {
     BASKET.write(BASKET_OPENED);
-    delay(200);
-    move(-DUMP_RAM_DISTANCE);
-    move(DUMP_RAM_DISTANCE + 1);
-    delay(500);
+    delay(1000);
     BASKET.write(BASKET_CLOSED);
 }
 
@@ -287,8 +230,8 @@ void Funcs::extendZipline() {
     motor.speed(ZIP_ARM_MOTOR, ZIP_ARM_EXTENDING);
     double startTime = millis();
     while(!digitalRead(ZIP_SWITCH_EXTENDED)) {
-        // Give the arm 5 seconds to extend
-        if(millis() > startTime + 5000) {
+        // Give the arm 8 seconds to extend
+        if(millis() > startTime + 8000) {
             break;
         }
     }
@@ -299,8 +242,8 @@ void Funcs::contractZipline() {
     motor.speed(ZIP_ARM_MOTOR, ZIP_ARM_CONTRACTING);
     double startTime = millis();
     while(!digitalRead(ZIP_SWITCH_CLOSED)) {
-        // Give the arm 5 seconds to extend
-        if(millis() > startTime + 5000) {
+        // Give the arm 8 seconds to extend
+        if(millis() > startTime + 8000) {
             break;
         }
     }
@@ -319,10 +262,7 @@ void Funcs::zipUp() {
     motor.stop(ZIP_WHEEL_MOTOR);
 }
 
-//TODO:
 void Funcs::findEdge() {
-    //dont think we need this since it finds the edge in the 
-    //tape follow function?
 }
 
 //TODO: write this. Should pretty much be tapefollow, different sensors.
@@ -352,18 +292,16 @@ void Funcs::bridgeFollow(int kp, int kd, int gain) {
 }
 
 //TODO: Write this
-bool Funcs::isOnEdge() {
+bool Funcs::edgeDetect() {
     //probs dont need this since it finds edge with tapefollow?
 }
 
-void Funcs::tapeFollowToEdge(){
+void Funcs::tapeFollowToEdge(int speed){
 
     while(true) {
-        bool temp = Funcs::tapeFollow(TF_KP1,TF_KD1,TF_GAIN1,Speed::SPEED);
-        if(temp == ON_EDGE) {
+        tapeFollow(TF_KP1, TF_KD1, TF_GAIN1, speed);
+        if(edgeDetect()) {
             hardStop();
-            //Serial.println("on edge"); delay(1000);
-            break;
         }
     }
 }
@@ -413,62 +351,4 @@ void Funcs::sweepServo(TINAH::Servo servo, int startAngle, int endAngle) {
             currAngle -= 3;
         }
     }
-}
-
-int Funcs::tapeFollow2(int kp, int kd, int gain, Speed speed_) {
-    //Serial.println("in tapefollow");
-    //defining what speeds to use
-    switch(speed_){
-        case LOWSPEED:
-            highSpeed = 200; 
-            lowSpeed = 190;
-            break;
-        default:
-            highSpeed = 255;
-            lowSpeed = 220;
-            break;
-    }
-
-    bool rightOnTape = digitalRead(TAPE_QRD_RIGHT);
-    bool leftOnTape = digitalRead(TAPE_QRD_LEFT);
-    bool edgeDetect = digitalRead(EDGE_QRD);
-//     LCD.clear();  LCD.home() ;
-//     LCD.setCursor(0,0); LCD.print("left= "); LCD.print(leftOnTape); LCD.print("righ= "); LCD.print(rightOnTape);
-//     LCD.setCursor(0,1); LCD.print("edge= "); LCD.print(edgeDetect);
-// //    //boolean edgeDetect = false; //this turns off edge detecting for testing purposes
-
-    //setting error values
-    int lasterr = error; //saving the old error value
-
-    if(rightOnTape && leftOnTape){
-        error = 0;
-    }
-    if(!rightOnTape && leftOnTape) {
-      error = -1;
-      Serial.println("");
-    }
-    if(rightOnTape && !leftOnTape) {
-      error = 1;
-    }
-    if(!rightOnTape && !leftOnTape) {
-        if(lasterr == -1 || lasterr == -5) {
-          error = -5;
-        } else if(lasterr == 1 || lasterr == 5) {
-          error = 5;
-        } else if(lasterr == 0) {
-          Serial.println("DFJSODIJFSAOGHD");
-          error = 0;
-        }
-    }
-    if(error == 5 || error == -5) {
-        error = 2;
-    }
-    Serial.println(error);
-
-
-
-
- 
- ar   steer((kp*error + kd*(error - lasterr))*gain) ;
-    return error;
 }

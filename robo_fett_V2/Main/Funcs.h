@@ -15,14 +15,15 @@ class Funcs {
         uint8_t rightSpeed;
         uint8_t nextEwok;
         int8_t error;
+        TINAH::Servo RCServo7;
+        TINAH::Servo RCServo6;
 
         void setMotorPower(int left, int right);
         void steer(int deg);
         void hardStop();
-        int tapeFollow(int kp, int kd, int gain, configs::Speed speed);
-        void tapeFollowForDistance(int distance);
-        bool pickUp(int side, int stuffy);
-        void pickUpAndHoldHalfway(int side, int stuffy);
+        void tapeFollow(int kp, int kd, int gain, int power);
+        void tapeFollowForDistance(int distance, int power);
+        void pickUp(int side, int stuffy);
         double record1KIRBeacon();
         double record10KIRBeacon();
         void lowerBridge();
@@ -40,14 +41,13 @@ class Funcs {
         void zipppp();
         void findEdge();
         void bridgeFollow(int kp, int kd, int gain);
-        bool isOnEdge();
+        bool edgeDetect();
         float distanceTravelled(int newIndex, int oldIndex);
-        void tapeFollowToEdge();
+        void tapeFollowToEdge(int speed);
         void rotateUntilTape();
         void rotateUntilTapeCCW();
         void sweepServo(TINAH::Servo servo, int startAngle, int endAngle);
-        int tapeFollow2(int kp, int kd, int gain, configs::Speed speed_);
-
+        int maintainSpeed(int side, int targetSpeed, int power);
 };
 
 #endif

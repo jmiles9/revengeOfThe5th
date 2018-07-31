@@ -14,12 +14,19 @@ Robot::Robot() {
     leftSpeed = 0;
     rightSpeed = 0;
     error = 0;
+    RCServo6 = TINAH::Servo(RCSERVO6);
+    RCServo7 = TINAH::Servo(RCSERVO7);
 }
 
 //starts at start
 //goes into cruise_plat1
 void Robot::STARTUP() {
     Serial.println("in startup");
+    Funcs::sweepServo(ARM_LEFT, ARMS_DOWN_CHEWIE, ARMS_UP);
+    Funcs::sweepServo(ARM_RIGHT, ARMS_DOWN_CHEWIE, ARMS_UP);
+    Funcs::sweepServo(CLAW_LEFT, CLAWS_OPEN, CLAWS_CLOSED);
+    Funcs::sweepServo(CLAW_RIGHT, CLAWS_OPEN, CLAWS_CLOSED);
+
     // while(!menu.quitMenu){
     //     bool start = false;
     //     bool stopp = false;
@@ -42,42 +49,10 @@ void Robot::CRUISE_PLAT1() {
     LCD.print("CRUISE_PLAT1");
     int startTime = millis();
     int count = 0;
-    int time = startTime;
-    setMotorPower(255,255);
-    while(true) {
-      tapeFollow(TF_KP1, TF_KD1, TF_GAIN1,SPEED);
-      count++;
-      if(count >= 100) {
-        time = millis();
-        count = 0;
-        if((time - startTime) >= 3000) {
-            LCD.clear(); LCD.setCursor(0,0);
-            LCD.print("PAST THRESHOLD");
-            break;
-        }
-      }
-    }
-    int count2 = 0;
-    while(true) {
-        if(tapeFollow2(TF_KP1,TF_KD1,TF_GAIN1,SPEED) == 2) {
-            count2++;
-        } else {
-            count2 = 0;
-        }
-        if(count2 >= 40) {
-            break;
-        }
-    }
-    hardStop();
-    delay(1000);
-    turn(-50);
-    runState = RunState::EWOK_SEARCH;
+    tapeFollowForDistance(150,255);
 }
 
 void Robot::EWOK_SEARCH() {
-    Funcs::sweepServo(RCServo0, ARMS_DOWN_CHEWIE, ARMS_UP);
-    Serial.println("ARMS_UP");
-    delay(2000);
     while(true) {
         Funcs::setMotorPower(100,100);
         if(ewokDetect()) {
@@ -99,90 +74,96 @@ void Robot::EWOK_GRAB() {
     LCD.clear();
     LCD.setCursor(0,0);
     LCD.print("EWOK_GRAB");
-    digitalWrite(configs::EWOK_IR_OUT,HIGH);
-    delay(50);
-    double with = analogRead(configs::EWOK_SENSOR);
-    digitalWrite(configs::EWOK_IR_OUT,LOW);
-    delay(50);
-    double without = analogRead(configs::EWOK_SENSOR);
-    Serial.println(with-without);
-    int count = 0;
-    while(with-without < 540) {
-        setMotorPower(200,20);
-        digitalWrite(configs::EWOK_IR_OUT,HIGH);
-        delay(50);
-        with = analogRead(configs::EWOK_SENSOR);
-        digitalWrite(configs::EWOK_IR_OUT,LOW);
-        delay(50);
-        without = analogRead(configs::EWOK_SENSOR);
-        Serial.println(with-without);
-        count++;
-        if(count > 10) {
-            break;
-        }
-    }
-    while(with-without > 540) {
-        setMotorPower(-200,0);
-        digitalWrite(configs::EWOK_IR_OUT,HIGH);
-        delay(50);
-        with = analogRead(configs::EWOK_SENSOR);
-        digitalWrite(configs::EWOK_IR_OUT,LOW);
-        delay(50);
-        without = analogRead(configs::EWOK_SENSOR);
-        Serial.println(with-without);
-        count++;
-        if(count > 40) {
-            break;
-        }
-    }
-    setMotorPower(0,0);
+    // digitalWrite(configs::EWOK_IR_OUT,HIGH);
+    // delay(50);
+    // double with = analogRead(configs::EWOK_SENSOR);
+    // digitalWrite(configs::EWOK_IR_OUT,LOW);
+    // delay(50);
+    // double without = analogRead(configs::EWOK_SENSOR);
+    // Serial.println(with-without);
+    // int count = 0;
+    // while(with-without < 540) {
+    //     setMotorPower(200,20);
+    //     digitalWrite(configs::EWOK_IR_OUT,HIGH);
+    //     delay(50);
+    //     with = analogRead(configs::EWOK_SENSOR);
+    //     digitalWrite(configs::EWOK_IR_OUT,LOW);
+    //     delay(50);
+    //     without = analogRead(configs::EWOK_SENSOR);
+    //     Serial.println(with-without);
+    //     count++;
+    //     if(count > 10) {
+    //         break;
+    //     }
+    // }
+    // while(with-without > 540) {
+    //     setMotorPower(-200,0);
+    //     digitalWrite(configs::EWOK_IR_OUT,HIGH);
+    //     delay(50);
+    //     with = analogRead(configs::EWOK_SENSOR);
+    //     digitalWrite(configs::EWOK_IR_OUT,LOW);
+    //     delay(50);
+    //     without = analogRead(configs::EWOK_SENSOR);
+    //     Serial.println(with-without);
+    //     count++;
+    //     if(count > 40) {
+    //         break;
+    //     }
+    // }
+    // setMotorPower(0,0);
     
+    TINAH::Servo arm;
+    TINAH::Servo claw;
     int side;
     int stuffy;
     // Gets side and stuffy parameters
-    if(nextEwok == 1 ) {
-        side = RIGHT;
-        stuffy = configs::EWOK;
-        runState = RunState::DRAWBRIDGE;
-    } else if(nextEwok == 2) {
-        side = RIGHT;
-        stuffy = configs::EWOK;
-        runState = RunState::IR_WAIT;
-    } else if(nextEwok == 3) {
-        side = LEFT;
-        stuffy = configs::EWOK;
-        runState = RunState::DUMP_PREP;        
-    } else {
-        side = RIGHT;
-        stuffy = configs::EWOK;
+    switch(nextEwok) {
+        case 1:
+            arm = ARM_RIGHT;
+            claw = CLAW_RIGHT;
+            side = RIGHT;
+            stuffy = EWOK;
+            runState = RunState::DRAWBRIDGE;
+            break;
+        case 2:
+            arm = ARM_RIGHT;
+            claw = CLAW_RIGHT;
+            side = RIGHT;
+            stuffy = EWOK;
+            runState = RunState::IR_WAIT;
+            break;
+        case 3: 
+            arm = ARM_LEFT;
+            claw = CLAW_LEFT;
+            side = LEFT;
+            stuffy = EWOK;
+            runState = RunState::DUMP_PREP;        
+            break;
+        case 4: 
+            arm = ARM_RIGHT;
+            claw = CLAW_RIGHT;
+            side = RIGHT;
+            stuffy = EWOK;
+            // TODO: Add state here
+            break;
+        case 5:
+            arm = ARM_LEFT;
+            claw = CLAW_LEFT;
+            side = LEFT;
+            stuffy = configs::CHEWIE;
+            break;
     }
-    Funcs::sweepServo(RCServo1, CLAWS_CLOSED, CLAWS_OPEN);
+    Funcs::sweepServo(claw, CLAWS_CLOSED, CLAWS_OPEN);
     delay(3000);
-    Funcs::sweepServo(RCServo0, ARMS_UP, ARMS_DOWN_EWOK);
+    Funcs::sweepServo(arm, ARMS_UP, ARMS_DOWN_EWOK);
     delay(3000);
     //Serial.println("closing claws");
-    Funcs::sweepServo(RCServo1, CLAWS_OPEN, CLAWS_CLOSED);
+    Funcs::sweepServo(claw, CLAWS_OPEN, CLAWS_CLOSED);
     delay(3000);
     //Serial.println("raising arms");
-    Funcs::sweepServo(RCServo0, ARMS_DOWN_EWOK, ARMS_UP);
+    Funcs::sweepServo(arm, ARMS_DOWN_EWOK, ARMS_UP);
     delay(650);
-    Funcs::sweepServo(RCServo1, 80, CLAWS_OPEN);
-    Funcs::rotateUntilTape();
-    Funcs::tapeFollowForDistance(140);
-    // delay(100);
-    // Funcs::tapeFollowToEdge();
-    // Funcs::setMotorPower(-180,-180);
-	// delay(600);
-	// Funcs::setMotorPower(180,180);
-	// Funcs::setMotorPower(0,0);
-	// delay(2000);
-	// Funcs::sweepServo(RCServo2,configs::DRAWBRIDGE_CLOSED,90);
-	// Funcs::sweepServo(RCServo2,90,configs::DRAWBRIDGE_CLOSED);
-	// delay(2000);
-	// Funcs::setMotorPower(-180,-180);
-	// delay(500);
-	// Funcs::setMotorPower(0,0);
-    // delay(1000000);
+    Funcs::sweepServo(claw, CLAWS_CLOSED, CLAWS_OPEN);
 }
 
 //starts after picking up first ewok
@@ -190,14 +171,6 @@ void Robot::EWOK_GRAB() {
 //goes into ewok_search
 void Robot::DRAWBRIDGE() {
 
-    move(PRE_BRIDGE_MOVE);
-    turn(PRE_BRIDGE_TURN);
-   
-    tapeFollowToEdge();
-    
-    lowerBridge();
-    tapeFollowForDistance(BRIDGE_REVERSE);
-    tapeFollowForDistance(BRIDGE_CRUISE);
     runState = RunState::EWOK_SEARCH;
 }
 
@@ -216,7 +189,7 @@ void Robot::IR_WAIT() {
 //enters ewok_search
 void Robot::CRUISE_PLAT2() {
 
-    tapeFollowForDistance(PLAT2_CRUISE);
+    tapeFollowForDistance(PLAT2_CRUISE,255);
     runState = RunState::EWOK_SEARCH;
 
 }
@@ -227,7 +200,7 @@ void Robot::CRUISE_PLAT2() {
 void Robot::DUMP_PREP() {
     turn(-TURN_90);
     //can either TapeFollowForDistance or put contact sensor on front? 
-    tapeFollowForDistance(DUMP_PREP_DIST);
+    tapeFollowForDistance(DUMP_PREP_DIST,255);
     runState = RunState::DUMP_EWOKS;
 
 }
@@ -294,7 +267,7 @@ void Robot::BRIDGE_FOLLOW() {
 
     // this assumes when they are on tape they read HI = true
     //follows side of bridge until sees tape indicating zipline
-    while(!(digitalRead(TAPE_QRD_LEFT) && digitalRead(TAPE_QRD_RIGHT))){
+    while(!(digitalRead(BRIDGE_QRD_LEFT) && digitalRead(BRIDGE_QRD_RIGHT))){
         bridgeFollow(TF_KP1,TF_KD1,TF_GAIN1);
     }
 
