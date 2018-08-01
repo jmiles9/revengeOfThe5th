@@ -63,9 +63,13 @@ void setup() {
 
 int count;
 int error = 0;
+int time = millis();
 
 void loop() {
-  tapeFollow(9,12,10,150);
+    while(millis() - time < 5000) {
+        tapeFollow(9,12,10,150);
+    }
+    delay(100000);
 }
 
 /**

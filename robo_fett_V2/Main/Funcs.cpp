@@ -225,7 +225,7 @@ void Funcs::dumpBasket() {
 
 void Funcs::extendZipline() {
     motor.speed(ZIP_ARM_MOTOR, ZIP_ARM_EXTENDING);
-    double startTime = millis();
+    long startTime = millis();
     while(!digitalRead(ZIP_SWITCH_EXTENDED)) {
         // Give the arm 8 seconds to extend
         if(millis() > startTime + 8000) {
@@ -237,9 +237,9 @@ void Funcs::extendZipline() {
 
 void Funcs::contractZipline() {
     motor.speed(ZIP_ARM_MOTOR, ZIP_ARM_CONTRACTING);
-    double startTime = millis();
+    long startTime = millis();
     while(!digitalRead(ZIP_SWITCH_CLOSED)) {
-        // Give the arm 8 seconds to extend
+        // Give the arm 8 seconds to contract
         if(millis() > startTime + 8000) {
             break;
         }
@@ -290,11 +290,13 @@ void Funcs::bridgeFollow(int kp, int kd, int gain) {
 
 //TODO: Write this
 bool Funcs::edgeDetect() {
-    //probs dont need this since it finds edge with tapefollow?
+    return abs(analogRead(TAPE_QRD_FAR_LEFT) - EDGE_QRD_THRESHOLD) < 100
+        && abs(analogRead(TAPE_QRD_MID_LEFT) - EDGE_QRD_THRESHOLD) < 100
+        && abs(analogRead(TAPE_QRD_MID_RIGHT) - EDGE_QRD_THRESHOLD) < 100
+        && abs(analogRead(TAPE_QRD_FAR_RIGHT) - EDGE_QRD_THRESHOLD) < 100;
 }
 
 void Funcs::tapeFollowToEdge(int speed){
-
     while(true) {
         tapeFollow(TF_KP1, TF_KD1, TF_GAIN1, speed);
         if(edgeDetect()) {
