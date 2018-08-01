@@ -92,26 +92,43 @@ void Funcs::pickUp(int side, int stuffy) {
     TINAH::Servo arm;
     TINAH::Servo claw;
 
+    int clawClose;
+    int clawOpen;
+    int armUp;
+    int armDown;
+
     if(side == LEFT) {
         arm = ARM_LEFT;
         claw = CLAW_LEFT;
+        clawClose = CLAW_CLOSED_LEFT;
+        clawOpen = CLAW_OPEN_LEFT;
+        armUp = ARM_UP_LEFT;
+        if(stuffy == EWOK) {
+            armDown = ARM_DOWN_EWOK_LEFT;
+        } else {
+            armDown = ARM_DOWN_CHEWIE_LEFT;
+        }
     } else {
         arm = ARM_RIGHT;
         claw = CLAW_RIGHT;
+        clawClose = CLAW_CLOSED_RIGHT;
+        clawOpen = CLAW_OPEN_RIGHT;
+        armUp = ARM_UP_RIGHT;
+        if(stuffy == EWOK) {
+            armDown = ARM_DOWN_EWOK_RIGHT;
+        } else {
+            armDown = ARM_DOWN_CHEWIE_RIGHT;
+        }
+
     }
-    int armDown;
-    if(stuffy == EWOK) {
-        armDown = ARMS_DOWN_EWOK;
-    } else {
-        armDown = ARMS_DOWN_CHEWIE;
-    }
-    sweepServo(claw, CLAWS_CLOSED, CLAWS_OPEN);
+   
+    sweepServo(claw, clawClose, clawOpen);
     delay(1000);
-    sweepServo(arm, ARMS_UP, armDown);
+    sweepServo(arm, armUp, armDown);
     delay(1000);
-    sweepServo(claw, CLAWS_OPEN, CLAWS_CLOSED);
+    sweepServo(claw, clawOpen, clawClose);
     delay(1000);
-    sweepServo(arm, armDown, ARMS_UP);
+    sweepServo(arm, armDown, armUp);
 }
 
 double Funcs::record1KIRBeacon() {
@@ -126,7 +143,7 @@ void Funcs::lowerBridge() {
     BASKET.write(BASKET_DROPBRIDGE);
     delay(1000);
     // may not need to close
-    BASKET.write(BASKET_CLOSED);
+    BASKET.write(BASKET_REST);
 }
 
 bool Funcs::checkBeacon() {
@@ -218,9 +235,9 @@ int Funcs::speedToPower(int speed) {
 }
 
 void Funcs::dumpBasket() {
-    BASKET.write(BASKET_OPENED);
-    delay(1000);
-    BASKET.write(BASKET_CLOSED);
+    BASKET.write(BASKET_DUMP);
+    delay(500);
+    BASKET.write(BASKET_REST);
 }
 
 void Funcs::extendZipline() {

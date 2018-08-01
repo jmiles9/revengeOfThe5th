@@ -29,7 +29,6 @@ namespace configs {
     
     //multiplexer inputs 0 to 7
     //all must be inputs
-       
     
     //tinah digital outputs 15 to 8
     //must be outputs
@@ -43,7 +42,7 @@ namespace configs {
     //must be inputs cuz interrupts are 0-3
     //pins 0-3 can only be interrupts!!!!!!!!!!!!
     
-    const int MULTI_IN = 4; 
+    const int MULTIPLEX_IN = 4; 
     const int ENCODER_LEFT = 2;
     const int ENCODER_RIGHT = 3;
     
@@ -109,14 +108,6 @@ namespace configs {
         LOWSPEED
     };
 
-    //servo stuff
-    const int ROTATE_SERVO = 0;
-    const int CLOSE_SERVO = 1;
-    const int CLAW_ARM_RAISED_POSITION = 0; 
-    const int CLAW_ARM_LOWERED_POSITION = 115;
-    const int CLAW_TONG_CLOSED_POSITION = 0;
-    const int CLAW_TONG_OPEN_POSITION = 110;
-
     //TRESHHOLDS
     const int IR_THRESHOLD = 512;
     const int EWOK_THRESH = 250;
@@ -142,18 +133,27 @@ namespace configs {
     const int DUMP_RAM_DISTANCE = 10;
 
 
-    // Angles
-    const int ARMS_UP = 140;
-    const int ARM_HALF = 70;
-    const int ARMS_DOWN_EWOK = 0;
-    const int ARMS_DOWN_CHEWIE = 30;
-    const int CLAWS_CLOSED = 0;
-    const int CLAWS_OPEN = 110;
+    // ANGLES
+    //claws
+    const int ARM_UP_RIGHT = 40;
+    const int ARM_DOWN_EWOK_RIGHT = 180;
+    const int ARM_DOWN_CHEWIE_RIGHT = 150;
+    const int ARM_UP_LEFT = 140; 
+    const int ARM_DOWN_EWOK_LEFT = 0;
+    const int ARM_DOWN_CHEWIE_LEFT = 30;
+    const int CLAW_CLOSED_RIGHT = 0;
+    const int CLAW_OPEN_RIGHT = 180;
+    const int CLAW_CLOSED_LEFT = 180;
+    const int CLAW_OPEN_LEFT = 0;
+
+
     const int DRAWBRIDGE_OPENED = 90;
     const int DRAWBRIDGE_CLOSED = 0;
-    const int BASKET_OPENED = 90;
-    const int BASKET_DROPBRIDGE = 45;
-    const int BASKET_CLOSED = 0;
+
+    const int BASKET_REST = 115;
+    const int BASKET_DUMP = 0;
+    const int BASKET_DROPBRIDGE = 80;
+
     const int ZIPLINE_ATTACH_ROTATION = 15;
     const int TURN_90 = 90;
     const int PRE_BRIDGE_TURN = 30;
