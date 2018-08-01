@@ -402,6 +402,25 @@ void Funcs::rotateUntilTape(int direction) {
     }
 }
 
+bool Funcs::digitalReadMultiplex(int port){
+  int bin[3] = {0,0,0};
+  int i = 0;
+  int num = port;
+  while (num > 0)
+   {
+       bin[i] = num % 2;
+       num /= 2;
+        i++;
+   }
+
+  digitalWrite(MULTI_CHOOSEA, bin[0]);
+  digitalWrite(MULTI_CHOOSEB, bin[1]);
+  digitalWrite(MULTI_CHOOSEC, bin[2]);
+
+  return digitalRead(MULTIPLEX_IN);
+  
+}
+
 // finds tape, turns left, turns right, big left, big right
 void Funcs::findTape() {
     //first check left slightly
