@@ -33,7 +33,7 @@ namespace configs {
     
     //tinah digital outputs 15 to 8
     //must be outputs
-    const int MUTLI_CHOOSEA = 15;
+    const int MULTI_CHOOSEA = 15;
     const int MULTI_CHOOSEB = 14;
     const int MULTI_CHOOSEC = 13;
     const int EWOK_IR_OUT_RIGHT = 8; //when HI, the ewok IR
