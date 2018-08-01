@@ -41,21 +41,24 @@ void Robot::STARTUP() {
 }
 
 // Starts at start
-//end when near first ewok 
-//goes into ewok search
+// end when near first ewok 
+// goes into ewok search
 void Robot::CRUISE_PLAT1() {
     LCD.clear();
     LCD.setCursor(0,0);
     LCD.print("CRUISE_PLAT1");
     int startTime = millis();
     int count = 0;
-    tapeFollowForDistance(150,255);
+    tapeFollowForDistance(PLAT1_CRUISE,200);
 }
 
-void Robot::EWOK_SEARCH() {
+void Robot::EWOK_SEARCH_RIGHT() {
+    Funcs::setMotorPower(100,100);
+    int startLeftIndex = leftWheelIndex;
+    int startRightIndex = rightWheelIndex;
     while(true) {
-        Funcs::setMotorPower(100,100);
-        if(ewokDetect()) {
+        tapeFollow(TF_KP1, TF_KD1, TF_GAIN1, 100);
+        if(ewokDetectRight()) {
             
             delay(60);
             Funcs::hardStop();
@@ -65,7 +68,7 @@ void Robot::EWOK_SEARCH() {
             break;
         }
     }
-    runState = RunState::EWOK_GRAB;
+    RunState::EWOK_GRAB;
 }
 
 /// Grabs ewok.
@@ -154,24 +157,50 @@ void Robot::EWOK_GRAB() {
             break;
     }
     Funcs::sweepServo(claw, CLAWS_CLOSED, CLAWS_OPEN);
-    delay(3000);
+    delay(2000);
     Funcs::sweepServo(arm, ARMS_UP, ARMS_DOWN_EWOK);
-    delay(3000);
+    delay(2000);
     //Serial.println("closing claws");
     Funcs::sweepServo(claw, CLAWS_OPEN, CLAWS_CLOSED);
-    delay(3000);
+    delay(2000);
     //Serial.println("raising arms");
     Funcs::sweepServo(arm, ARMS_DOWN_EWOK, ARMS_UP);
     delay(650);
     Funcs::sweepServo(claw, CLAWS_CLOSED, CLAWS_OPEN);
+    nextEwok++;
 }
 
 //starts after picking up first ewok
 //ends when near second ewok
 //goes into ewok_search
 void Robot::DRAWBRIDGE() {
-
-    runState = RunState::EWOK_SEARCH;
+    //Adjust
+    Funcs::turn(PRE_BRIDGE_TURN);
+    delay(1000);
+    Funcs::move(180);
+    delay(1000);
+    //Turn towards gap, should be perpendicular
+    Funcs::turn(-90);
+    delay(1000);
+    Funcs::setMotorPower(100,100);
+    int currTime = millis();
+    //Timeout after 3 seconds
+    while(millis() - currTime < 3000) {
+        if(Funcs::edgeDetect()) {
+            break;
+        }
+    }
+    hardStop();
+    move(configs::PRE_BRIDGE_MOVE);
+    delay(1000);
+    Funcs::lowerBridge();
+    delay(1000);
+    move(configs::BRIDGE_REVERSE);
+    delay(1000);
+    move(configs::BRIDGE_CRUISE);
+    delay(1000);
+    Funcs::findTape();
+    runState = RunState::EWOK_SEARCH_RIGHT;
 }
 
 // starts right after first ewok is picked up
@@ -190,8 +219,13 @@ void Robot::IR_WAIT() {
 void Robot::CRUISE_PLAT2() {
 
     tapeFollowForDistance(PLAT2_CRUISE,255);
-    runState = RunState::EWOK_SEARCH;
+    runState = RunState::EWOK_SEARCH_LEFT;
 
+}
+
+void Robot::EWOK_SEARCH_LEFT() {
+    ewokDetectLeft();
+    runState = RunState::DUMP_PREP;
 }
 
 //starts after 3rd ewok is grabbed
@@ -256,7 +290,7 @@ void Robot::ZIP_UNHOOK() {
 // TODO: Write
 void Robot::EWOK_4() {
     //may need to reverse a bit first
-    EWOK_SEARCH();
+    EWOK_SEARCH_RIGHT();
     //may need to have something in here about edge detecting also, or should add to ewok search
 
 }
@@ -275,7 +309,7 @@ void Robot::BRIDGE_FOLLOW() {
 // TODO: WRite
 void Robot::CHEWIE() {
     //will end on tape so can follow tape for a little bit longer
-    EWOK_SEARCH();
+    EWOK_SEARCH_LEFT();
 }
 // TODO: Write
 void Robot::ZIP_DOWN() {

@@ -1,8 +1,6 @@
 #include "configs.h"
 #include "Funcs.h"
 
-//rightSpeed; //can't get this from Robot?? how?
-//same with other vals
 using namespace configs;
 
 int tf_power;
@@ -74,13 +72,13 @@ void Funcs::hardStop() {
     setMotorPower(0,0);
 }
 
-// Param - distance in cm
+// Param - distance in mm
 void Funcs::tapeFollowForDistance(int distance, int speed) {
     leftWheelIndex = 0;
     rightWheelIndex = 0;
     int originalLeftIndex = leftWheelIndex;
     int originalRightIndex = rightWheelIndex;
-    setMotorPower(255,255);
+    setMotorPower(speed,speed);
     while((distanceTravelled(leftWheelIndex, originalLeftIndex) + distanceTravelled(rightWheelIndex, originalRightIndex)) / 2 < distance) {
         tapeFollow(TF_KP1, TF_KD1, TF_GAIN1, speed);
     }
@@ -137,12 +135,12 @@ bool Funcs::checkBeacon() {
 
 //PARAM: deg - degrees to turn clockwise
 void Funcs::turn(int deg) {
-    moveWheels(deg / degreesPerCm, -deg / degreesPerCm, 100, -100);
+    moveWheels(deg / degreesPermm, -deg / degreesPermm, 100, -100);
 }
 
-//PARAM: distance - distance in cm
+//PARAM: distance - distance in mm
 void Funcs::move(int distance) {
-    moveWheels(distance, distance, 255,250);
+    moveWheels(distance, distance, 255,255);
 }
 
 void Funcs::moveWheels(float leftDistance, float rightDistance, int leftPower, int rightPower) {
@@ -163,8 +161,7 @@ void Funcs::moveWheels(float leftDistance, float rightDistance, int leftPower, i
     setMotorPower(leftPower, rightPower);
     bool leftDone = false;
     bool rightDone = false;
-    while(distanceTravelled(leftWheelIndex, originalLeftIndex) < abs(leftDistance) && distanceTravelled(rightWheelIndex, originalRightIndex) < abs(rightDistance)) {
-    }
+    while(distanceTravelled(leftWheelIndex, originalLeftIndex) < abs(leftDistance) && distanceTravelled(rightWheelIndex, originalRightIndex) < abs(rightDistance)) {    }
     hardStop();
 }
 
@@ -305,38 +302,67 @@ void Funcs::tapeFollowToEdge(int speed){
         }
     }
 }
-float Funcs::distanceTravelled(int newIndex, int oldIndex) {
-    return (newIndex - oldIndex) * cmPerWheelIndex * DIST_CONV;
+
+// mm
+int Funcs::distanceTravelled(int newIndex, int oldIndex) {
+    return (newIndex - oldIndex) * mmPerWheelIndex;
 }
 
-bool Funcs::ewokDetect() {
-    digitalWrite(EWOK_IR_OUT,HIGH);
+bool Funcs::ewokDetectRight() {
+    digitalWrite(EWOK_IR_OUT_RIGHT,HIGH);
     delay(50);
-    double with = analogRead(EWOK_SENSOR);
-    digitalWrite(EWOK_IR_OUT,LOW);
+    double with = analogRead(EWOK_SENSOR_RIGHT);
+    digitalWrite(EWOK_IR_OUT_RIGHT,LOW);
     delay(50);
-    double without = analogRead(EWOK_SENSOR);
+    double without = analogRead(EWOK_SENSOR_RIGHT);
     int count = 0;
-      Serial.println(with-without-EWOK_THRESH);
-      while(abs(with-without > EWOK_THRESH)) {
+    while(abs(with-without > EWOK_THRESH)) {
         Serial.println(with-without-EWOK_THRESH);
         Serial.println(count);
         count++;
         if(count >= 2) {
             Serial.println("RETURNING TRUE");
-         return true;
+            return true;
         }
-        digitalWrite(EWOK_IR_OUT,HIGH);
+        digitalWrite(EWOK_IR_OUT_RIGHT,HIGH);
         delay(50);
-        with = analogRead(EWOK_SENSOR);
-        digitalWrite(EWOK_IR_OUT,LOW);
+        with = analogRead(EWOK_SENSOR_RIGHT);
+        digitalWrite(EWOK_IR_OUT_RIGHT,LOW);
         delay(50);
-        without = analogRead(EWOK_SENSOR);
+        without = analogRead(EWOK_SENSOR_RIGHT);
         Serial.println(with-without);
-    }
+        }
     return false;
 }
 
+bool Funcs::ewokDetectLeft() {
+    digitalWrite(EWOK_IR_OUT_LEFT,HIGH);
+    delay(50);
+    double with = analogRead(EWOK_SENSOR_LEFT);
+    digitalWrite(EWOK_IR_OUT_LEFT,LOW);
+    delay(50);
+    double without = analogRead(EWOK_SENSOR_LEFT);
+    int count = 0;
+    while(abs(with-without > EWOK_THRESH)) {
+        Serial.println(with-without-EWOK_THRESH);
+        Serial.println(count);
+        count++;
+        if(count >= 2) {
+            Serial.println("RETURNING TRUE");
+            return true;
+        }
+        digitalWrite(EWOK_IR_OUT_LEFT,HIGH);
+        delay(50);
+        with = analogRead(EWOK_SENSOR_LEFT);
+        digitalWrite(EWOK_IR_OUT_LEFT,LOW);
+        delay(50);
+        without = analogRead(EWOK_SENSOR_LEFT);
+        Serial.println(with-without);
+        }
+    return false;
+}
+
+//function to move servo, works more consistently than servo.write
 void Funcs::sweepServo(TINAH::Servo servo, int startAngle, int endAngle) {
     int dA;
     int currAngle = startAngle;
@@ -349,6 +375,73 @@ void Funcs::sweepServo(TINAH::Servo servo, int startAngle, int endAngle) {
         while(currAngle > endAngle) {
             servo.write(currAngle);
             currAngle -= 3;
+        }
+    }
+}
+
+//rotate until middle qrds are on tape
+void Funcs::rotateUntilTape(int direction) {
+    if(direction == CLOCKWISE) {
+        setMotorPower(100,-100);
+    } else {
+        setMotorPower(-100,100);
+    }
+    while(true) {
+        if(digitalRead(TAPE_QRD_MID_RIGHT) || digitalRead(TAPE_QRD_MID_LEFT)) {
+            //stop
+            if(direction == CLOCKWISE) {
+                setMotorPower(-100,100);
+            } else {
+                setMotorPower(100,-100);
+            }
+            setMotorPower(0,0);
+            break;
+        }
+    }
+}
+
+// finds tape, turns left, turns right, big left, big right
+void Funcs::findTape() {
+    //first check left slightly
+    int time = millis();
+    setMotorPower(-100,100);
+    while(millis() - time < 1000) {
+        if( digitalRead(TAPE_QRD_MID_RIGHT) || digitalRead(TAPE_QRD_MID_LEFT) ) {
+            setMotorPower(100,-100);
+            setMotorPower(0,0);
+            return;
+        }
+    }
+    //then check right slightly
+    time = millis();
+    setMotorPower(100,-100); {
+        while(millis() - time < 2000) {
+            if( digitalRead(TAPE_QRD_MID_RIGHT) || digitalRead(TAPE_QRD_MID_LEFT) ) {
+            setMotorPower(-100,100);
+            setMotorPower(0,0);
+            return;
+        }
+        }
+    }
+    //then check left more
+    time = millis();
+    setMotorPower(-100,100);
+    while(millis() - time < 3000) {
+        if( digitalRead(TAPE_QRD_MID_RIGHT) || digitalRead(TAPE_QRD_MID_LEFT) ) {
+            setMotorPower(100,-100);
+            setMotorPower(0,0);
+            return;
+        }
+    }
+    //then check right more
+    time = millis();
+    setMotorPower(100,-100); {
+        while(millis() - time < 4000) {
+            if( digitalRead(TAPE_QRD_MID_RIGHT) || digitalRead(TAPE_QRD_MID_LEFT) ) {
+            setMotorPower(-100,100);
+            setMotorPower(0,0);
+            return;
+        }
         }
     }
 }

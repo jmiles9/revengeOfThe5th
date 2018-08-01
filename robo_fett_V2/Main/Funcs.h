@@ -11,8 +11,8 @@ class Funcs {
         uint16_t rightWheelIndex;
         uint32_t leftWheelLastTime;
         uint32_t rightWheelLastTime;
-        uint8_t leftSpeed;
-        uint8_t rightSpeed;
+        uint16_t leftSpeed;
+        uint16_t rightSpeed;
         uint8_t nextEwok;
         int8_t error;
         TINAH::Servo RCServo7;
@@ -28,7 +28,8 @@ class Funcs {
         double record10KIRBeacon();
         void lowerBridge();
         bool checkBeacon();
-        bool ewokDetect();
+        bool ewokDetectRight();
+        bool ewokDetectLeft();
         void turn(int deg);
         void move(int distance);
         void moveWheels(float leftDistance, float rightDistance, int leftPower, int rightPower);
@@ -42,12 +43,15 @@ class Funcs {
         void findEdge();
         void bridgeFollow(int kp, int kd, int gain);
         bool edgeDetect();
-        float distanceTravelled(int newIndex, int oldIndex);
+        int distanceTravelled(int newIndex, int oldIndex);
         void tapeFollowToEdge(int speed);
         void rotateUntilTape();
         void rotateUntilTapeCCW();
         void sweepServo(TINAH::Servo servo, int startAngle, int endAngle);
         int maintainSpeed(int side, int targetSpeed, int power);
+        void rotateUntilTape(int direction);
+        void findTape();
+
 };
 
 #endif
