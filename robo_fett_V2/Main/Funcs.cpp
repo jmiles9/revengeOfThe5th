@@ -161,6 +161,8 @@ void Funcs::move(int distance, int speed) {
     moveWheels(distance, distance, speed, speed);
 }
 
+// helper function
+// moves wheels lol
 void Funcs::moveWheels(int leftDistance, int rightDistance, int leftSpeed, int rightSpeed) {
     int leftPower = leftSpeed * 255 / 290;
     int rightPower = rightSpeed * 255 / 290;
@@ -173,6 +175,7 @@ void Funcs::moveWheels(int leftDistance, int rightDistance, int leftSpeed, int r
     int originalLeftIndex = leftWheelIndex;
     int leftCurrDistance = 0;
     setMotorPower(leftPower, rightPower);
+    delay(50);
     while(distanceTravelled(leftWheelIndex, originalLeftIndex) < abs(leftDistance) && distanceTravelled(rightWheelIndex, originalRightIndex) < abs(rightDistance)) {
         rightPower = maintainSpeed(RIGHT_MOTOR, rightSpeed, rightPower);
         leftPower = maintainSpeed(LEFT_MOTOR, leftSpeed, leftPower);

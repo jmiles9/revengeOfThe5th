@@ -1,17 +1,6 @@
 #include <phys253.h>          
 #include <LiquidCrystal.h>     
 
-
-//README
-// Tests encoders. Only requires wheels and encoders.
-// 1. Goes 1000mm forwards
-// 2. Turns ccw 90 degrees
-// 3. Goes 200mm left (currently straight for robot)
-// 4. Turns 169 degrees ccw
-// 5. Goes 1020 mm back towards origin 
-// 6. Turns 101 degrees ccw
-// 7. Should return to original spot, original orientation.
-
 void setup() {
   #include <phys253setup.txt>
   Serial.begin(9600);
@@ -41,39 +30,26 @@ const int umPerWheelIndex = wheelRadius * 3.14 * 2 / (TICKSPERROTATION) / (ENCOD
 const int wheelSeparation = 175;
 const float degreesPermm = 360 / (3.14 * wheelSeparation);
 
+int leftPower = 100;
+int rightPower = 100;
+
+// leave the func(s) you want to test uncommented
 void loop() {
-    move(1000,150);
-    LCD.clear(); LCD.setCursor(0,0);
-    LCD.print("Move1");
-    delay(1000);
+//    move(100);
+//    turn(90);
+//    rotateUntilTape();
+//    rotateUntilTapeCCW();
+//    delay(50000);
 
-    turn(-90);
-    LCD.clear(); LCD.setCursor(0,0);
-    LCD.print("Turn1");
-    delay(1000);
-
-    move(200,150);
-    LCD.clear(); LCD.setCursor(0,0);
-    LCD.print("Move2");
-    delay(1000);
-
-    turn(169);
-    LCD.clear(); LCD.setCursor(0,0);
-    LCD.print("Turn2");
-    delay(1000);
-
-    move(1020,150);
-    LCD.clear(); LCD.setCursor(0,0);
-    LCD.print("Move3");
-    delay(1000);
-
-    turn(101);
-    LCD.clear(); LCD.setCursor(0,0);
-    LCD.print("Turn3");
-    delay(50000);
+    setMotorPower(leftPower, rightPower);
+    delay(50);
+    while(true) {
+        leftPower = maintainSpeed(LEFT, 50, leftPower);
+        rightPower = maintainSpeed(RIGHT, 50, rightPower)
+    }
 }
 
-///MARK: Movement functions
+/// MARK: Movement functions
 
 //PARAM: deg - degrees to turn clockwise
 void turn(int deg) {
