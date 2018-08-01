@@ -71,15 +71,11 @@ namespace configs {
     const int ZIP_ARM_MOTOR = 2;
     const int ZIP_WHEEL_MOTOR = 3;
 
-    //drivetrain
-    #define LEFT_HANDICAP
-    #define RIGHT_HANDICAP
-    #define ENCODER_WHEEL_RATIO
     // mm
-    const int wheelRadius = 32;
-    const int mmPerWheelIndex = wheelRadius * 3 * 2 / 24; // 8mm
-    #define WHEEL_DIAM
-    // mm
+    const float wheelRadius = 31.7;
+    const float ENCODER_RATIO = 3 / 2;
+    const int TICKSPERROTATION = 48;
+    const int umPerWheelIndex = wheelRadius * 3.14 * 2 / (TICKSPERROTATION) / (ENCODER_RATIO);
     const int wheelSeparation = 175;
     // amount of rotation if left and right wheels move in opposite directions
     const float degreesPermm = 360 / (3.14 * wheelSeparation);

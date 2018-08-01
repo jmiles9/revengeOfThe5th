@@ -69,6 +69,7 @@ void loop() {
     while(millis() - time < 5000) {
         tapeFollow(9,12,10,150);
     }
+    setMotorPower(0,0);
     delay(100000);
 }
 
@@ -147,8 +148,8 @@ void hardStop(int t){
 }
 
 void setMotorPower(int l, int r){
-//  motor.speed(RIGHT_MOTOR, -r);
-//  motor.speed(LEFT_MOTOR, l);
+    motor.speed(RIGHT_MOTOR, -r);
+    motor.speed(LEFT_MOTOR, l);
 }
 
 void encoderLeft() {

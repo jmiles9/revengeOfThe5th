@@ -152,34 +152,34 @@ bool Funcs::checkBeacon() {
 
 //PARAM: deg - degrees to turn clockwise
 void Funcs::turn(int deg) {
-    moveWheels(deg / degreesPermm, -deg / degreesPermm, 100, -100);
+    moveWheels(deg / degreesPermm, -deg / degreesPermm, 50, 50);
 }
 
-//PARAM: distance - distance in mm
-void Funcs::move(int distance) {
-    moveWheels(distance, distance, 255,255);
+//PARAM: distance - distance in mm to move.
+//         speed  - speed to move. Must be positive.
+void Funcs::move(int distance, int speed) {
+    moveWheels(distance, distance, speed, speed);
 }
 
-void Funcs::moveWheels(float leftDistance, float rightDistance, int leftPower, int rightPower) {
-    int leftFactor = 1;
-    int rightFactor = 1;
-    if(leftDistance < 0) {
-        leftFactor = -1;
-    }
-    if(rightDistance < 0) {
-        rightFactor = -1;
-    }
-    leftPower *= leftFactor;
-    rightPower *= rightFactor;
+void Funcs::moveWheels(int leftDistance, int rightDistance, int leftSpeed, int rightSpeed) {
+    int leftPower = leftSpeed * 255 / 290;
+    int rightPower = rightSpeed * 255 / 290;
+    leftPower = max(leftPower, FULL_F);
+    leftPower = min(leftPower, FULL_R);
+    rightPower = max(rightPower, FULL_F);
+    rightPower = min(rightPower, FULL_R);
     int originalRightIndex = rightWheelIndex;
     int rightCurrDistance = 0;
     int originalLeftIndex = leftWheelIndex;
     int leftCurrDistance = 0;
     setMotorPower(leftPower, rightPower);
-    bool leftDone = false;
-    bool rightDone = false;
-    while(distanceTravelled(leftWheelIndex, originalLeftIndex) < abs(leftDistance) && distanceTravelled(rightWheelIndex, originalRightIndex) < abs(rightDistance)) {    }
-    hardStop();
+    while(distanceTravelled(leftWheelIndex, originalLeftIndex) < abs(leftDistance) && distanceTravelled(rightWheelIndex, originalRightIndex) < abs(rightDistance)) {
+        rightPower = maintainSpeed(RIGHT_MOTOR, rightSpeed, rightPower);
+        leftPower = maintainSpeed(LEFT_MOTOR, leftSpeed, leftPower);
+    }
+    setMotorPower(-leftPower, -rightPower);
+    delay(10);
+    setMotorPower(0,0);
 }
 
 // Maintains a speed for one side.
@@ -201,6 +201,11 @@ int Funcs::maintainSpeed(int side, int targetSpeed, int power) {
     }
     power = max(FULL_R, power);
     power = min(FULL_F, power);
+    if(side == LEFT) {
+        motor.speed(LEFT_MOTOR, power);
+    } else if(side == RIGHT) {
+        motor.speed(RIGHT_MOTOR, power);
+    }
     setMotorPower(side, power);
     return power;
 }
@@ -324,7 +329,7 @@ void Funcs::tapeFollowToEdge(int speed){
 
 // mm
 int Funcs::distanceTravelled(int newIndex, int oldIndex) {
-    return (newIndex - oldIndex) * mmPerWheelIndex;
+    return (newIndex - oldIndex) * umPerWheelIndex / 1000;
 }
 
 bool Funcs::ewokDetectRight() {

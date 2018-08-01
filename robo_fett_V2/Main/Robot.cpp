@@ -158,7 +158,7 @@ void Robot::DRAWBRIDGE() {
     //Adjust
     Funcs::turn(PRE_BRIDGE_TURN);
     delay(1000);
-    Funcs::move(180);
+    Funcs::move(180,100);
     delay(1000);
     //Turn towards gap, should be perpendicular
     Funcs::turn(-90);
@@ -172,13 +172,13 @@ void Robot::DRAWBRIDGE() {
         }
     }
     hardStop();
-    move(configs::PRE_BRIDGE_MOVE);
+    move(configs::PRE_BRIDGE_MOVE,50);
     delay(1000);
     Funcs::lowerBridge();
     delay(1000);
-    move(configs::BRIDGE_REVERSE);
+    move(configs::BRIDGE_REVERSE,100);
     delay(1000);
-    move(configs::BRIDGE_CRUISE);
+    move(configs::BRIDGE_CRUISE,100);
     delay(1000);
     Funcs::findTape();
     runState = RunState::EWOK_SEARCH_RIGHT;

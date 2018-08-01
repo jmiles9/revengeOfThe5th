@@ -31,8 +31,8 @@ class Funcs {
         bool ewokDetectRight();
         bool ewokDetectLeft();
         void turn(int deg);
-        void move(int distance);
-        void moveWheels(float leftDistance, float rightDistance, int leftPower, int rightPower);
+        void move(int distance, int speed);
+        void moveWheels(int leftDistance, int rightDistance, int leftPower, int rightPower);
         int speedToPower(int speed);
         void dumpBasket();
         void extendZipline();

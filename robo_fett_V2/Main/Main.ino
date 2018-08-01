@@ -13,10 +13,8 @@ void setup() {
   Serial.begin(9600);
   LCD.begin();
 	roboFett = Robot();
-	attachInterrupt(2, encoderLeft, RISING);
-	attachInterrupt(2, encoderLeft, FALLING);
-	attachInterrupt(3, encoderRight, RISING);
-	attachInterrupt(3, encoderRight, FALLING);
+	attachInterrupt(2, encoderLeftRising, RISING);
+	attachInterrupt(3, encoderRightRising, RISING);
 	pinMode(configs::EWOK_IR_OUT_RIGHT, OUTPUT);
 	pinMode(configs::EWOK_IR_OUT_LEFT, OUTPUT);
 	LCD.clear();  LCD.home();
@@ -97,23 +95,49 @@ void loop() {
 	}
 }
 
-void encoderLeft() {
-		int time = millis();
-		if(time - roboFett.leftWheelLastTime < 5) {
-			return;
-		}
-		roboFett.leftWheelIndex++;
-		roboFett.leftSpeed = configs::mmPerWheelIndex / (time - roboFett.leftWheelLastTime);
-		roboFett.leftWheelLastTime = time;
+/// MARK: Encoder interrupt functions
+void encoderRightRising() {
+    int time = millis();
+    if(time - roboFett.rightWheelLastTime < 5) {
+        return;
+    }
+    roboFett.rightWheelIndex++;
+		roboFett.rightSpeed = configs::umPerWheelIndex / (time - roboFett.rightWheelLastTime);
+		roboFett.rightWheelLastTime = time;
+    attachInterrupt(3, encoderRightFalling, FALLING);
 }
 
-void encoderRight() {
-		int time = millis();
-		if(time - roboFett.rightWheelLastTime < 5) {
-			return;
-		}
-		roboFett.rightWheelIndex++;
-		roboFett.rightSpeed = configs::mmPerWheelIndex / (time - roboFett.rightWheelLastTime);
+void encoderRightFalling() {
+    int time = millis();
+    if(time - roboFett.rightWheelLastTime < 5) {
+        return;
+    }
+    roboFett.rightWheelIndex++;
+		roboFett.rightSpeed = configs::umPerWheelIndex / (time - roboFett.rightWheelLastTime);
 		roboFett.rightWheelLastTime = time;
+    attachInterrupt(3, encoderRightRising, RISING);
 }
+
+void encoderLeftFalling() {
+	int time = millis();
+    if(time - roboFett.leftWheelLastTime < 5) {
+        return;
+    }
+    roboFett.leftWheelIndex++;
+		roboFett.leftSpeed = configs::umPerWheelIndex / (time - roboFett.leftWheelLastTime);
+		roboFett.leftWheelLastTime = time;
+    attachInterrupt(3, encoderLeftRising, RISING);
+}
+
+void encoderLeftRising() {
+	int time = millis();
+    if(time - roboFett.leftWheelLastTime < 5) {
+        return;
+    }
+    roboFett.leftWheelIndex++;
+		roboFett.leftSpeed = configs::umPerWheelIndex / (time - roboFett.leftWheelLastTime);
+		roboFett.leftWheelLastTime = time;
+    attachInterrupt(3, encoderLeftFalling, FALLING);
+}
+
 
