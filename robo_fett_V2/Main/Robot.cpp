@@ -22,10 +22,10 @@ Robot::Robot() {
 //goes into cruise_plat1
 void Robot::STARTUP() {
     Serial.println("in startup");
-    Funcs::sweepServo(ARM_LEFT, ARMS_DOWN_CHEWIE, ARMS_UP);
-    Funcs::sweepServo(ARM_RIGHT, ARMS_DOWN_CHEWIE, ARMS_UP);
-    Funcs::sweepServo(CLAW_LEFT, CLAWS_OPEN, CLAWS_CLOSED);
-    Funcs::sweepServo(CLAW_RIGHT, CLAWS_OPEN, CLAWS_CLOSED);
+    Funcs::sweepServo(ARM_LEFT, ARM_DOWN_CHEWIE_LEFT, ARM_UP_LEFT);
+    Funcs::sweepServo(ARM_RIGHT, ARM_DOWN_CHEWIE_RIGHT, ARM_UP_RIGHT);
+    Funcs::sweepServo(CLAW_LEFT, CLAW_OPEN_LEFT, CLAW_CLOSED_LEFT);
+    Funcs::sweepServo(CLAW_RIGHT, CLAW_OPEN_RIGHT, CLAW_CLOSED_RIGHT);
 
     // while(!menu.quitMenu){
     //     bool start = false;
@@ -122,52 +122,33 @@ void Robot::EWOK_GRAB() {
     // Gets side and stuffy parameters
     switch(nextEwok) {
         case 1:
-            arm = ARM_RIGHT;
-            claw = CLAW_RIGHT;
             side = RIGHT;
             stuffy = EWOK;
             runState = RunState::DRAWBRIDGE;
             break;
         case 2:
-            arm = ARM_RIGHT;
-            claw = CLAW_RIGHT;
             side = RIGHT;
             stuffy = EWOK;
             runState = RunState::IR_WAIT;
             break;
         case 3: 
-            arm = ARM_LEFT;
-            claw = CLAW_LEFT;
             side = LEFT;
             stuffy = EWOK;
             runState = RunState::DUMP_PREP;        
             break;
         case 4: 
-            arm = ARM_RIGHT;
-            claw = CLAW_RIGHT;
             side = RIGHT;
             stuffy = EWOK;
             // TODO: Add state here
             break;
         case 5:
-            arm = ARM_LEFT;
-            claw = CLAW_LEFT;
             side = LEFT;
             stuffy = configs::CHEWIE;
+            //TODO: Add state here
             break;
-    }
-    Funcs::sweepServo(claw, CLAWS_CLOSED, CLAWS_OPEN);
-    delay(2000);
-    Funcs::sweepServo(arm, ARMS_UP, ARMS_DOWN_EWOK);
-    delay(2000);
-    //Serial.println("closing claws");
-    Funcs::sweepServo(claw, CLAWS_OPEN, CLAWS_CLOSED);
-    delay(2000);
-    //Serial.println("raising arms");
-    Funcs::sweepServo(arm, ARMS_DOWN_EWOK, ARMS_UP);
-    delay(650);
-    Funcs::sweepServo(claw, CLAWS_CLOSED, CLAWS_OPEN);
+    Funcs::pickUp(side, stuffy);
     nextEwok++;
+    }
 }
 
 //starts after picking up first ewok
