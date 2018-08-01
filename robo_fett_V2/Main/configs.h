@@ -14,9 +14,10 @@ namespace configs {
 
     // Analog ports
     // KNOB is using port 0. keep in mind they are reversed on TINAH
-    const int IR_1KHZ = 1;
-    const int IR_10KHZ = 2;
-    const int EWOK_SENSOR = 3;
+    const int IR_1KHZ = 0;
+    const int IR_10KHZ = 1;
+    const int EWOK_SENSOR_LEFT = 2;
+    const int EWOK_SENSOR_RIGHT = 3;
     const int TAPE_QRD_FAR_LEFT = 4;
     const int TAPE_QRD_MID_LEFT = 5;
     const int TAPE_QRD_MID_RIGHT = 6;
@@ -32,7 +33,8 @@ namespace configs {
     //tinah inputs 15 to 8
     //must be outputs
 
-    const int EWOK_IR_OUT = 8; //when HI, the ewok IR
+    const int EWOK_IR_OUT_RIGHT = 8; //when HI, the ewok IR
+    const int EWOK_IR_OUT_LEFT = 9;
     
     //tinah inputa 0 to 7 (including interrupts)
     //must be inputs cuz interrupts are 0-3
@@ -40,12 +42,9 @@ namespace configs {
 
     const int ENCODER_LEFT = 2;
     const int ENCODER_RIGHT = 3;
-    const int EDGE_QRD = 6;
-    const int RIGHT_CLAW_STUFFY_SWITCH = 5;
     
     //all ports below arbitrary
 
-    const int LEFT_CLAW_STUFFY_SWITCH = 15;
     const int ZIP_SWITCH_EXTENDED = 13;
     const int ZIP_SWITCH_CLOSED = 12;
     const int ZIPPED_UP_SWITCH = 11;
@@ -73,12 +72,14 @@ namespace configs {
     #define LEFT_HANDICAP
     #define RIGHT_HANDICAP
     #define ENCODER_WHEEL_RATIO
-    const float wheelRadius = 3;
-    const float cmPerWheelIndex = wheelRadius * 3.1415 * 2 / 16;
+    // mm
+    const int wheelRadius = 32;
+    const int mmPerWheelIndex = wheelRadius * 3 * 2 / 24; // 8mm
     #define WHEEL_DIAM
-    const float wheelSeparation = 17.5;
+    // mm
+    const int wheelSeparation = 175;
     // amount of rotation if left and right wheels move in opposite directions
-    const float degreesPerCm = 360 / (3.1415 * wheelSeparation);
+    const float degreesPermm = 360 / (3.14 * wheelSeparation);
 
 
     // Speeds
@@ -96,8 +97,8 @@ namespace configs {
     const int ZIP_ARM_EXTENDING = 255;
     const int ZIP_ARM_CONTRACTING = -255;
     const int ZIPPING_UP = 255;
-    // in cm/s
-    const int MAX_SPEED = 50;
+    // in mm/s
+    const int MAX_SPEED = 500;
 
     enum Speed{
         SPEED,
@@ -116,6 +117,7 @@ namespace configs {
     const int IR_THRESHOLD = 512;
     const int EWOK_THRESH = 250;
     const int TAPE_QRD_THRESHOLD = 512;
+    const int EDGE_QRD_THRESHOLD = 100;
     //digitalOut
 
     //claws
@@ -127,13 +129,13 @@ namespace configs {
     
     const int STUFFY_GRAB_MANEUVER = 10;
 
-    const float PLAT1_CRUISE = 150;
-    const int PRE_BRIDGE_MOVE = 5;
-    const int BRIDGE_REVERSE = -10;
-    const int BRIDGE_CRUISE = 60/DIST_CONV;
-    const int PLAT2_CRUISE = 130/DIST_CONV;
-    const int DUMP_PREP_DIST = 15/DIST_CONV;
-    const int DUMP_RAM_DISTANCE = 10/DIST_CONV;
+    const float PLAT1_CRUISE = 1500;
+    const int PRE_BRIDGE_MOVE = -50;
+    const int BRIDGE_REVERSE = -125;
+    const int BRIDGE_CRUISE = 500;
+    const int PLAT2_CRUISE = 130;
+    const int DUMP_PREP_DIST = 15;
+    const int DUMP_RAM_DISTANCE = 10;
 
 
     // Angles
@@ -160,6 +162,10 @@ namespace configs {
     const int SMALL_RIGHT_ERROR = -1;
     const int MED_RIGHT_ERROR = -3;
     const int LARGE_RIGHT_ERROR = -5;
+
+    //direction
+    const int CLOCKWISE = 0;
+    const int COUNTERCW = 1;
 
     //other
     const int LEFT = 0;

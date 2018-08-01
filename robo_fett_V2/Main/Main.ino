@@ -4,24 +4,27 @@
 
 using namespace std;
 Robot roboFett;
+//TODO: FIX shitty servo passing
+TINAH::Servo RCServo6 = TINAH::Servo(configs::RCSERVO6);
+TINAH::Servo RCServo7 = TINAH::Servo(configs::RCSERVO7);
 
 void setup() {
+	//startUp sequence
   Serial.begin(9600);
   LCD.begin();
 	roboFett = Robot();
 	attachInterrupt(2, encoderLeft, RISING);
+	attachInterrupt(2, encoderLeft, FALLING);
 	attachInterrupt(3, encoderRight, RISING);
-	pinMode(configs::EWOK_IR_OUT, OUTPUT);
-	//startUp sequence
-  	LCD.clear();  LCD.home() ;
-    LCD.setCursor(0,0); LCD.print("HELLOOOO "); 
-    roboFett.sweepServo(RCServo2, 20, configs::DRAWBRIDGE_CLOSED);
-		roboFett.sweepServo(RCServo0,configs::ARMS_UP,configs::ARMS_DOWN_EWOK);
-		delay(500);
-		roboFett.sweepServo(RCServo0,configs::ARMS_DOWN_EWOK,configs::ARMS_UP);
-		roboFett.sweepServo(RCServo1,configs::CLAWS_CLOSED,configs::CLAWS_OPEN);
-		delay(500);
-		roboFett.sweepServo(RCServo1,configs::CLAWS_OPEN,configs::CLAWS_CLOSED);
+	attachInterrupt(3, encoderRight, FALLING);
+	pinMode(configs::EWOK_IR_OUT_RIGHT, OUTPUT);
+	pinMode(configs::EWOK_IR_OUT_LEFT, OUTPUT);
+	LCD.clear();  LCD.home();
+	roboFett.sweepServo(BASKET, 20, configs::DRAWBRIDGE_CLOSED);
+	roboFett.sweepServo(ARM_RIGHT,configs::ARMS_DOWN_EWOK,configs::ARMS_UP);
+	roboFett.sweepServo(ARM_LEFT,configs::ARMS_DOWN_EWOK,configs::ARMS_UP);
+	roboFett.sweepServo(CLAW_RIGHT,configs::CLAWS_OPEN,configs::CLAWS_CLOSED);
+	roboFett.sweepServo(CLAW_LEFT,configs::CLAWS_OPEN,configs::CLAWS_CLOSED);
 }
 
 void loop() {
@@ -38,17 +41,19 @@ void loop() {
       LCD.setCursor(0,0); LCD.print("CRUISE");
   			roboFett.CRUISE_PLAT1();
 			break;
-		case EWOK_SEARCH :
-    LCD.clear();LCD.home();
-      LCD.setCursor(0,0); LCD.print("SEARCH");
-			roboFett.EWOK_SEARCH();
+		case EWOK_SEARCH_RIGHT :
+    	LCD.clear();LCD.home();
+      LCD.setCursor(0,0); LCD.print("SEARCHRIGHT");
+			roboFett.EWOK_SEARCH_RIGHT();
 			break;
 		case EWOK_GRAB :
-    LCD.clear();LCD.home();
+    	LCD.clear();LCD.home();
       LCD.setCursor(0,0); LCD.print("GRABS");
 			roboFett.EWOK_GRAB();
 			break;
 		case DRAWBRIDGE :
+		  LCD.clear();LCD.home();
+      LCD.setCursor(0,0); LCD.print("BRIDGE");
 			roboFett.DRAWBRIDGE();
 			break;
 		case IR_WAIT :
@@ -57,6 +62,11 @@ void loop() {
     case CRUISE_PLAT2 :
       roboFett.CRUISE_PLAT2();
       break;
+		case EWOK_SEARCH_LEFT :
+    	LCD.clear();LCD.home();
+      LCD.setCursor(0,0); LCD.print("SEARCHLEFT");
+			roboFett.EWOK_SEARCH_LEFT();
+			break;
 		case DUMP_PREP :
 			roboFett.DUMP_PREP();
 			break;
@@ -89,19 +99,21 @@ void loop() {
 
 void encoderLeft() {
 		int time = millis();
-		if(time - roboFett.leftWheelLastTime < 40) {
+		if(time - roboFett.leftWheelLastTime < 5) {
 			return;
 		}
 		roboFett.leftWheelIndex++;
+		roboFett.leftSpeed = configs::mmPerWheelIndex / (time - roboFett.leftWheelLastTime);
 		roboFett.leftWheelLastTime = time;
 }
 
 void encoderRight() {
 		int time = millis();
-		if(time - roboFett.rightWheelLastTime < 40) {
+		if(time - roboFett.rightWheelLastTime < 5) {
 			return;
 		}
 		roboFett.rightWheelIndex++;
+		roboFett.rightSpeed = configs::mmPerWheelIndex / (time - roboFett.rightWheelLastTime);
 		roboFett.rightWheelLastTime = time;
 }
 
