@@ -31,8 +31,19 @@ void Menu::display()
             LCD.setCursor(0, 1); LCD.print("Next: <START>");
             break;
 
-        default:
+        case MENU_IR:
+            LCD.clear(); LCD.home();
+            LCD.setCursor(0, 0); LCD.print("Check IR: <STOP>");
+            LCD.setCursor(0, 1); LCD.print("Next: <START>");
             break;
+
+        case MENU_EXIT:
+            LCD.clear(); LCD.home();
+            LCD.setCursor(0, 0); LCD.print("Start course: <STOP>");
+            LCD.setCursor(0, 1); LCD.print("Next: <START>");
+            break;
+
+        default: break;
         }
         break;
 
@@ -57,32 +68,6 @@ void Menu::display()
                 LCD.setCursor(0, 1); LCD.print("Use KNOB to set");
                 break;
             
-            default: break;
-        }
-        break;
-
-    //TODO: put qrd vals in 
-    case S_QRDDISP:
-        Serial.println("display - S_QRDDISP");
-        switch(qrdOption_){
-            case QRD_TAPE:
-                LCD.clear(); LCD.home();
-                LCD.setCursor(0, 0); 
-                LCD.print("L="); LCD.print(":P");
-                LCD.print(" ML="); LCD.print(":P");
-                LCD.setCursor(0, 1);
-                LCD.print("MR="); LCD.print(":P"); 
-                LCD.print(" R="); LCD.print(":P");
-                break;
-
-            case QRD_EDGE:
-                LCD.clear(); LCD.home();
-                LCD.setCursor(0, 0); 
-                LCD.print("IN = "); LCD.print(":P");
-                LCD.setCursor(0, 1);
-                LCD.print("OUT = "); LCD.print(":P");
-                break;
-
             default: break;
         }
         break;
@@ -133,7 +118,7 @@ void Menu::display()
         Serial.println("display - S_IR");
         LCD.clear(); LCD.home();
         LCD.setCursor(0, 0); 
-        LCD.print("IR"); LCD.print(":P");
+        LCD.print("IR = "); LCD.print(":P");
         LCD.setCursor(0, 1); LCD.print("<STOP> to go back");
         break;
 
@@ -175,10 +160,6 @@ void Menu::handleInput(int input){
                 state_ = S_PDSET;
                 break;
 
-            case MENU_QDISP:
-                state_ = S_QRDDISP;
-                break;
-
             case MENU_QRDSET:
                 //switch to QRD value view
                 state_ = S_QRDSET;
@@ -204,12 +185,6 @@ void Menu::handleInput(int input){
         //stop to go back
         if (input == BTN_START) 
             (pdOption_ < PD_OPTIONS - 1) ? pdOption_++ : pdOption_ = 0;
-        else if (input == BTN_STOP) state_ = S_CYCLE;
-        break;
-
-    case S_QRDDISP:
-        if(input == BTN_START)
-            (qrdOption_ < NUM_QRDS - 1) ? qrdOption_ ++ : qrdOption_ = 0;
         else if (input == BTN_STOP) state_ = S_CYCLE;
         break;
 

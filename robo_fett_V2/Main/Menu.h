@@ -17,21 +17,15 @@ const int KNOB = 0; //analog port 0
 const int MENU_START  = 0;
 const int MENU_PDSET  = 1;
 const int MENU_QRDSET = 2;
-const int MENU_QDISP  = 3;
-const int MENU_IR     = 4;
-const int MENU_EXIT   = 5;
-const int NUM_OPTIONS = 6; //keep this last!! is num of options
+const int MENU_IR     = 3;
+const int MENU_EXIT   = 4;
+const int NUM_OPTIONS = 5; //keep this last!! is num of options
 
 //pdOption
 const int PD_KP   = 0;
 const int PD_KD   = 1;
 const int PD_GAIN = 2;
 const int PD_OPTIONS = 3; //keep this last!! is num of options
-
-//qrdOption (from left to right)
-const int QRD_TAPE  = 0;
-const int QRD_EDGE  = 1;
-const int NUM_QRDS  = 2; //keep this last!! num of qrds
 
 //qrdPair (for qrdSet)
 const int PAIR_OUT  = 0;
@@ -46,7 +40,6 @@ private:
         S_CYCLE,
         S_PDSET,
         S_QRDSET,
-        S_QRDDISP,
         S_IRCHECK,
         S_EXIT
     };
@@ -54,7 +47,6 @@ private:
     State state_;
     int menuOption_;
     int pdOption_;
-    int qrdOption_;
     int qrdPair_;
     int counter;
 

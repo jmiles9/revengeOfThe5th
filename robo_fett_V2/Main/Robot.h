@@ -1,5 +1,6 @@
 //#include <cstdint>
 #include "Funcs.h"
+#include "Menu.h"
 
 enum RunState {
     STARTUP,
@@ -25,6 +26,7 @@ class Robot : public Funcs {
 
     public:
         RunState runState;
+        Menu menu;
 
         Robot();
         void STARTUP();

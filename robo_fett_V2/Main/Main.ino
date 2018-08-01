@@ -2,50 +2,42 @@
 #include "Funcs.h"
 #include "configs.h"
 
+//reference https://github.com/WalkervilleElementary/robot/blob/master/src/main.cpp
+
+//will need to do imports for all other stuff
+//need to be very mindful of ints being used!
+
 using namespace std;
+
+
 Robot roboFett;
 
 void setup() {
   Serial.begin(9600);
+  Serial.println("setup");
   LCD.begin();
 	roboFett = Robot();
-	attachInterrupt(2, encoderLeft, RISING);
-	attachInterrupt(3, encoderRight, RISING);
-	pinMode(configs::EWOK_IR_OUT, OUTPUT);
+	//attachInterrupt(3, encoderLeft, RISING);
+	//attachInterrupt(4, encoderRight, RISING);
 	//startUp sequence
-  	LCD.clear();  LCD.home() ;
-    LCD.setCursor(0,0); LCD.print("HELLOOOO "); 
-    roboFett.sweepServo(RCServo2, 20, configs::DRAWBRIDGE_CLOSED);
-		roboFett.sweepServo(RCServo0,configs::ARMS_UP,configs::ARMS_DOWN_EWOK);
-		delay(500);
-		roboFett.sweepServo(RCServo0,configs::ARMS_DOWN_EWOK,configs::ARMS_UP);
-		roboFett.sweepServo(RCServo1,configs::CLAWS_CLOSED,configs::CLAWS_OPEN);
-		delay(500);
-		roboFett.sweepServo(RCServo1,configs::CLAWS_OPEN,configs::CLAWS_CLOSED);
+  LCD.clear();  LCD.home() ;
+  LCD.setCursor(0,0); LCD.print("HELLOOOO "); 
 }
 
 void loop() {
 	switch(roboFett.runState) {
 		case STARTUP :
-      //Serial.println("MAIN STARTUP");
-      LCD.clear();LCD.home();
-      LCD.setCursor(0,0); LCD.print("MAIN"); 
+      Serial.println("MAIN STARTUP");
 			roboFett.STARTUP();
 			break;
 		case CRUISE_PLAT1 :
-        //Serial.println("MAIN CRUISE");
-        LCD.clear();LCD.home();
-      LCD.setCursor(0,0); LCD.print("CRUISE");
+        Serial.println("MAIN CRUISE");
   			roboFett.CRUISE_PLAT1();
 			break;
 		case EWOK_SEARCH :
-    LCD.clear();LCD.home();
-      LCD.setCursor(0,0); LCD.print("SEARCH");
 			roboFett.EWOK_SEARCH();
 			break;
 		case EWOK_GRAB :
-    LCD.clear();LCD.home();
-      LCD.setCursor(0,0); LCD.print("GRABS");
 			roboFett.EWOK_GRAB();
 			break;
 		case DRAWBRIDGE :
@@ -54,17 +46,11 @@ void loop() {
 		case IR_WAIT :
 			roboFett.IR_WAIT();
 			break;
-    case CRUISE_PLAT2 :
-      roboFett.CRUISE_PLAT2();
-      break;
 		case DUMP_PREP :
 			roboFett.DUMP_PREP();
 			break;
 		case DUMP_EWOKS :
 			roboFett.DUMP_EWOKS();
-			break;
-		case FIND_ZIP_PLAT2 :
-			roboFett.FIND_ZIP_PLAT2();
 			break;
 		case ZIP_HOOK :
 			roboFett.ZIP_HOOK();
@@ -88,20 +74,16 @@ void loop() {
 }
 
 void encoderLeft() {
-		int time = millis();
-		if(time - roboFett.leftWheelLastTime < 40) {
-			return;
-		}
 		roboFett.leftWheelIndex++;
+		int time = millis();
+		roboFett.leftSpeed = configs::cmPerWheelIndex / (time - roboFett.leftWheelLastTime);
 		roboFett.leftWheelLastTime = time;
 }
 
 void encoderRight() {
-		int time = millis();
-		if(time - roboFett.rightWheelLastTime < 40) {
-			return;
-		}
 		roboFett.rightWheelIndex++;
+		int time = millis();
+		roboFett.rightSpeed = configs::cmPerWheelIndex / (time - roboFett.rightWheelLastTime);
 		roboFett.rightWheelLastTime = time;
 }
 
