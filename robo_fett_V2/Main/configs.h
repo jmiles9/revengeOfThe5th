@@ -27,19 +27,23 @@ namespace configs {
     // Digital ports
     // pls go backwards. don't use interrupt ports (0-3) for switches
     
-    //multiplexer inputs 16 to 23 (0 on multiplexer is 16 for here)
+    //multiplexer inputs 0 to 7
     //all must be inputs
        
-    //tinah inputs 15 to 8
+    
+    //tinah digital outputs 15 to 8
     //must be outputs
-
+    const int MUTLI_CHOOSEA = 15;
+    const int MULTI_CHOOSEB = 14;
+    const int MULTI_CHOOSEC = 13;
     const int EWOK_IR_OUT_RIGHT = 8; //when HI, the ewok IR
     const int EWOK_IR_OUT_LEFT = 9;
     
-    //tinah inputa 0 to 7 (including interrupts)
+    //tinah inputs 0 to 7 (including interrupts)
     //must be inputs cuz interrupts are 0-3
     //pins 0-3 can only be interrupts!!!!!!!!!!!!
-
+    
+    const int MULTI_IN = 4; 
     const int ENCODER_LEFT = 2;
     const int ENCODER_RIGHT = 3;
     
