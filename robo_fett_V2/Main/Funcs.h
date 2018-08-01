@@ -51,6 +51,8 @@ class Funcs {
         int maintainSpeed(int side, int targetSpeed, int power);
         void rotateUntilTape(int direction);
         void findTape();
+        bool digitalReadMultiplex(int port);
+
 
 };
 
