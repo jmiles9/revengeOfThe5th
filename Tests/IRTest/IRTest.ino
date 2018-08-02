@@ -10,14 +10,19 @@ void setup() {
     LCD.clear();  LCD.home() ;
 }
 void loop() {
-    if(analogRead(IR_1KHZ) > analogRead(IR_10KHZ)) {
-        LCD.clear(); LCD.setCursor(0,0); 
-        LCD.print("WAIT (1k HI)");
-    } else if(analogRead(IR_1KHZ) > analogRead(IR_10KHZ)) {
-        LCD.clear(); LCD.setCursor(0,0); 
-        LCD.print("GO (10k HI)");
-    } else {
-        LCD.clear(); LCD.setCursor(0,0);
-        LCD.print("ERROR WTF");
-    }
+    int 1K = analogRead(IR_1KHZ);
+    int 10K = analogRead(IR_10KHZ);
+    LCD.clear(); LCD.setCursor(0,0);
+    LCD.print("1k: "); LCD.print(1K);
+    LCD.setCursor(0,1); LCD.print("10k: "); LCD.print(10K);
+    // if(analogRead(IR_1KHZ) > analogRead(IR_10KHZ)) {
+    //     LCD.clear(); LCD.setCursor(0,0); 
+    //     LCD.print("WAIT (1k HI)");
+    // } else if(analogRead(IR_1KHZ) > analogRead(IR_10KHZ)) {
+    //     LCD.clear(); LCD.setCursor(0,0); 
+    //     LCD.print("GO (10k HI)");
+    // } else {
+    //     LCD.clear(); LCD.setCursor(0,0);
+    //     LCD.print("ERROR WTF");
+    // }
 }

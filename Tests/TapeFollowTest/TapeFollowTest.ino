@@ -12,7 +12,7 @@
     const int TAPE_QRD_FAR_RIGHT = 6; 
     const int LEFT_MOTOR = 0;
     const int RIGHT_MOTOR = 1;
-     const int TAPE_QRD_THRESHOLD = 400;
+    const int TAPE_QRD_THRESHOLD = 400;
 
 
         const int LARGE_LEFT_ERROR = 5;
@@ -37,6 +37,7 @@
 //PD constants
 #define KP 16    
 #define KD 10    
+#define KI 0.02
 #define GAIN 23
 
 #define EWOK_THRESH 30
@@ -55,8 +56,8 @@ void setup() {
   Serial.begin(9600);
   LCD.clear();  LCD.home() ;
   LCD.setCursor(0,0); LCD.print("hello there");
-  RCServo0.write(CLAW_ARM_RAISED_POSITION);
-  RCServo1.write(CLAW_TONG_CLOSED_POSITION);
+//   RCServo0.write(CLAW_ARM_RAISED_POSITION);
+//   RCServo1.write(CLAW_TONG_CLOSED_POSITION);
   attachInterrupt(2, encoderLeft, RISING);
   attachInterrupt(3, encoderRight, RISING);
   
@@ -64,22 +65,31 @@ void setup() {
 
 int count;
 int error = 0;
+//cumulative error for KI
+int cumError = 0;
+int deg = 0;
 int time = millis();
 
 void loop() {
-    tapeFollow(6,15,5,180);
-    if(edgeDetect()) {
-      setMotorPower(0,0);
-      delay(1000);
-      setMotorPower(-95,-40);
-      delay(1000);
-      setMotorPower(0,0);
-      delay(3000);
-      setMotorPower(-50,-50);
-      delay(2000);
-      setMotorPower(110,100);
-      delay(2500);
+    int startTime = millis();
+    while(millis() - startTime < 7000) {
+        tapeFollow(5,6,4,KI,180);
     }
+    setMotorPower(0,0);
+    delay(10000);
+    
+    // if(edgeDetect()) {
+    //   setMotorPower(0,0);
+    //   delay(1000);
+    //   setMotorPower(-95,-40);
+    //   delay(1000);
+    //   setMotorPower(0,0);
+    //   delay(3000);
+    //   setMotorPower(-50,-50);
+    //   delay(2000);
+    //   setMotorPower(110,100);
+    //   delay(2500);
+    // }
 }
 
 bool edgeDetect() {
@@ -95,7 +105,7 @@ bool edgeDetect() {
  *        kd = derivative constant
  *        gain = gain for pd
  */
-void tapeFollow(int kp, int kd, int gain, int power) {
+void tapeFollow(int kp, int kd, int ki, int gain, int power) {
     tf_power = power;
     bool farLeftOnTape = (analogRead(TAPE_QRD_FAR_LEFT) < TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
     bool midLeftOnTape = (analogRead(TAPE_QRD_MID_LEFT) < TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
@@ -115,27 +125,88 @@ void tapeFollow(int kp, int kd, int gain, int power) {
     //setting error values
     int lasterr = error; //saving the old error value
 
-    if(farLeftOnTape && !midLeftOnTape && !midRightOnTape && !farRightOnTape) {
-        error = LARGE_LEFT_ERROR;
-    } else if(farLeftOnTape && midLeftOnTape && !midRightOnTape && !farRightOnTape) {
-        error = MED_LEFT_ERROR;
-    } else if(!farLeftOnTape && midLeftOnTape && !midRightOnTape && !farRightOnTape) {
-        error = SMALL_LEFT_ERROR;
-    } else if(!farLeftOnTape && midLeftOnTape && midRightOnTape && !farRightOnTape) {
-        error = CENTERED_ERROR;
-    } else if(!farLeftOnTape && !midLeftOnTape && midRightOnTape && !farRightOnTape) {
-        error = SMALL_RIGHT_ERROR;
-    } else if(!farLeftOnTape && !midLeftOnTape && midRightOnTape && farRightOnTape) {
-        error = MED_RIGHT_ERROR;
-    } else if(!farLeftOnTape && !midLeftOnTape && !midRightOnTape && farRightOnTape) {
+    // If one or two adjacent qrds are on tape, behaves as expected - gives error to center robot.
+    // If three qrds are on tape, gives error to center robot if qrds are adjacent
+    // If four qrds are on tape, or any combination of non-adjacent qrds are on tape,
+    // this is unexpected, treat as anomaly, maintains last error.
+    if(farLeftOnTape) {
+        if(midLeftOnTape) {
+            if(midRightOnTape) {
+                if(farRightOnTape) {
+                    error = lasterr;
+                } else {
+                    error = LARGE_LEFT_ERROR;
+                }
+            } else if(farRightOnTape) {
+                error = lasterr;
+            } else {
+                error = MED_LEFT_ERROR;
+            }
+        } else if(midRightOnTape || farRightOnTape) {
+            error = lasterr;
+        } else {
+            error = LARGE_LEFT_ERROR;
+        }
+    } else if(midLeftOnTape) {
+        if(midRightOnTape) {
+            if(farRightOnTape) {
+                error = LARGE_RIGHT_ERROR;
+            } else {
+                error = CENTERED_ERROR;
+                if(abs(deg) < 50) {
+                  cumError = 0;
+                 }
+            }
+        } else if(farRightOnTape) {
+            error = lasterr;
+        } else {
+            error = SMALL_LEFT_ERROR;
+            if(abs(deg) < 50) {
+                cumError = 0;
+            }
+        }
+    } else if(midRightOnTape) {
+        if(farRightOnTape) {
+            error = MED_RIGHT_ERROR;
+        } else {
+            error = SMALL_RIGHT_ERROR;
+            if(abs(deg) < 50) {
+                cumError = 0;
+            }
+        }
+    } else if(farRightOnTape) {
         error = LARGE_RIGHT_ERROR;
-    } else if(!farLeftOnTape && !midLeftOnTape && !midRightOnTape && !farRightOnTape) {
-        error = lasterr;
     } else {
-      error = lasterr;
+        error = lasterr;
     }
-
-    steer((kp*error + kd*(error - lasterr))*gain);
+    cumError += error;
+    cumError = min(400,cumError);
+    cumError = max(-400,cumError);
+    if(cumError==800 || cumError == -800) {
+      LCD.clear(); LCD.setCursor(0,0);
+      LCD.print("MAX");
+    }
+    // if(farLeftOnTape && !midLeftOnTape && !midRightOnTape && !farRightOnTape) {
+    //     error = LARGE_LEFT_ERROR;
+    // } else if(farLeftOnTape && midLeftOnTape && !midRightOnTape && !farRightOnTape) {
+    //     error = MED_LEFT_ERROR;
+    // } else if(!farLeftOnTape && midLeftOnTape && !midRightOnTape && !farRightOnTape) {
+    //     error = SMALL_LEFT_ERROR;
+    // } else if(!farLeftOnTape && midLeftOnTape && midRightOnTape && !farRightOnTape) {
+    //     error = CENTERED_ERROR;
+    // } else if(!farLeftOnTape && !midLeftOnTape && midRightOnTape && !farRightOnTape) {
+    //     error = SMALL_RIGHT_ERROR;
+    // } else if(!farLeftOnTape && !midLeftOnTape && midRightOnTape && farRightOnTape) {
+    //     error = MED_RIGHT_ERROR;
+    // } else if(!farLeftOnTape && !midLeftOnTape && !midRightOnTape && farRightOnTape) {
+    //     error = LARGE_RIGHT_ERROR;
+    // } else if(!farLeftOnTape && !midLeftOnTape && !midRightOnTape && !farRightOnTape) {
+    //     error = lasterr;
+    // } else {
+    //   error = lasterr;
+    // }
+    deg = (kp*error + kd*(error - lasterr) + ki * cumError)*gain;
+    steer(deg);
 }
 
 

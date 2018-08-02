@@ -29,11 +29,11 @@ const float wheelRadius = 31.7;
 const int umPerWheelIndex = wheelRadius * 3.14 * 2 / (TICKSPERROTATION) / (ENCODER_RATIO) / 3 * 2 * 1000;
 const int wheelSeparation = 175;
 const float degreesPermm = 360 / (3.14 * wheelSeparation);
-    const int TAPE_QRD_FAR_LEFT = 3;
-    const int TAPE_QRD_MID_LEFT = 4;
-    const int TAPE_QRD_MID_RIGHT = 5;
-    const int TAPE_QRD_FAR_RIGHT = 6; 
-         const int TAPE_QRD_THRESHOLD = 512;
+const int TAPE_QRD_FAR_LEFT = 3;
+const int TAPE_QRD_MID_LEFT = 4;
+const int TAPE_QRD_MID_RIGHT = 5;
+const int TAPE_QRD_FAR_RIGHT = 6; 
+const int TAPE_QRD_THRESHOLD = 512;
 int leftPower = 100;
 int rightPower = 100;
 
@@ -164,8 +164,8 @@ void encoderRightRising() {
         return;
     }
     rightWheelIndex++;
-  if(rightWheelIndex % 10 == 0) {
-      rightSpeed = umPerWheelIndex / (time - rightWheelLastTime) * 3;
+  if(rightWheelIndex % 2 == 0) {
+      rightSpeed = umPerWheelIndex / (time - rightWheelLastTime) * 2;
       rightWheelLastTime = time;
   }
     attachInterrupt(2, encoderRightFalling, FALLING);
@@ -177,8 +177,8 @@ void encoderRightFalling() {
         return;
     }
     rightWheelIndex++;
-  if(rightWheelIndex % 10 == 0) {
-      rightSpeed = umPerWheelIndex / (time - rightWheelLastTime) * 10;
+  if(rightWheelIndex % 2 == 0) {
+      rightSpeed = umPerWheelIndex / (time - rightWheelLastTime) * 2;
       rightWheelLastTime = time;
   }
     attachInterrupt(2, encoderRightRising, RISING);
@@ -190,8 +190,8 @@ void encoderLeftFalling() {
         return;
     }
     leftWheelIndex++;
-  if(leftWheelIndex % 10 == 0) {
-      leftSpeed = umPerWheelIndex / (time - leftWheelLastTime) * 10;
+  if(leftWheelIndex % 2 == 0) {
+      leftSpeed = umPerWheelIndex / (time - leftWheelLastTime) * 2;
       leftWheelLastTime = time;
   }
     attachInterrupt(3, encoderLeftRising, RISING);
@@ -203,8 +203,8 @@ void encoderLeftRising() {
         return;
     }
     leftWheelIndex++;
-  if(leftWheelIndex % 10 == 0) {
-      leftSpeed = umPerWheelIndex / (time - leftWheelLastTime) * 10;
+  if(leftWheelIndex % 2 == 0) {
+      leftSpeed = umPerWheelIndex / (time - leftWheelLastTime) * 2;
       leftWheelLastTime = time;
   }
     attachInterrupt(3, encoderLeftFalling, FALLING);

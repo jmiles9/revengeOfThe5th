@@ -5,13 +5,11 @@ using namespace configs;
 
 int tf_power;
 
- // Used in tapeFollow
+// Used in tapeFollow
 void Funcs::setMotorPower(int left, int right) {
     motor.speed(RIGHT_MOTOR, -right);
     motor.speed(LEFT_MOTOR, left);
 }
-
-
 
 /**
  * tape following - reads sensor values, sets motor speeds using pd
@@ -313,12 +311,11 @@ void Funcs::bridgeFollow(int kp, int kd, int gain) {
     steer((kp*error + kd*(error - lastError))*gain) ;
 }
 
-//TODO: Write this
 bool Funcs::edgeDetect() {
-    return abs(analogRead(TAPE_QRD_FAR_LEFT) - EDGE_QRD_THRESHOLD) < 100
-        && abs(analogRead(TAPE_QRD_MID_LEFT) - EDGE_QRD_THRESHOLD) < 100
-        && abs(analogRead(TAPE_QRD_MID_RIGHT) - EDGE_QRD_THRESHOLD) < 100
-        && abs(analogRead(TAPE_QRD_FAR_RIGHT) - EDGE_QRD_THRESHOLD) < 100;
+  return analogRead(TAPE_QRD_FAR_LEFT) > EDGE_QRD_THRESHOLD
+        && analogRead(TAPE_QRD_MID_LEFT) > EDGE_QRD_THRESHOLD 
+        && analogRead(TAPE_QRD_MID_RIGHT) > EDGE_QRD_THRESHOLD 
+        && analogRead(TAPE_QRD_FAR_RIGHT) > EDGE_QRD_THRESHOLD;
 }
 
 void Funcs::tapeFollowToEdge(int speed){
@@ -391,19 +388,14 @@ bool Funcs::ewokDetectLeft() {
 
 //function to move servo, works more consistently than servo.write
 void Funcs::sweepServo(TINAH::Servo servo, int startAngle, int endAngle) {
-    int dA;
+    int dA = (endAngle - startAngle) / 10
     int currAngle = startAngle;
-    if(endAngle > startAngle) {
-        while(currAngle < endAngle) {
-            servo.write(currAngle);
-            currAngle += 3;
-        }
-    } else if(endAngle < startAngle) {
-        while(currAngle > endAngle) {
-            servo.write(currAngle);
-            currAngle -= 3;
-        }
+    while(abs(endAngle-startAngle) > 20) {
+        servo.write(currAngle + dA);
+        currAngle += dA;
+        delay(20);
     }
+    servo.write(endAngle);
 }
 
 //rotate until middle qrds are on tape
