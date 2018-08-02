@@ -5,11 +5,12 @@
 enum RunState {
     STARTUP,
     CRUISE_PLAT1,
-    EWOK_SEARCH,
+    EWOK_SEARCH_RIGHT,
     EWOK_GRAB,
     DRAWBRIDGE,
     IR_WAIT,
     CRUISE_PLAT2,
+    EWOK_SEARCH_LEFT,
     DUMP_PREP,
     DUMP_EWOKS,
     FIND_ZIP_PLAT2,
@@ -32,11 +33,12 @@ class Robot : public Funcs {
         void STARTUP();
         void CRUISE_PLAT1();
         void DRAWBRIDGE();
-        void EWOK_SEARCH();
+        void EWOK_SEARCH_RIGHT();
         void EWOK_GRAB();
         void CRUISE_IR();
         void IR_WAIT();
         void CRUISE_PLAT2();
+        void EWOK_SEARCH_LEFT();
         void DUMP_PREP();
         void DUMP_EWOKS();
         void FIND_ZIP_PLAT2();
