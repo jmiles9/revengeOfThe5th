@@ -2,7 +2,14 @@
 #include "Funcs.h"
 #include "configs.h"
 
+//reference https://github.com/WalkervilleElementary/robot/blob/master/src/main.cpp
+
+//will need to do imports for all other stuff
+//need to be very mindful of ints being used!
+
 using namespace std;
+
+
 Robot roboFett;
 //TODO: FIX shitty servo passing
 TINAH::Servo RCServo6 = TINAH::Servo(configs::RCSERVO6);
@@ -11,6 +18,7 @@ TINAH::Servo RCServo7 = TINAH::Servo(configs::RCSERVO7);
 void setup() {
 	//startUp sequence
   Serial.begin(9600);
+  Serial.println("setup");
   LCD.begin();
 	roboFett = Robot();
 	attachInterrupt(2, encoderLeftRising, RISING);
@@ -28,15 +36,11 @@ void setup() {
 void loop() {
 	switch(roboFett.runState) {
 		case STARTUP :
-      //Serial.println("MAIN STARTUP");
-      LCD.clear();LCD.home();
-      LCD.setCursor(0,0); LCD.print("MAIN"); 
+      Serial.println("MAIN STARTUP");
 			roboFett.STARTUP();
 			break;
 		case CRUISE_PLAT1 :
-        //Serial.println("MAIN CRUISE");
-        LCD.clear();LCD.home();
-      LCD.setCursor(0,0); LCD.print("CRUISE");
+        Serial.println("MAIN CRUISE");
   			roboFett.CRUISE_PLAT1();
 			break;
 		case EWOK_SEARCH_RIGHT :
@@ -57,6 +61,7 @@ void loop() {
 		case IR_WAIT :
 			roboFett.IR_WAIT();
 			break;
+
     case CRUISE_PLAT2 :
       roboFett.CRUISE_PLAT2();
       break;
@@ -70,9 +75,6 @@ void loop() {
 			break;
 		case DUMP_EWOKS :
 			roboFett.DUMP_EWOKS();
-			break;
-		case FIND_ZIP_PLAT2 :
-			roboFett.FIND_ZIP_PLAT2();
 			break;
 		case ZIP_HOOK :
 			roboFett.ZIP_HOOK();

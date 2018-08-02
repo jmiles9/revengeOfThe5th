@@ -1,5 +1,4 @@
 #include "Robot.h"
-#include "Menu.h"
 
 using namespace configs;
 
@@ -28,16 +27,16 @@ void Robot::STARTUP() {
     Funcs::sweepServo(CLAW_LEFT, CLAW_OPEN_LEFT, CLAW_CLOSED_LEFT);
     Funcs::sweepServo(CLAW_RIGHT, CLAW_OPEN_RIGHT, CLAW_CLOSED_RIGHT);
 
-    // while(!menu.quitMenu){
-    //     bool start = false;
-    //     bool stopp = false;
+    while(!menu.quitMenu){
+        bool start = false;
+        bool stopp = false;
 
-    //     while(startbutton()){start = true;}
-    //     if(start) menu.handleInput(BTN_START);
+        while(startbutton()){start = true;}
+        if(start) menu.handleInput(BTN_START);
 
-    //     while(stopbutton()){stopp = true;}
-    //     if(stopp) menu.handleInput(BTN_STOP);
-    // }
+        while(stopbutton()){stopp = true;}
+        if(stopp) menu.handleInput(BTN_STOP);
+    }
     runState = RunState::CRUISE_PLAT1;
 }
 
