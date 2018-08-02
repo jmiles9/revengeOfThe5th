@@ -15,6 +15,7 @@ class Funcs {
         uint16_t rightSpeed;
         uint8_t nextEwok;
         int8_t error;
+        bool irReady;
         TINAH::Servo RCServo7;
         TINAH::Servo RCServo6;
 

@@ -27,19 +27,6 @@ int rightWheelLastTime = 0;
 int rightWheelIndex = 0;
 int rightSpeed = 0;
 
-const int LEFT = 0;
-const int RIGHT = 1;  
-const int LEFT_MOTOR = 0;
-const int RIGHT_MOTOR = 1;
-
-const int FULL_F = 255;
-const int FULL_R = -255;
-const float ENCODER_RATIO = 3 / 2;
-const int TICKSPERROTATION = 48;
-const float wheelRadius = 31.7;
-const int umPerWheelIndex = wheelRadius * 3.14 * 2 / (TICKSPERROTATION) / (ENCODER_RATIO);
-const int wheelSeparation = 175;
-const float degreesPermm = 360 / (3.14 * wheelSeparation);
 
 void loop() {
     move(1000,150);
@@ -97,10 +84,9 @@ void moveWheels(int leftDistance, int rightDistance, int leftSpeed, int rightSpe
     int originalLeftIndex = leftWheelIndex;
     int leftCurrDistance = 0;
     setMotorPower(leftPower, rightPower);
-    delay(50);
     while(distanceTravelled(leftWheelIndex, originalLeftIndex) < abs(leftDistance) && distanceTravelled(rightWheelIndex, originalRightIndex) < abs(rightDistance)) {
-        rightPower = maintainSpeed(RIGHT_MOTOR, rightSpeed, rightPower);
-        leftPower = maintainSpeed(LEFT_MOTOR, leftSpeed, leftPower);
+        rightPower = maintainSpeed(RIGHT, rightSpeed, rightPower);
+        leftPower = maintainSpeed(LEFT, leftSpeed, leftPower);
     }
     setMotorPower(-leftPower, -rightPower);
     delay(10);
@@ -126,24 +112,10 @@ int maintainSpeed(int side, int targetSpeed, int power) {
     }
     power = max(FULL_R, power);
     power = min(FULL_F, power);
-    if(side == LEFT) {
-        motor.speed(LEFT_MOTOR, power);
-    } else if(side == RIGHT) {
-        motor.speed(RIGHT_MOTOR, power);
-    }
     setMotorPower(side, power);
     return power;
 }
 
-int distanceTravelled(int newIndex, int oldIndex) {
-    return (newIndex - oldIndex) * umPerWheelIndex / 1000;
-}
-
-
-void setMotorPower(int left, int right) {
-    motor.speed(RIGHT_MOTOR, -right);
-    motor.speed(LEFT_MOTOR, left);
-}
 
 /// MARK: Encoder interrupt functions
 void encoderRightRising() {
@@ -152,9 +124,10 @@ void encoderRightRising() {
         return;
     }
     rightWheelIndex++;
-	rightSpeed = umPerWheelIndex / (time - rightWheelLastTime);
-	rightWheelLastTime = time;
-    attachInterrupt(3, encoderRightFalling, FALLING);
+  rightSpeed = umPerWheelIndex / (time - rightWheelLastTime);
+  rightWheelLastTime = time;
+    attachInterrupt(2, encoderRightFalling, FALLING);
+    Serial.println("RIGHT: "); Serial.println(rightWheelIndex);
 }
 
 void encoderRightFalling() {
@@ -163,30 +136,31 @@ void encoderRightFalling() {
         return;
     }
     rightWheelIndex++;
-	rightSpeed = umPerWheelIndex / (time - rightWheelLastTime);
-	rightWheelLastTime = time;
-    attachInterrupt(3, encoderRightRising, RISING);
+  rightSpeed = umPerWheelIndex / (time - rightWheelLastTime);
+  rightWheelLastTime = time;
+    attachInterrupt(2, encoderRightRising, RISING);
 }
 
 void encoderLeftFalling() {
-	int time = millis();
+  int time = millis();
     if(time - leftWheelLastTime < 5) {
         return;
     }
     leftWheelIndex++;
-	leftSpeed = umPerWheelIndex / (time - leftWheelLastTime);
-	leftWheelLastTime = time;
+  leftSpeed = umPerWheelIndex / (time - leftWheelLastTime);
+  leftWheelLastTime = time;
     attachInterrupt(3, encoderLeftRising, RISING);
 }
 
 void encoderLeftRising() {
-	int time = millis();
+  int time = millis();
     if(time - leftWheelLastTime < 5) {
         return;
     }
     leftWheelIndex++;
-	leftSpeed = umPerWheelIndex / (time - leftWheelLastTime);
-	leftWheelLastTime = time;
+  leftSpeed = umPerWheelIndex / (time - leftWheelLastTime);
+  leftWheelLastTime = time;
     attachInterrupt(3, encoderLeftFalling, FALLING);
+      Serial.print("LEFT: ");  Serial.println(leftWheelIndex);
 }
 

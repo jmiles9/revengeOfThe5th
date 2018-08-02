@@ -14,6 +14,7 @@ Robot::Robot() {
     leftSpeed = 0;
     rightSpeed = 0;
     error = 0;
+    irReady = false;
     RCServo6 = TINAH::Servo(RCSERVO6);
     RCServo7 = TINAH::Servo(RCSERVO7);
 }
@@ -72,48 +73,10 @@ void Robot::EWOK_SEARCH_RIGHT() {
 }
 
 /// Grabs ewok.
-/// If fails, attemps twice more, once a little in front, once behind.
 void Robot::EWOK_GRAB() {
     LCD.clear();
     LCD.setCursor(0,0);
     LCD.print("EWOK_GRAB");
-    // digitalWrite(configs::EWOK_IR_OUT,HIGH);
-    // delay(50);
-    // double with = analogRead(configs::EWOK_SENSOR);
-    // digitalWrite(configs::EWOK_IR_OUT,LOW);
-    // delay(50);
-    // double without = analogRead(configs::EWOK_SENSOR);
-    // Serial.println(with-without);
-    // int count = 0;
-    // while(with-without < 540) {
-    //     setMotorPower(200,20);
-    //     digitalWrite(configs::EWOK_IR_OUT,HIGH);
-    //     delay(50);
-    //     with = analogRead(configs::EWOK_SENSOR);
-    //     digitalWrite(configs::EWOK_IR_OUT,LOW);
-    //     delay(50);
-    //     without = analogRead(configs::EWOK_SENSOR);
-    //     Serial.println(with-without);
-    //     count++;
-    //     if(count > 10) {
-    //         break;
-    //     }
-    // }
-    // while(with-without > 540) {
-    //     setMotorPower(-200,0);
-    //     digitalWrite(configs::EWOK_IR_OUT,HIGH);
-    //     delay(50);
-    //     with = analogRead(configs::EWOK_SENSOR);
-    //     digitalWrite(configs::EWOK_IR_OUT,LOW);
-    //     delay(50);
-    //     without = analogRead(configs::EWOK_SENSOR);
-    //     Serial.println(with-without);
-    //     count++;
-    //     if(count > 40) {
-    //         break;
-    //     }
-    // }
-    // setMotorPower(0,0);
     
     TINAH::Servo arm;
     TINAH::Servo claw;
@@ -188,10 +151,14 @@ void Robot::DRAWBRIDGE() {
 //ends after right IR is detected
 //enters cruise_plat_2
 void Robot::IR_WAIT() {
-
+    while(!irReady) {
+        if(record10KIRBeacon() > record1KIRBeacon) {
+            irReady = true;
+        }
+    }
     while (record10KIRBeacon() < record1KIRBeacon()) {
     }
-    runState = RunState::CRUISE_PLAT2;
+    runState = RunState::CRUISE_PLAT2;2
 }
 
 //starts right after 10khz has been detected
@@ -199,7 +166,7 @@ void Robot::IR_WAIT() {
 //enters ewok_search
 void Robot::CRUISE_PLAT2() {
 
-    tapeFollowForDistance(PLAT2_CRUISE,255);
+    tapeFollowForDistance(PLAT2_CRUISE,2550);
     runState = RunState::EWOK_SEARCH_LEFT;
 
 }
@@ -210,7 +177,7 @@ void Robot::EWOK_SEARCH_LEFT() {
 }
 
 //starts after 3rd ewok is grabbed
-//ends when aligned and has front right at wall
+//ends when aligned and has front right at wall 
 //goes into dump_ewoks
 void Robot::DUMP_PREP() {
     turn(-TURN_90);

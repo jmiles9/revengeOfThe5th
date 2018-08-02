@@ -111,7 +111,7 @@ void loop() {
 
   while(!(startbutton())){delay(100);} 
 
-  sweepServo(ARM_LEFT, ARM_UP_LEFT, ARM_DOWN_EWOK_LEFT);
+  sweepServo(ARM_LEFT, ARM_UP_LEFT, ARM_DOWN_EWOK_LEFT);i
 
   CLAW_LEFT.write(CLAW_CLOSED_LEFT);
   LCD.setCursor(0,0);

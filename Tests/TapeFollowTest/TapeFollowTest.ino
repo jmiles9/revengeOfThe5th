@@ -6,10 +6,10 @@
 #include <LiquidCrystal.h>     
 
 //setting up sensor ports
-    const int TAPE_QRD_FAR_LEFT = 4;
-    const int TAPE_QRD_MID_LEFT = 5;
-    const int TAPE_QRD_MID_RIGHT = 6;
-    const int TAPE_QRD_FAR_RIGHT = 7; 
+    const int TAPE_QRD_FAR_LEFT = 3;
+    const int TAPE_QRD_MID_LEFT = 4;
+    const int TAPE_QRD_MID_RIGHT = 5;
+    const int TAPE_QRD_FAR_RIGHT = 6; 
     const int LEFT_MOTOR = 0;
     const int RIGHT_MOTOR = 1;
      const int TAPE_QRD_THRESHOLD = 512;
