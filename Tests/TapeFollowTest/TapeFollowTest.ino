@@ -12,7 +12,7 @@
     const int TAPE_QRD_FAR_RIGHT = 6; 
     const int LEFT_MOTOR = 0;
     const int RIGHT_MOTOR = 1;
-     const int TAPE_QRD_THRESHOLD = 512;
+     const int TAPE_QRD_THRESHOLD = 400;
 
 
         const int LARGE_LEFT_ERROR = 5;
@@ -25,6 +25,7 @@
 
     const int ON_TAPE = 0;
     const int OFF_TAPE = 1;
+    const int EDGE_THRESHOLD = 700;
 
 
 //motor speeds
@@ -66,11 +67,26 @@ int error = 0;
 int time = millis();
 
 void loop() {
-    while(millis() - time < 5000) {
-        tapeFollow(9,12,10,150);
+    tapeFollow(6,15,5,180);
+    if(edgeDetect()) {
+      setMotorPower(0,0);
+      delay(1000);
+      setMotorPower(-95,-40);
+      delay(1000);
+      setMotorPower(0,0);
+      delay(3000);
+      setMotorPower(-50,-50);
+      delay(2000);
+      setMotorPower(110,100);
+      delay(2500);
     }
-    setMotorPower(0,0);
-    delay(100000);
+}
+
+bool edgeDetect() {
+  return analogRead(TAPE_QRD_FAR_LEFT) > EDGE_THRESHOLD
+        && analogRead(TAPE_QRD_MID_LEFT) > EDGE_THRESHOLD 
+        && analogRead(TAPE_QRD_MID_RIGHT) > EDGE_THRESHOLD 
+        && analogRead(TAPE_QRD_FAR_RIGHT) > EDGE_THRESHOLD;
 }
 
 /**
@@ -81,10 +97,10 @@ void loop() {
  */
 void tapeFollow(int kp, int kd, int gain, int power) {
     tf_power = power;
-    bool farLeftOnTape = (analogRead(TAPE_QRD_FAR_LEFT) > TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
-    bool midLeftOnTape = (analogRead(TAPE_QRD_MID_LEFT) > TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
-    bool midRightOnTape = (analogRead(TAPE_QRD_MID_RIGHT) > TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
-    bool farRightOnTape = (analogRead(TAPE_QRD_FAR_RIGHT) > TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
+    bool farLeftOnTape = (analogRead(TAPE_QRD_FAR_LEFT) < TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
+    bool midLeftOnTape = (analogRead(TAPE_QRD_MID_LEFT) < TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
+    bool midRightOnTape = (analogRead(TAPE_QRD_MID_RIGHT) < TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
+    bool farRightOnTape = (analogRead(TAPE_QRD_FAR_RIGHT) < TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
 
     const char *farLeft = farLeftOnTape ? "ON " : "OFF";
     const char *midLeft = midLeftOnTape ? "ON " : "OFF";
@@ -113,9 +129,10 @@ void tapeFollow(int kp, int kd, int gain, int power) {
         error = MED_RIGHT_ERROR;
     } else if(!farLeftOnTape && !midLeftOnTape && !midRightOnTape && farRightOnTape) {
         error = LARGE_RIGHT_ERROR;
+    } else if(!farLeftOnTape && !midLeftOnTape && !midRightOnTape && !farRightOnTape) {
+        error = lasterr;
     } else {
-        // if QRDs read other weird values, let robot go straight until they read normal values.
-        error = 0;
+      error = lasterr;
     }
 
     steer((kp*error + kd*(error - lasterr))*gain);
