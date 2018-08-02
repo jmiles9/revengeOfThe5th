@@ -9,11 +9,11 @@ void setup() {
 }
 
 int count = 0;
-int leftWheelLastTime = 0;
-int leftWheelIndex = 0;
+uint32_t leftWheelLastTime = 0;
+uint32_t leftWheelIndex = 0;
 int leftSpeed = 0;
-int rightWheelLastTime = 0;
-int rightWheelIndex = 0;
+uint32_t rightWheelLastTime = 0;
+uint32_t rightWheelIndex = 0;
 int rightSpeed = 0;
 
 const int LEFT = 0;
@@ -26,7 +26,7 @@ const int FULL_R = -255;
 const float ENCODER_RATIO = 3 / 2;
 const int TICKSPERROTATION = 48;
 const float wheelRadius = 31.7;
-const int umPerWheelIndex = wheelRadius * 3.14 * 2 / (TICKSPERROTATION) / (ENCODER_RATIO) * 1000;
+const int umPerWheelIndex = wheelRadius * 3.14 * 2 / (TICKSPERROTATION) / (ENCODER_RATIO) / 3 * 2 * 1000;
 const int wheelSeparation = 175;
 const float degreesPermm = 360 / (3.14 * wheelSeparation);
     const int TAPE_QRD_FAR_LEFT = 3;
@@ -39,7 +39,20 @@ int rightPower = 100;
 
 // leave the func(s) you want to test uncommented
 void loop() {
-    move(1000,100);
+//  setMotorPower(255,255);
+//  delay(200);
+//  Serial.print("LEFT: ");
+//  Serial.println(leftSpeed);
+//  Serial.print("Right: ");
+//
+//  Serial.println(rightSpeed);
+//  delay(200);
+//  Serial.print("LEFT: ");
+//  Serial.println(leftSpeed);
+//  Serial.print("Right: ");
+//
+//  Serial.println(rightSpeed);
+    move(1000,200);
 //    turn(90);
 //    rotateUntilTape();
 //    rotateUntilTapeCCW();
@@ -52,7 +65,7 @@ void loop() {
 //        rightPower = maintainSpeed(RIGHT, 50, rightPower);
 //    }
 //    setMotorPower(50,50);
-    delay(50000);
+delay(50000);
 }
 
 /// MARK: Movement functions
@@ -67,20 +80,18 @@ void move(int distance, int speed) {
     moveWheels(distance, distance, speed, speed);
 }
 
-void moveWheels(int leftDistance, int rightDistance, int leftSpeed, int rightSpeed) {
-    int leftPower = leftSpeed * 255 / 290;
-    int rightPower = rightSpeed * 255 / 290;
-    leftPower = max(leftPower, FULL_R);
-    leftPower = min(leftPower, FULL_F);
-    rightPower = max(rightPower, FULL_R);
-    rightPower = min(rightPower, FULL_F);
+void moveWheels(int leftDistance, int rightDistance, int32_t lSpeed, int32_t rSpeed) {
+    int32_t leftPower = lSpeed * 255 / 800;
+    int32_t rightPower = rSpeed * 255 / 800;
     int originalRightIndex = rightWheelIndex;
     int originalLeftIndex = leftWheelIndex;
     setMotorPower(leftPower, rightPower);
-    delay(50);
+    delay(100);
     while(distanceTravelled(leftWheelIndex, originalLeftIndex) < abs(leftDistance) && distanceTravelled(rightWheelIndex, originalRightIndex) < abs(rightDistance)) {
-        rightPower = maintainSpeed(RIGHT_MOTOR, rightSpeed, rightPower);
-        leftPower = maintainSpeed(LEFT_MOTOR, leftSpeed, leftPower);
+        rightPower = maintainSpeed(RIGHT, rSpeed, rightPower);
+        leftPower = maintainSpeed(LEFT, lSpeed, leftPower);
+        Serial.print("left: "); Serial.println(leftSpeed);
+        Serial.print("right: "); Serial.println(rightSpeed);
     }
     setMotorPower(-leftPower, -rightPower);
     delay(10);
@@ -96,26 +107,47 @@ void moveWheels(int leftDistance, int rightDistance, int leftSpeed, int rightSpe
 int maintainSpeed(int side, int targetSpeed, int power) {
     int currSpeed;
     if(side == LEFT) {
+        if(millis() - leftWheelLastTime > 500) {
+          LCD.clear(); LCD.setCursor(0,0); LCD.print("ERROR");
+          leftSpeed = 0;
+        } 
         currSpeed = leftSpeed;
     } else {
+        if(millis() - rightWheelLastTime > 500) {
+          LCD.clear(); LCD.setCursor(0,0); LCD.print("ERROR");
+          rightSpeed = 0;
+        } 
         currSpeed = rightSpeed;
     }
 
+    
     if(currSpeed != targetSpeed) {
-        power = power + (targetSpeed - currSpeed) * 2;
+        if(power < 0) {
+          if(targetSpeed - currSpeed < 0) {
+            power++;
+          } else {
+            power--;
+          }
+        } else {
+          if(targetSpeed - currSpeed < 0) {
+            power--;
+          } else {
+            power++;
+          }
+        }
     }
     power = max(FULL_R, power);
     power = min(FULL_F, power);
     if(side == LEFT) {
         motor.speed(LEFT_MOTOR, power);
     } else if(side == RIGHT) {
-        motor.speed(RIGHT_MOTOR, power);
+        motor.speed(RIGHT_MOTOR, -power);
     }
-    setMotorPower(side, power);
     return power;
 }
 
-int distanceTravelled(int newIndex, int oldIndex) {
+int distanceTravelled(uint32_t newIndex, uint32_t oldIndex) {
+    Serial.println((newIndex - oldIndex) * umPerWheelIndex / 1000);
     return (newIndex - oldIndex) * umPerWheelIndex / 1000;
 }
 
@@ -132,10 +164,11 @@ void encoderRightRising() {
         return;
     }
     rightWheelIndex++;
-	rightSpeed = umPerWheelIndex / (time - rightWheelLastTime);
-	rightWheelLastTime = time;
+  if(rightWheelIndex % 10 == 0) {
+      rightSpeed = umPerWheelIndex / (time - rightWheelLastTime) * 3;
+      rightWheelLastTime = time;
+  }
     attachInterrupt(2, encoderRightFalling, FALLING);
-    Serial.println("rightspeed: "); Serial.println(rightSpeed);
 }
 
 void encoderRightFalling() {
@@ -144,8 +177,10 @@ void encoderRightFalling() {
         return;
     }
     rightWheelIndex++;
-	rightSpeed = umPerWheelIndex / (time - rightWheelLastTime);
-	rightWheelLastTime = time;
+  if(rightWheelIndex % 10 == 0) {
+      rightSpeed = umPerWheelIndex / (time - rightWheelLastTime) * 10;
+      rightWheelLastTime = time;
+  }
     attachInterrupt(2, encoderRightRising, RISING);
 }
 
@@ -155,8 +190,10 @@ void encoderLeftFalling() {
         return;
     }
     leftWheelIndex++;
-	leftSpeed = umPerWheelIndex / (time - leftWheelLastTime);
-	leftWheelLastTime = time;
+  if(leftWheelIndex % 10 == 0) {
+      leftSpeed = umPerWheelIndex / (time - leftWheelLastTime) * 10;
+      leftWheelLastTime = time;
+  }
     attachInterrupt(3, encoderLeftRising, RISING);
 }
 
@@ -166,9 +203,10 @@ void encoderLeftRising() {
         return;
     }
     leftWheelIndex++;
-	leftSpeed = umPerWheelIndex / (time - leftWheelLastTime);
-	leftWheelLastTime = time;
+  if(leftWheelIndex % 10 == 0) {
+      leftSpeed = umPerWheelIndex / (time - leftWheelLastTime) * 10;
+      leftWheelLastTime = time;
+  }
     attachInterrupt(3, encoderLeftFalling, FALLING);
-      Serial.print("leftspeed: ");  Serial.println(leftSpeed);
 }
 
