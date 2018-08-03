@@ -52,18 +52,18 @@ namespace configs {
     const int ZIP_SWITCH_CLOSED = 12;
     const int ZIPPED_UP_SWITCH = 11;
 
-    const int RCSERVO7 = 7;
-    const int RCSERVO6 = 6;
+    const int RCSERVO7 = 9;
+    const int RCSERVO6 = 10;
     const int BRIDGE_QRD_RIGHT = 5;
     const int BRIDGE_QRD_LEFT = 4;
 
     // Servo ports
     
-    #define ARM_RIGHT RCServo0
-    #define CLAW_RIGHT RCServo1
-    #define ARM_LEFT RCServo7
+    #define ARM_RIGHT RCServo2
+    #define CLAW_RIGHT RCServo7
+    #define ARM_LEFT RCServo0
     #define CLAW_LEFT RCServo6
-    #define BASKET RCServo2
+    #define BASKET RCServo1
 
     // Motor ports
     const int LEFT_MOTOR = 0;
@@ -131,10 +131,10 @@ namespace configs {
 
     // ANGLES
     //claws
-    const int ARM_UP_RIGHT = 40;
+    const int ARM_UP_RIGHT = 20;
     const int ARM_DOWN_EWOK_RIGHT = 180;
-    const int ARM_DOWN_CHEWIE_RIGHT = 150;
-    const int ARM_UP_LEFT = 140; 
+    const int ARM_DOWN_CHEWIE_RIGHT = 180; //above good vals
+    const int ARM_UP_LEFT = 150; 
     const int ARM_DOWN_EWOK_LEFT = 0;
     const int ARM_DOWN_CHEWIE_LEFT = 30;
     const int CLAW_CLOSED_RIGHT = 0;
@@ -146,7 +146,7 @@ namespace configs {
     const int DRAWBRIDGE_OPENED = 90;
     const int DRAWBRIDGE_CLOSED = 0;
 
-    const int BASKET_REST = 115;
+    const int BASKET_REST = 165;
     const int BASKET_DUMP = 0;
     const int BASKET_DROPBRIDGE = 80;
 
