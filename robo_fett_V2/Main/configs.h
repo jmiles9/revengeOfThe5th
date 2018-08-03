@@ -44,8 +44,8 @@ namespace configs {
     //must be inputs cuz interrupts are 0-3
     //pins 0-3 can only be interrupts!!!!!!!!!!!!
     
-    const int MULTIPLEX_IN = 4; 
-    const int ENCODER_LEFT = 2;
+    const int MULTIPLEX_IN = 5; 
+    const int ENCODER_LEFT = 4;
     const int ENCODER_RIGHT = 3;
     
     //all ports below arbitrary
