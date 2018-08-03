@@ -4,6 +4,8 @@
 using namespace configs;
 
 int tf_power;
+int deg = 0;
+int cumError = 0;
 
 // Used in tapeFollow
 void Funcs::setMotorPower(int left, int right) {
@@ -19,7 +21,7 @@ void Funcs::setMotorPower(int left, int right) {
  *        ki   = integral constant
  *        gain = gain for pd
  */
-void tapeFollow(int kp, int kd, int ki, int gain, int power) {
+void Funcs::tapeFollow(int kp, int kd, int ki, int gain, int power) {
     tf_power = power;
     bool farLeftOnTape = (analogRead(TAPE_QRD_FAR_LEFT) < TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
     bool midLeftOnTape = (analogRead(TAPE_QRD_MID_LEFT) < TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
@@ -117,14 +119,15 @@ void Funcs::hardStop() {
 }
 
 // Param - distance in mm
-void Funcs::tapeFollowForDistance(int distance, int speed) {
+void Funcs::tapeFollowForDistance(int distance) {
     leftWheelIndex = 0;
     rightWheelIndex = 0;
     int originalLeftIndex = leftWheelIndex;
     int originalRightIndex = rightWheelIndex;
-    setMotorPower(speed,speed);
-    while((distanceTravelled(leftWheelIndex, originalLeftIndex) + distanceTravelled(rightWheelIndex, originalRightIndex)) / 2 < distance) {
-        tapeFollow(TF_KP1, TF_KD1, TF_GAIN1, speed);
+    setMotorPower(180,180);
+    while(distanceTravelled(leftWheelIndex, originalLeftIndex) < distance && distanceTravelled(rightWheelIndex, originalRightIndex) < distance) {
+        tapeFollow(TF_KP1, TF_KD1, TF_KI1, TF_GAIN1, 180);
+        Serial.println(distanceTravelled(leftWheelIndex, originalLeftIndex) < distance);
     }
     hardStop();
 }
@@ -366,7 +369,7 @@ bool Funcs::edgeDetect() {
 
 void Funcs::tapeFollowToEdge(int speed){
     while(true) {
-        tapeFollow(TF_KP1, TF_KD1, TF_GAIN1, speed);
+        tapeFollow(TF_KP1, TF_KD1, TF_KI1, TF_GAIN1, speed);
         if(edgeDetect()) {
             hardStop();
         }
@@ -375,7 +378,7 @@ void Funcs::tapeFollowToEdge(int speed){
 
 // mm
 int Funcs::distanceTravelled(int newIndex, int oldIndex) {
-    return (newIndex - oldIndex) * umPerWheelIndex / 1000;
+    return (newIndex - oldIndex) * umPerWheelIndex / 1000 * 115 / 150;
 }
 
 bool Funcs::ewokDetectRight() {
@@ -434,9 +437,9 @@ bool Funcs::ewokDetectLeft() {
 
 //function to move servo, works more consistently than servo.write
 void Funcs::sweepServo(TINAH::Servo servo, int startAngle, int endAngle) {
-    int dA = (endAngle - startAngle) / 10
+    int dA = (endAngle - startAngle) / 10;
     int currAngle = startAngle;
-    while(abs(endAngle-startAngle) > 20) {
+    while(abs(endAngle-currAngle) > 20) {
         servo.write(currAngle + dA);
         currAngle += dA;
         delay(20);

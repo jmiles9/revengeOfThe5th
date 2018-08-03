@@ -18,10 +18,10 @@ namespace configs {
     const int IR_10KHZ = 1;
     const int EWOK_SENSOR_LEFT = 2;
     const int EWOK_SENSOR_RIGHT = 3;
-    const int TAPE_QRD_FAR_LEFT = 4;
-    const int TAPE_QRD_MID_LEFT = 5;
-    const int TAPE_QRD_MID_RIGHT = 6;
-    const int TAPE_QRD_FAR_RIGHT = 7; 
+    const int TAPE_QRD_FAR_LEFT = 2;
+    const int TAPE_QRD_MID_LEFT = 3;
+    const int TAPE_QRD_MID_RIGHT = 4;
+    const int TAPE_QRD_FAR_RIGHT = 5; 
 
     
     // Digital ports
@@ -75,7 +75,7 @@ namespace configs {
     const float wheelRadius = 31.7;
     const float ENCODER_RATIO = 3 / 2;
     const int TICKSPERROTATION = 48;
-    const int umPerWheelIndex = wheelRadius * 3.14 * 2 / (TICKSPERROTATION) / (ENCODER_RATIO);
+    const float umPerWheelIndex = wheelRadius * 3.14 * 2 / (TICKSPERROTATION) / (ENCODER_RATIO) / 3 * 1.26 * 2 * 1000;
     const int wheelSeparation = 175;
     // amount of rotation if left and right wheels move in opposite directions
     const float degreesPermm = 360 / (3.14 * wheelSeparation);
@@ -89,7 +89,7 @@ namespace configs {
 
     #define TF_KP1 5
     #define TF_KD1 6
-    #define TF_KI1 0.02
+    #define TF_KI1 0.002
     #define TF_POWER1 180
     #define TF_SPEED2 0
     #define TF_GAIN1 4
@@ -108,7 +108,7 @@ namespace configs {
     //TRESHHOLDS
     const int IR_THRESHOLD = 512;
     const int EWOK_THRESH = 250;
-    const int TAPE_QRD_THRESHOLD = 512;
+    const int TAPE_QRD_THRESHOLD = 350;
     const int EDGE_QRD_THRESHOLD = 400;
     //digitalOut
 

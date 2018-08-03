@@ -49,7 +49,7 @@ void Robot::CRUISE_PLAT1() {
     LCD.print("CRUISE_PLAT1");
     int startTime = millis();
     int count = 0;
-    tapeFollowForDistance(PLAT1_CRUISE,200);
+    tapeFollowForDistance(1200);
     runState = RunState::EWOK_SEARCH_RIGHT;
 }
 
@@ -58,10 +58,9 @@ void Robot::EWOK_SEARCH_RIGHT() {
     int startLeftIndex = leftWheelIndex;
     int startRightIndex = rightWheelIndex;
     while(true) {
-        tapeFollow(TF_KP1, TF_KD1, TF_GAIN1, 100);
+        tapeFollow(TF_KP1, TF_KD1, TF_KI1, TF_GAIN1, 80);
         if(ewokDetectRight()) {
             
-            delay(60);
             Funcs::hardStop();
             LCD.clear();LCD.home();
             LCD.setCursor(0,0); LCD.print("EWOK DETECTED");
@@ -111,6 +110,7 @@ void Robot::EWOK_GRAB() {
             break;
     Funcs::pickUp(side, stuffy);
     nextEwok++;
+    delay(100000);
     }
 }
 
@@ -152,13 +152,13 @@ void Robot::DRAWBRIDGE() {
 //enters cruise_plat_2
 void Robot::IR_WAIT() {
     while(!irReady) {
-        if(record10KIRBeacon() > record1KIRBeacon) {
+        if(record10KIRBeacon() > record1KIRBeacon()) {
             irReady = true;
         }
     }
     while (record10KIRBeacon() < record1KIRBeacon()) {
     }
-    runState = RunState::CRUISE_PLAT2;2
+    runState = RunState::CRUISE_PLAT2;
 }
 
 //starts right after 10khz has been detected
@@ -166,7 +166,7 @@ void Robot::IR_WAIT() {
 //enters ewok_search
 void Robot::CRUISE_PLAT2() {
 
-    tapeFollowForDistance(PLAT2_CRUISE,2550);
+    tapeFollowForDistance(PLAT2_CRUISE);
     runState = RunState::EWOK_SEARCH_LEFT;
 
 }
@@ -182,7 +182,7 @@ void Robot::EWOK_SEARCH_LEFT() {
 void Robot::DUMP_PREP() {
     turn(-TURN_90);
     //can either TapeFollowForDistance or put contact sensor on front? 
-    tapeFollowForDistance(DUMP_PREP_DIST,255);
+    tapeFollowForDistance(DUMP_PREP_DIST);
     runState = RunState::DUMP_EWOKS;
 
 }

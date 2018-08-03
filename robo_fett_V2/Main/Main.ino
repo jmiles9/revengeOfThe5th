@@ -26,11 +26,11 @@ void setup() {
 	pinMode(configs::EWOK_IR_OUT_RIGHT, OUTPUT);
 	pinMode(configs::EWOK_IR_OUT_LEFT, OUTPUT);
 	LCD.clear();  LCD.home();
-	roboFett.sweepServo(BASKET, 20, configs::DRAWBRIDGE_CLOSED);
-	roboFett.sweepServo(ARM_RIGHT,configs::ARM_DOWN_EWOK_RIGHT,configs::ARM_UP_RIGHT);
-	roboFett.sweepServo(ARM_LEFT,configs::ARM_DOWN_EWOK_LEFT,configs::ARM_UP_LEFT);
-	roboFett.sweepServo(CLAW_RIGHT,configs::CLAW_OPEN_RIGHT,configs::CLAW_CLOSED_RIGHT);
-	roboFett.sweepServo(CLAW_LEFT,configs::CLAW_OPEN_LEFT,configs::CLAW_CLOSED_LEFT);
+	// roboFett.sweepServo(BASKET, 20, configs::DRAWBRIDGE_CLOSED);
+	// roboFett.sweepServo(ARM_RIGHT,configs::ARM_DOWN_EWOK_RIGHT,configs::ARM_UP_RIGHT);
+	// roboFett.sweepServo(ARM_LEFT,configs::ARM_DOWN_EWOK_LEFT,configs::ARM_UP_LEFT);
+	// roboFett.sweepServo(CLAW_RIGHT,configs::CLAW_OPEN_RIGHT,configs::CLAW_CLOSED_RIGHT);
+	// roboFett.sweepServo(CLAW_LEFT,configs::CLAW_OPEN_LEFT,configs::CLAW_CLOSED_LEFT);
 }
 
 void loop() {
