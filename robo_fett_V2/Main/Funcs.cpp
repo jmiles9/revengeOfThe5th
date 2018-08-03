@@ -11,43 +11,89 @@ void Funcs::setMotorPower(int left, int right) {
     motor.speed(LEFT_MOTOR, left);
 }
 
+
 /**
  * tape following - reads sensor values, sets motor speeds using pd
- * param: kp = proportional constant
- *        kd = derivative constant
+ * param: kp   = proportional constant
+ *        kd   = derivative constant
+ *        ki   = integral constant
  *        gain = gain for pd
  */
-void Funcs::tapeFollow(int kp, int kd, int gain, int power) {
+void tapeFollow(int kp, int kd, int ki, int gain, int power) {
     tf_power = power;
-    bool farLeftOnTape = (analogRead(TAPE_QRD_FAR_LEFT) > TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
-    bool midLeftOnTape = (analogRead(TAPE_QRD_MID_LEFT) > TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
-    bool midRightOnTape = (analogRead(TAPE_QRD_MID_RIGHT) > TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
-    bool farRightOnTape = (analogRead(TAPE_QRD_FAR_RIGHT) > TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
+    bool farLeftOnTape = (analogRead(TAPE_QRD_FAR_LEFT) < TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
+    bool midLeftOnTape = (analogRead(TAPE_QRD_MID_LEFT) < TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
+    bool midRightOnTape = (analogRead(TAPE_QRD_MID_RIGHT) < TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
+    bool farRightOnTape = (analogRead(TAPE_QRD_FAR_RIGHT) < TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE;
 
     //setting error values
     int lasterr = error; //saving the old error value
 
-    if(farLeftOnTape && !midLeftOnTape && !midRightOnTape && !farRightOnTape) {
-        error = LARGE_LEFT_ERROR;
-    } else if(farLeftOnTape && midLeftOnTape && !midRightOnTape && !farRightOnTape) {
-        error = MED_LEFT_ERROR;
-    } else if(!farLeftOnTape && midLeftOnTape && !midRightOnTape && !farRightOnTape) {
-        error = SMALL_LEFT_ERROR;
-    } else if(!farLeftOnTape && midLeftOnTape && midRightOnTape && !farRightOnTape) {
-        error = CENTERED_ERROR;
-    } else if(!farLeftOnTape && !midLeftOnTape && midRightOnTape && !farRightOnTape) {
-        error = SMALL_RIGHT_ERROR;
-    } else if(!farLeftOnTape && !midLeftOnTape && midRightOnTape && farRightOnTape) {
-        error = MED_RIGHT_ERROR;
-    } else if(!farLeftOnTape && !midLeftOnTape && !midRightOnTape && farRightOnTape) {
+    // If one or two adjacent qrds are on tape, behaves as expected - gives error to center robot.
+    // If three qrds are on tape, gives error to center robot if qrds are adjacent
+    // If four qrds are on tape, or any combination of non-adjacent qrds are on tape,
+    // this is unexpected, treat as anomaly, maintains last error.
+    if(farLeftOnTape) {
+        if(midLeftOnTape) {
+            if(midRightOnTape) {
+                if(farRightOnTape) {
+                    error = lasterr;
+                } else {
+                    error = LARGE_LEFT_ERROR;
+                }
+            } else if(farRightOnTape) {
+                error = lasterr;
+            } else {
+                error = MED_LEFT_ERROR;
+            }
+        } else if(midRightOnTape || farRightOnTape) {
+            error = lasterr;
+        } else {
+            error = LARGE_LEFT_ERROR;
+        }
+    } else if(midLeftOnTape) {
+        if(midRightOnTape) {
+            if(farRightOnTape) {
+                error = LARGE_RIGHT_ERROR;
+            } else {
+                error = CENTERED_ERROR;
+                if(abs(deg) < 50) {
+                  cumError = 0;
+                 }
+            }
+        } else if(farRightOnTape) {
+            error = lasterr;
+        } else {
+            error = SMALL_LEFT_ERROR;
+            if(abs(deg) < 50) {
+                cumError = 0;
+            }
+        }
+    } else if(midRightOnTape) {
+        if(farRightOnTape) {
+            error = MED_RIGHT_ERROR;
+        } else {
+            error = SMALL_RIGHT_ERROR;
+            if(abs(deg) < 50) {
+                cumError = 0;
+            }
+        }
+    } else if(farRightOnTape) {
         error = LARGE_RIGHT_ERROR;
     } else {
-        // if QRDs read other values, let robot go straight until they do.
-        error = 0;
+        error = lasterr;
     }
-
-    steer((kp*error + kd*(error - lasterr))*gain);
+    cumError += error;
+    cumError = min(400,cumError);
+    cumError = max(-400,cumError);
+    if(cumError==800 || cumError == -800) {
+      LCD.clear(); LCD.setCursor(0,0);
+      LCD.print("MAX");
+    }
+    deg = (kp*error + kd*(error - lasterr) + ki * cumError)*gain;
+    steer(deg);
 }
+
 
 // Used in tapefollow
 void Funcs::steer(int error) {

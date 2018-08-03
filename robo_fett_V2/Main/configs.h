@@ -87,11 +87,12 @@ namespace configs {
     const int FULL_R = -255;
     const int HALF_R = -220;
 
-    #define TF_KP1 9
-    #define TF_KD1 12
-    #define TF_SPEED1 0
+    #define TF_KP1 5
+    #define TF_KD1 6
+    #define TF_KI1 0.02
+    #define TF_POWER1 180
     #define TF_SPEED2 0
-    #define TF_GAIN1 9
+    #define TF_GAIN1 4
     #define TF_GAIN2 0
     const int ZIP_ARM_EXTENDING = 255;
     const int ZIP_ARM_CONTRACTING = -255;

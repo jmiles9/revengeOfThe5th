@@ -10,11 +10,12 @@ void setup() {
     LCD.clear();  LCD.home() ;
 }
 void loop() {
-    int 1K = analogRead(IR_1KHZ);
-    int 10K = analogRead(IR_10KHZ);
+    int k = analogRead(IR_1KHZ);
+    int kk = analogRead(IR_10KHZ);
     LCD.clear(); LCD.setCursor(0,0);
-    LCD.print("1k: "); LCD.print(1K);
-    LCD.setCursor(0,1); LCD.print("10k: "); LCD.print(10K);
+    LCD.print("1k: "); LCD.print(k);
+    LCD.setCursor(0,1); LCD.print("10k: "); LCD.print(kk);
+    delay(750); 
     // if(analogRead(IR_1KHZ) > analogRead(IR_10KHZ)) {
     //     LCD.clear(); LCD.setCursor(0,0); 
     //     LCD.print("WAIT (1k HI)");

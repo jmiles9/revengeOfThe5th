@@ -101,8 +101,9 @@ bool edgeDetect() {
 
 /**
  * tape following - reads sensor values, sets motor speeds using pd
- * param: kp = proportional constant
- *        kd = derivative constant
+ * param: kp   = proportional constant
+ *        kd   = derivative constant
+ *        ki   = integral constant
  *        gain = gain for pd
  */
 void tapeFollow(int kp, int kd, int ki, int gain, int power) {
@@ -186,25 +187,6 @@ void tapeFollow(int kp, int kd, int ki, int gain, int power) {
       LCD.clear(); LCD.setCursor(0,0);
       LCD.print("MAX");
     }
-    // if(farLeftOnTape && !midLeftOnTape && !midRightOnTape && !farRightOnTape) {
-    //     error = LARGE_LEFT_ERROR;
-    // } else if(farLeftOnTape && midLeftOnTape && !midRightOnTape && !farRightOnTape) {
-    //     error = MED_LEFT_ERROR;
-    // } else if(!farLeftOnTape && midLeftOnTape && !midRightOnTape && !farRightOnTape) {
-    //     error = SMALL_LEFT_ERROR;
-    // } else if(!farLeftOnTape && midLeftOnTape && midRightOnTape && !farRightOnTape) {
-    //     error = CENTERED_ERROR;
-    // } else if(!farLeftOnTape && !midLeftOnTape && midRightOnTape && !farRightOnTape) {
-    //     error = SMALL_RIGHT_ERROR;
-    // } else if(!farLeftOnTape && !midLeftOnTape && midRightOnTape && farRightOnTape) {
-    //     error = MED_RIGHT_ERROR;
-    // } else if(!farLeftOnTape && !midLeftOnTape && !midRightOnTape && farRightOnTape) {
-    //     error = LARGE_RIGHT_ERROR;
-    // } else if(!farLeftOnTape && !midLeftOnTape && !midRightOnTape && !farRightOnTape) {
-    //     error = lasterr;
-    // } else {
-    //   error = lasterr;
-    // }
     deg = (kp*error + kd*(error - lasterr) + ki * cumError)*gain;
     steer(deg);
 }

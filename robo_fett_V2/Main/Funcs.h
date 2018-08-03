@@ -22,7 +22,7 @@ class Funcs {
         void setMotorPower(int left, int right);
         void steer(int deg);
         void hardStop();
-        void tapeFollow(int kp, int kd, int gain, int power);
+        void tapeFollow(int kp, int kd, int ki, int gain, int power);
         void tapeFollowForDistance(int distance, int power);
         void pickUp(int side, int stuffy);
         double record1KIRBeacon();

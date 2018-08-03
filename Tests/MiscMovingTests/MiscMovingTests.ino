@@ -4,8 +4,8 @@
 void setup() {
   #include <phys253setup.txt>
   Serial.begin(9600);
-  attachInterrupt(2, encoderRightRising, RISING);
-  attachInterrupt(3, encoderLeftRising, RISING);
+  attachInterrupt(2, encoderRightRising, CHANGE);
+  attachInterrupt(3, encoderLeftRising, CHANGE);
 }
 
 int count = 0;
@@ -26,9 +26,9 @@ const int FULL_R = -255;
 const float ENCODER_RATIO = 3 / 2;
 const int TICKSPERROTATION = 48;
 const float wheelRadius = 31.7;
-const int umPerWheelIndex = wheelRadius * 3.14 * 2 / (TICKSPERROTATION) / (ENCODER_RATIO) / 3 * 2 * 1000;
+const float umPerWheelIndex = wheelRadius * 3.14 * 2 / (TICKSPERROTATION) / (ENCODER_RATIO) / 3 * 1.26 * 2 * 1000;
 const int wheelSeparation = 175;
-const float degreesPermm = 360 / (3.14 * wheelSeparation);
+const float degreesPermm = 360 / (3.14 * wheelSeparation) * 5 / 6 * 36 / 35;
 const int TAPE_QRD_FAR_LEFT = 3;
 const int TAPE_QRD_MID_LEFT = 4;
 const int TAPE_QRD_MID_RIGHT = 5;
@@ -39,32 +39,7 @@ int rightPower = 100;
 
 // leave the func(s) you want to test uncommented
 void loop() {
-//  setMotorPower(255,255);
-//  delay(200);
-//  Serial.print("LEFT: ");
-//  Serial.println(leftSpeed);
-//  Serial.print("Right: ");
-//
-//  Serial.println(rightSpeed);
-//  delay(200);
-//  Serial.print("LEFT: ");
-//  Serial.println(leftSpeed);
-//  Serial.print("Right: ");
-//
-//  Serial.println(rightSpeed);
-    move(1000,200);
-//    turn(90);
-//    rotateUntilTape();
-//    rotateUntilTapeCCW();
-//    delay(50000);
-
-//    setMotorPower(leftPower, rightPower);
-//    delay(50);
-//    while(true) {
-//        leftPower = maintainSpeed(LEFT, 50, leftPower);
-//        rightPower = maintainSpeed(RIGHT, 50, rightPower);
-//    }
-//    setMotorPower(50,50);
+turn(720);
 delay(50000);
 }
 
@@ -72,17 +47,28 @@ delay(50000);
 
 //PARAM: deg - degrees to turn clockwise
 void turn(int deg) {
-    moveWheels(deg / degreesPermm, -deg / degreesPermm, 50, -50);
+    moveWheels(deg / degreesPermm, -deg / degreesPermm, -200, 200);
 }
 
 //PARAM: distance - distance in mm to more forwards
 void move(int distance, int speed) {
-    moveWheels(distance, distance, speed, speed);
+    int originalLeft = leftWheelIndex;
+    int originalRight = rightWheelIndex;
+    int32_t leftPower = speed / float(800) * 255;
+    int32_t rightPower = speed / float(875) * 255;
+    setMotorPower(leftPower, rightPower);
+    Serial.println(leftPower);
+    while(distanceTravelled(leftWheelIndex, originalLeft) < abs(distance) && distanceTravelled(rightWheelIndex, originalRight) < abs(distance)) {
+        Serial.print("Left: "); Serial.print(distanceTravelled(leftWheelIndex,originalLeft));
+        Serial.print("     Right: "); Serial.println(distanceTravelled(rightWheelIndex,originalRight));
+    }
+    setMotorPower(0,0);
 }
 
 void moveWheels(int leftDistance, int rightDistance, int32_t lSpeed, int32_t rSpeed) {
-    int32_t leftPower = lSpeed * 255 / 800;
-    int32_t rightPower = rSpeed * 255 / 800;
+    int32_t leftPower = lSpeed * 255 / 700;
+    int32_t rightPower = rSpeed * 255 / 500;
+    rSpeed *= 1.005;
     int originalRightIndex = rightWheelIndex;
     int originalLeftIndex = leftWheelIndex;
     setMotorPower(leftPower, rightPower);
@@ -90,20 +76,20 @@ void moveWheels(int leftDistance, int rightDistance, int32_t lSpeed, int32_t rSp
     while(distanceTravelled(leftWheelIndex, originalLeftIndex) < abs(leftDistance) && distanceTravelled(rightWheelIndex, originalRightIndex) < abs(rightDistance)) {
         rightPower = maintainSpeed(RIGHT, rSpeed, rightPower);
         leftPower = maintainSpeed(LEFT, lSpeed, leftPower);
-        Serial.print("left: "); Serial.println(leftSpeed);
-        Serial.print("right: "); Serial.println(rightSpeed);
+        Serial.print("Left: "); Serial.print(distanceTravelled(leftWheelIndex,originalLeftIndex));
+        Serial.print("     Right: "); Serial.println(distanceTravelled(rightWheelIndex,originalRightIndex));
     }
     setMotorPower(-leftPower, -rightPower);
     delay(10);
     setMotorPower(0,0);
 }
 
-// Maintains a speed for one side.
-// Param:
-//       power - current power of the motor
-// targetSpeed - desired speed
-//        side - side
-// Returns: Current power of motor.
+//// Maintains a speed for one side.
+//// Param:
+//// power       - current power of the motor
+//// targetSpeed - desired speed
+//// side        - side
+//// Returns: Current power of motor.
 int maintainSpeed(int side, int targetSpeed, int power) {
     int currSpeed;
     if(side == LEFT) {
@@ -120,13 +106,13 @@ int maintainSpeed(int side, int targetSpeed, int power) {
         currSpeed = rightSpeed;
     }
 
-    
+ 
     if(currSpeed != targetSpeed) {
         if(power < 0) {
           if(targetSpeed - currSpeed < 0) {
-            power++;
-          } else {
             power--;
+          } else {
+            power++;
           }
         } else {
           if(targetSpeed - currSpeed < 0) {
@@ -146,9 +132,10 @@ int maintainSpeed(int side, int targetSpeed, int power) {
     return power;
 }
 
-int distanceTravelled(uint32_t newIndex, uint32_t oldIndex) {
-    Serial.println((newIndex - oldIndex) * umPerWheelIndex / 1000);
-    return (newIndex - oldIndex) * umPerWheelIndex / 1000;
+float distanceTravelled(uint32_t newIndex, uint32_t oldIndex) {
+  Serial.print("NEW: "); Serial.print(newIndex);
+  Serial.print("      OLD:  "); Serial.println(oldIndex);
+    return float((newIndex - oldIndex)) / float(1000.0) * umPerWheelIndex * 2.7 / 2 / 1.4 / 1.08 / 1.08 / 1.05;
 }
 
 
@@ -164,37 +151,8 @@ void encoderRightRising() {
         return;
     }
     rightWheelIndex++;
-  if(rightWheelIndex % 2 == 0) {
-      rightSpeed = umPerWheelIndex / (time - rightWheelLastTime) * 2;
-      rightWheelLastTime = time;
-  }
-    attachInterrupt(2, encoderRightFalling, FALLING);
-}
-
-void encoderRightFalling() {
-    int time = millis();
-    if(time - rightWheelLastTime < 5) {
-        return;
-    }
-    rightWheelIndex++;
-  if(rightWheelIndex % 2 == 0) {
-      rightSpeed = umPerWheelIndex / (time - rightWheelLastTime) * 2;
-      rightWheelLastTime = time;
-  }
-    attachInterrupt(2, encoderRightRising, RISING);
-}
-
-void encoderLeftFalling() {
-	int time = millis();
-    if(time - leftWheelLastTime < 5) {
-        return;
-    }
-    leftWheelIndex++;
-  if(leftWheelIndex % 2 == 0) {
-      leftSpeed = umPerWheelIndex / (time - leftWheelLastTime) * 2;
-      leftWheelLastTime = time;
-  }
-    attachInterrupt(3, encoderLeftRising, RISING);
+    rightSpeed = umPerWheelIndex / (time - rightWheelLastTime);
+    rightWheelLastTime = time;
 }
 
 void encoderLeftRising() {
@@ -203,10 +161,7 @@ void encoderLeftRising() {
         return;
     }
     leftWheelIndex++;
-  if(leftWheelIndex % 2 == 0) {
-      leftSpeed = umPerWheelIndex / (time - leftWheelLastTime) * 2;
-      leftWheelLastTime = time;
-  }
-    attachInterrupt(3, encoderLeftFalling, FALLING);
+    leftSpeed = umPerWheelIndex / (time - leftWheelLastTime);
+    leftWheelLastTime = time;
 }
 
