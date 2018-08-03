@@ -50,6 +50,7 @@ void Robot::CRUISE_PLAT1() {
     int startTime = millis();
     int count = 0;
     tapeFollowForDistance(PLAT1_CRUISE,200);
+    runState = RunState::EWOK_SEARCH_RIGHT;
 }
 
 void Robot::EWOK_SEARCH_RIGHT() {
@@ -68,7 +69,7 @@ void Robot::EWOK_SEARCH_RIGHT() {
             break;
         }
     }
-    RunState::EWOK_GRAB;
+    runState = RunState::EWOK_GRAB;
 }
 
 /// Grabs ewok.
