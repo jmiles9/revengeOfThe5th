@@ -14,18 +14,22 @@ Robot::Robot() {
     rightSpeed = 0;
     error = 0;
     irReady = false;
-    RCServo6 = TINAH::Servo(RCSERVO6);
-    RCServo7 = TINAH::Servo(RCSERVO7);
+    ARM_RIGHT = RCServo2;
+    CLAW_RIGHT = TINAH::Servo(RCSERVO7);
+    ARM_LEFT = RCServo0;
+    CLAW_LEFT = TINAH::Servo(RCSERVO6);
+    BASKET = RCServo1;
 }
 
 //starts at start
 //goes into cruise_plat1
 void Robot::STARTUP() {
     Serial.println("in startup");
+    Funcs::sweepServo(CLAW_LEFT, CLAW_CLOSED_LEFT, CLAW_OPEN_LEFT);
+    Funcs::sweepServo(CLAW_RIGHT, CLAW_OPEN_RIGHT, CLAW_CLOSED_RIGHT);
+    delay(1000);
     Funcs::sweepServo(ARM_LEFT, ARM_DOWN_CHEWIE_LEFT, ARM_UP_LEFT);
     Funcs::sweepServo(ARM_RIGHT, ARM_DOWN_CHEWIE_RIGHT, ARM_UP_RIGHT);
-    Funcs::sweepServo(CLAW_LEFT, CLAW_OPEN_LEFT, CLAW_CLOSED_LEFT);
-    Funcs::sweepServo(CLAW_RIGHT, CLAW_OPEN_RIGHT, CLAW_CLOSED_RIGHT);
 
     while(!menu.quitMenu){
         bool start = false;
@@ -34,9 +38,18 @@ void Robot::STARTUP() {
         while(startbutton()){start = true;}
         if(start) menu.handleInput(BTN_START);
 
-        while(stopbutton()){stopp = true;}
-        if(stopp) menu.handleInput(BTN_STOP);
-    }
+    //     while(stopbutton()){stopp = true;}
+    //     if(stopp) menu.handleInput(BTN_STOP);
+    // }
+
+    LCD.clear();
+    LCD.setCursor(0,0);
+    LCD.print("PRESS START TO");
+    LCD.setCursor(0,1);
+    LCD.print("fuck it up");
+
+    while(!(startbutton())){delay(100);}
+
     runState = RunState::CRUISE_PLAT1;
 }
 
@@ -60,7 +73,6 @@ void Robot::EWOK_SEARCH_RIGHT() {
     while(true) {
         tapeFollow(TF_KP1, TF_KD1, TF_KI1, TF_GAIN1, 80);
         if(ewokDetectRight()) {
-            
             Funcs::hardStop();
             LCD.clear();LCD.home();
             LCD.setCursor(0,0); LCD.print("EWOK DETECTED");
@@ -76,7 +88,7 @@ void Robot::EWOK_GRAB() {
     LCD.clear();
     LCD.setCursor(0,0);
     LCD.print("EWOK_GRAB");
-    
+
     TINAH::Servo arm;
     TINAH::Servo claw;
     int side;
@@ -119,12 +131,10 @@ void Robot::EWOK_GRAB() {
 //goes into ewok_search
 void Robot::DRAWBRIDGE() {
     //Adjust
-    Funcs::turn(PRE_BRIDGE_TURN);
-    delay(1000);
-    Funcs::move(180,100);
+    Funcs::move(150,100);
     delay(1000);
     //Turn towards gap, should be perpendicular
-    Funcs::turn(-90);
+    Funcs::turn(-55);
     delay(1000);
     Funcs::setMotorPower(100,100);
     int currTime = millis();

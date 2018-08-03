@@ -1,4 +1,4 @@
-#include <phys253.h>  
+#include <phys253.h>
 
 #ifndef CONFIGS_H
 #define CONFIGS_H
@@ -35,8 +35,8 @@ namespace configs {
     const int MULTI_CHOOSEA = 15;
     const int MULTI_CHOOSEB = 14;
     const int MULTI_CHOOSEC = 13;
-    const int RCSERVO6 = 11;
-    const int RCSERVO7 = 10;
+    const int RCSERVO7 = 12;
+    const int RCSERVO6 = 13;
     const int EWOK_IR_OUT_LEFT = 9;
     const int EWOK_IR_OUT_RIGHT = 8; //when HI, the ewok IR
 
@@ -56,14 +56,6 @@ namespace configs {
 
     const int BRIDGE_QRD_RIGHT = 5;
     const int BRIDGE_QRD_LEFT = 4;
-
-    // Servo ports
-    
-    #define ARM_RIGHT RCServo2
-    #define CLAW_RIGHT RCServo7
-    #define ARM_LEFT RCServo0
-    #define CLAW_LEFT RCServo6
-    #define BASKET RCServo1
 
     // Motor ports
     const int LEFT_MOTOR = 0;
@@ -89,7 +81,7 @@ namespace configs {
 
     #define TF_KP1 5
     #define TF_KD1 6
-    #define TF_KI1 0.002
+    #define TF_KI1 0.005
     #define TF_POWER1 180
     #define TF_SPEED2 0
     #define TF_GAIN1 4

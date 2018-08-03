@@ -166,16 +166,13 @@ void Funcs::pickUp(int side, int stuffy) {
         } else {
             armDown = ARM_DOWN_CHEWIE_RIGHT;
         }
-
     }
-   
-    sweepServo(claw, clawClose, clawOpen);
-    delay(1000);
-    sweepServo(arm, armUp, armDown);
-    delay(1000);
-    sweepServo(claw, clawOpen, clawClose);
-    delay(1000);
+
+    // sweepServo(claw, clawOpen, clawClose);
+    // delay(1000);
     sweepServo(arm, armDown, armUp);
+    // delay(1000);
+    // sweepServo(claw, clawClose, clawOpen);
 }
 
 double Funcs::record1KIRBeacon() {
