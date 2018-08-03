@@ -35,9 +35,11 @@ namespace configs {
     const int MULTI_CHOOSEA = 15;
     const int MULTI_CHOOSEB = 14;
     const int MULTI_CHOOSEC = 13;
-    const int EWOK_IR_OUT_RIGHT = 8; //when HI, the ewok IR
+    const int RCSERVO6 = 11;
+    const int RCSERVO7 = 10;
     const int EWOK_IR_OUT_LEFT = 9;
-    
+    const int EWOK_IR_OUT_RIGHT = 8; //when HI, the ewok IR
+
     //tinah inputs 0 to 7 (including interrupts)
     //must be inputs cuz interrupts are 0-3
     //pins 0-3 can only be interrupts!!!!!!!!!!!!
@@ -52,8 +54,6 @@ namespace configs {
     const int ZIP_SWITCH_CLOSED = 12;
     const int ZIPPED_UP_SWITCH = 11;
 
-    const int RCSERVO7 = 9;
-    const int RCSERVO6 = 10;
     const int BRIDGE_QRD_RIGHT = 5;
     const int BRIDGE_QRD_LEFT = 4;
 
