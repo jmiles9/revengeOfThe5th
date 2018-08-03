@@ -31,24 +31,7 @@ void Robot::STARTUP() {
     Funcs::sweepServo(ARM_LEFT, ARM_DOWN_CHEWIE_LEFT, ARM_UP_LEFT);
     Funcs::sweepServo(ARM_RIGHT, ARM_DOWN_CHEWIE_RIGHT, ARM_UP_RIGHT);
 
-    while(!menu.quitMenu){
-        bool start = false;
-        bool stopp = false;
 
-        while(startbutton()){start = true;}
-        if(start) menu.handleInput(BTN_START);
-
-    //     while(stopbutton()){stopp = true;}
-    //     if(stopp) menu.handleInput(BTN_STOP);
-    // }
-
-    LCD.clear();
-    LCD.setCursor(0,0);
-    LCD.print("PRESS START TO");
-    LCD.setCursor(0,1);
-    LCD.print("fuck it up");
-
-    while(!(startbutton())){delay(100);}
 
     runState = RunState::CRUISE_PLAT1;
 }
