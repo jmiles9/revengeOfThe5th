@@ -16,14 +16,14 @@ namespace configs {
     // KNOB is using port 0. keep in mind they are reversed on TINAH
     const int IR_1KHZ = 0;
     const int IR_10KHZ = 1;
-    const int EWOK_SENSOR_LEFT = 2;
-    const int EWOK_SENSOR_RIGHT = 3;
+    const int EWOK_SENSOR_LEFT = 6;
+    const int EWOK_SENSOR_RIGHT = 7;
     const int TAPE_QRD_FAR_LEFT = 2;
     const int TAPE_QRD_MID_LEFT = 3;
     const int TAPE_QRD_MID_RIGHT = 4;
     const int TAPE_QRD_FAR_RIGHT = 5; 
 
-    
+
     // Digital ports
     // pls go backwards. don't use interrupt ports (0-3) for switches
     
@@ -37,16 +37,16 @@ namespace configs {
     const int MULTI_CHOOSEC = 13;
     const int RCSERVO7 = 12;
     const int RCSERVO6 = 13;
-    const int EWOK_IR_OUT_LEFT = 9;
-    const int EWOK_IR_OUT_RIGHT = 8; //when HI, the ewok IR
+    const int EWOK_IR_OUT_LEFT = 15;
+    const int EWOK_IR_OUT_RIGHT = 14; //when HI, the ewok IR
 
     //tinah inputs 0 to 7 (including interrupts)
     //must be inputs cuz interrupts are 0-3
     //pins 0-3 can only be interrupts!!!!!!!!!!!!
     
     const int MULTIPLEX_IN = 5; 
-    const int ENCODER_LEFT = 4;
-    const int ENCODER_RIGHT = 3;
+    const int ENCODER_LEFT = 3;
+    const int ENCODER_RIGHT = 2;
     
     //all ports below arbitrary
 
@@ -70,8 +70,7 @@ namespace configs {
     const float umPerWheelIndex = wheelRadius * 3.14 * 2 / (TICKSPERROTATION) / (ENCODER_RATIO) / 3 * 1.26 * 2 * 1000;
     const int wheelSeparation = 175;
     // amount of rotation if left and right wheels move in opposite directions
-    const float degreesPermm = 360 / (3.14 * wheelSeparation);
-
+    const float degreesPermm = 360 / (3.14 * wheelSeparation) * 5 / 6 * 36 / 35;
 
     // Speeds
     const int FULL_F = 255;
@@ -79,12 +78,12 @@ namespace configs {
     const int FULL_R = -255;
     const int HALF_R = -220;
 
-    #define TF_KP1 5
-    #define TF_KD1 6
-    #define TF_KI1 0.005
+    #define TF_KP1 11
+    #define TF_KD1 45
+    #define TF_KI1 0.0005
     #define TF_POWER1 180
     #define TF_SPEED2 0
-    #define TF_GAIN1 4
+    #define TF_GAIN1 2
     #define TF_GAIN2 0
     const int ZIP_ARM_EXTENDING = 255;
     const int ZIP_ARM_CONTRACTING = -255;
@@ -102,6 +101,7 @@ namespace configs {
     const int EWOK_THRESH = 250;
     const int TAPE_QRD_THRESHOLD = 350;
     const int EDGE_QRD_THRESHOLD = 400;
+    const int EDGE_QRD_BOT_THRESHOlD = 100;
     //digitalOut
 
     //claws
@@ -127,13 +127,19 @@ namespace configs {
     const int ARM_UP_RIGHT = 20;
     const int ARM_DOWN_EWOK_RIGHT = 180;
     const int ARM_DOWN_CHEWIE_RIGHT = 180; //above good vals
-    const int ARM_UP_LEFT = 150; 
+    const int ARM_UP_LEFT = 150;
+    const int ARM_REST_LEFT = 100;
+    const int ARM_REST_RIGHT = 73;
+    const int ARM_ARCH_LEFT = 140;
+    const int ARM_ARCH_RIGHT = 30;
     const int ARM_DOWN_EWOK_LEFT = 0;
     const int ARM_DOWN_CHEWIE_LEFT = 30;
     const int CLAW_CLOSED_RIGHT = 0;
     const int CLAW_OPEN_RIGHT = 180;
+    const int CLAW_RELEASED_RIGHT = 90;
     const int CLAW_CLOSED_LEFT = 180;
     const int CLAW_OPEN_LEFT = 0;
+    const int CLAW_RELEASED_LEFT = 90;
 
 
     const int DRAWBRIDGE_OPENED = 90;
@@ -141,7 +147,7 @@ namespace configs {
 
     const int BASKET_REST = 165;
     const int BASKET_DUMP = 0;
-    const int BASKET_DROPBRIDGE = 80;
+    const int BASKET_DROPBRIDGE = 70;
 
     const int ZIPLINE_ATTACH_ROTATION = 15;
     const int TURN_90 = 90;

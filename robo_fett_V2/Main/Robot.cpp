@@ -14,23 +14,18 @@ Robot::Robot() {
     rightSpeed = 0;
     error = 0;
     irReady = false;
-//    ARM_RIGHT = RCServo2;
-//    CLAW_RIGHT = TINAH::Servo(RCSERVO7);
-//    ARM_LEFT = RCServo0;
-//    CLAW_LEFT = TINAH::Servo(RCSERVO6);
-//    BASKET = RCServo1;
 }
 
 //starts at start
 //goes into cruise_plat1
 void Robot::STARTUP() {
     Serial.println("in startup");
-    Funcs::sweepServo(CLAW_LEFT, CLAW_CLOSED_LEFT, CLAW_OPEN_LEFT);
+    Funcs::sweepServo(CLAW_LEFT, CLAW_OPEN_LEFT, CLAW_CLOSED_LEFT);
     Funcs::sweepServo(CLAW_RIGHT, CLAW_OPEN_RIGHT, CLAW_CLOSED_RIGHT);
     delay(1000);
-    Funcs::sweepServo(ARM_LEFT, ARM_DOWN_CHEWIE_LEFT, ARM_UP_LEFT);
-    Funcs::sweepServo(ARM_RIGHT, ARM_DOWN_CHEWIE_RIGHT, ARM_UP_RIGHT);
-    
+    Funcs::sweepServo(ARM_LEFT, ARM_DOWN_CHEWIE_LEFT, ARM_REST_LEFT);
+    Funcs::sweepServo(ARM_RIGHT, ARM_DOWN_CHEWIE_RIGHT, ARM_REST_RIGHT);
+
     runState = RunState::CRUISE_PLAT1;
 }
 
@@ -43,21 +38,22 @@ void Robot::CRUISE_PLAT1() {
     LCD.print("CRUISE_PLAT1");
     int startTime = millis();
     int count = 0;
-    tapeFollowForDistance(1200);
+    tapeFollowForDistance(1400);
     runState = RunState::EWOK_SEARCH_RIGHT;
 }
 
 void Robot::EWOK_SEARCH_RIGHT() {
-    Funcs::setMotorPower(100,100);
+    Funcs::setMotorPower(180,180);
+    Funcs::sweepServo(ARM_RIGHT,ARM_UP_RIGHT,ARM_REST_RIGHT);
+    Funcs::sweepServo(CLAW_RIGHT,CLAW_CLOSED_RIGHT,CLAW_OPEN_RIGHT);
     int startLeftIndex = leftWheelIndex;
     int startRightIndex = rightWheelIndex;
     while(true) {
-        tapeFollow(TF_KP1, TF_KD1, TF_KI1, TF_GAIN1, 80);
+        tapeFollow(TF_KP1, TF_KD1, TF_KI1, TF_GAIN1, 120);
         if(ewokDetectRight()) {
             Funcs::hardStop();
             LCD.clear();LCD.home();
             LCD.setCursor(0,0); LCD.print("EWOK DETECTED");
-            delay(2000);
             break;
         }
     }
@@ -101,10 +97,41 @@ void Robot::EWOK_GRAB() {
             stuffy = configs::CHEWIE;
             //TODO: Add state here
             break;
+    }
+    int sensorVal = checkEwokSensor(side);
+    int time = millis();
+    if(sensorVal < 300) {
+        if(side == LEFT) {
+            LCD.clear(); LCD.setCursor(0,0);
+            LCD.print(sensorVal);
+            setMotorPower(-70,90);
+            while(sensorVal < 300 && millis() - time < 150) {}
+            setMotorPower(0,0);
+        } else {
+            LCD.clear(); LCD.setCursor(0,0);
+            LCD.print(sensorVal);
+            setMotorPower(90,-70);
+            while(sensorVal < 300 && millis() - time < 150) {}
+            setMotorPower(0,0);
+        }
+    } else if(sensorVal > 300) {
+            if(side == RIGHT) {
+            LCD.clear(); LCD.setCursor(0,0);
+            LCD.print(sensorVal);
+            setMotorPower(-100,-50);
+            while(sensorVal > 300 && millis() - time < 150) {}
+            setMotorPower(0,0);
+        } else {
+            LCD.clear(); LCD.setCursor(0,0);
+            LCD.print(sensorVal);
+            setMotorPower(-50,-100);
+            while(sensorVal > 300 && millis() - time < 300) {}
+            setMotorPower(0,0);
+        }
+    }
     Funcs::pickUp(side, stuffy);
     nextEwok++;
-    delay(100000);
-    }
+    delay(1000);
 }
 
 //starts after picking up first ewok
@@ -112,28 +139,28 @@ void Robot::EWOK_GRAB() {
 //goes into ewok_search
 void Robot::DRAWBRIDGE() {
     //Adjust
-    Funcs::move(150,100);
-    delay(1000);
+    Funcs::move(120,300);
+    LCD.setCursor(0,0);
+    LCD.print("move");
     //Turn towards gap, should be perpendicular
-    Funcs::turn(-55);
-    delay(1000);
-    Funcs::setMotorPower(100,100);
+    Funcs::turn(-60);
+    Funcs::setMotorPower(150,150);
     int currTime = millis();
     //Timeout after 3 seconds
     while(millis() - currTime < 3000) {
-        if(Funcs::edgeDetect()) {
+        if(Funcs::edgeDetect()) { 
             break;
         }
     }
     hardStop();
-    move(configs::PRE_BRIDGE_MOVE,50);
+    centerOffEdge();
     delay(1000);
     Funcs::lowerBridge();
-    delay(1000);
-    move(configs::BRIDGE_REVERSE,100);
-    delay(1000);
-    move(configs::BRIDGE_CRUISE,100);
-    delay(1000);
+    delay(500);
+    setMotorPower(-110,-120);
+    delay(700);
+    setMotorPower(180,180);
+    delay(1500);
     Funcs::findTape();
     runState = RunState::EWOK_SEARCH_RIGHT;
 }
@@ -142,13 +169,18 @@ void Robot::DRAWBRIDGE() {
 //ends after right IR is detected
 //enters cruise_plat_2
 void Robot::IR_WAIT() {
-    while(!irReady) {
-        if(record10KIRBeacon() > record1KIRBeacon()) {
-            irReady = true;
-        }
-    }
-    while (record10KIRBeacon() < record1KIRBeacon()) {
-    }
+    findTape();
+    turn(-10);
+    sweepServo(ARM_LEFT,ARM_DOWN_EWOK_LEFT,ARM_ARCH_LEFT);
+    sweepServo(ARM_RIGHT,ARM_DOWN_EWOK_RIGHT,ARM_ARCH_RIGHT);
+    delay(1000);
+    // while(!irReady) {
+    //     if(record10KIRBeacon() > record1KIRBeacon()) {
+    //         irReady = true;
+    //     }
+    // }
+    // while (record10KIRBeacon() < record1KIRBeacon()) {
+    // }
     runState = RunState::CRUISE_PLAT2;
 }
 
@@ -156,24 +188,58 @@ void Robot::IR_WAIT() {
 //ends when ready to detect third ewok
 //enters ewok_search
 void Robot::CRUISE_PLAT2() {
-
-    tapeFollowForDistance(PLAT2_CRUISE);
+    
+    tapeFollowForDistance(1500);
     runState = RunState::EWOK_SEARCH_LEFT;
-
 }
 
 void Robot::EWOK_SEARCH_LEFT() {
-    ewokDetectLeft();
-    runState = RunState::DUMP_PREP;
+    Funcs::setMotorPower(180,180);
+    Funcs::sweepServo(ARM_RIGHT,ARM_UP_RIGHT,ARM_REST_RIGHT);
+    Funcs::sweepServo(ARM_LEFT,ARM_UP_LEFT,ARM_REST_LEFT);
+    Funcs::sweepServo(CLAW_LEFT,CLAW_CLOSED_LEFT,CLAW_OPEN_LEFT);
+    while(true) {
+        if(edgeDetect()) {
+            hardStop();
+            setMotorPower(-80,-90);
+            delay(2000);
+            setMotorPower(0,0);
+            break;
+        }
+        tapeFollow(TF_KP1, TF_KD1, TF_KI1, TF_GAIN1, 120);
+        if(ewokDetectLeft()) {
+            Funcs::hardStop();
+            delay(400);
+            LCD.clear();LCD.home();
+            LCD.setCursor(0,0); LCD.print("EWOK DETECTED");
+            break;
+        }
+    }
+    runState = RunState::EWOK_GRAB;
 }
 
 //starts after 3rd ewok is grabbed
 //ends when aligned and has front right at wall 
 //goes into dump_ewoks
 void Robot::DUMP_PREP() {
+    setMotorPower(120,150);
+    int time = millis();
+    while(!edgeDetect() && millis() - time < 1500) {
+        if(edgeDetect()) {
+            hardStop();
+            centerOffEdge();
+            break;
+        }
+    }
+    setMotorPower(-100,-100);
+    delay(1500);
+    setMotorPower(0,0);
     turn(-TURN_90);
+    setMotorPower(60,60);
+    delay(3000);
+    dumpBasket();
+    delay(1000000);
     //can either TapeFollowForDistance or put contact sensor on front? 
-    tapeFollowForDistance(DUMP_PREP_DIST);
     runState = RunState::DUMP_EWOKS;
 
 }

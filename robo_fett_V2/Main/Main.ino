@@ -19,12 +19,11 @@ void setup() {
   Serial.println("setup");
   LCD.begin();
 	roboFett = Robot();
-	attachInterrupt(2, encoderLeftRising, RISING);
-	attachInterrupt(3, encoderRightRising, RISING);
+	attachInterrupt(3, encoderLeft, CHANGE);
+	attachInterrupt(2, encoderRight, CHANGE);
 	pinMode(configs::EWOK_IR_OUT_RIGHT, OUTPUT);
 	pinMode(configs::EWOK_IR_OUT_LEFT, OUTPUT);
 	LCD.clear();  LCD.home();
-	roboFett.pickUp(configs::LEFT,configs::EWOK);
 }
 
 void loop() {
@@ -92,7 +91,7 @@ void loop() {
 }
 
 /// MARK: Encoder interrupt functions
-void encoderRightRising() {
+void encoderRight() {
     int time = millis();
     if(time - roboFett.rightWheelLastTime < 5) {
         return;
@@ -100,21 +99,9 @@ void encoderRightRising() {
     roboFett.rightWheelIndex++;
 		roboFett.rightSpeed = configs::umPerWheelIndex / (time - roboFett.rightWheelLastTime);
 		roboFett.rightWheelLastTime = time;
-    attachInterrupt(3, encoderRightFalling, FALLING);
 }
 
-void encoderRightFalling() {
-    int time = millis();
-    if(time - roboFett.rightWheelLastTime < 5) {
-        return;
-    }
-    roboFett.rightWheelIndex++;
-		roboFett.rightSpeed = configs::umPerWheelIndex / (time - roboFett.rightWheelLastTime);
-		roboFett.rightWheelLastTime = time;
-    attachInterrupt(3, encoderRightRising, RISING);
-}
-
-void encoderLeftFalling() {
+void encoderLeft() {
 	int time = millis();
     if(time - roboFett.leftWheelLastTime < 5) {
         return;
@@ -122,18 +109,4 @@ void encoderLeftFalling() {
     roboFett.leftWheelIndex++;
 		roboFett.leftSpeed = configs::umPerWheelIndex / (time - roboFett.leftWheelLastTime);
 		roboFett.leftWheelLastTime = time;
-    attachInterrupt(3, encoderLeftRising, RISING);
 }
-
-void encoderLeftRising() {
-	int time = millis();
-    if(time - roboFett.leftWheelLastTime < 5) {
-        return;
-    }
-    roboFett.leftWheelIndex++;
-		roboFett.leftSpeed = configs::umPerWheelIndex / (time - roboFett.leftWheelLastTime);
-		roboFett.leftWheelLastTime = time;
-    attachInterrupt(3, encoderLeftFalling, FALLING);
-}
-
-

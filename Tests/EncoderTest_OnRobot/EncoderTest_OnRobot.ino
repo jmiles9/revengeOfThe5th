@@ -26,6 +26,7 @@ int leftSpeed = 0;
 int rightWheelLastTime = 0;
 int rightWheelIndex = 0;
 int rightSpeed = 0;
+int degreesPermm = 0;
 
 
 void loop() {

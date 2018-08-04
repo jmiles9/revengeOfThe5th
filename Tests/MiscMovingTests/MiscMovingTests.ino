@@ -1,9 +1,11 @@
 #include <phys253.h>          
 #include <LiquidCrystal.h>     
 
+    const int EWOK_IR_OUT_LEFT = 15;
 void setup() {
   #include <phys253setup.txt>
   Serial.begin(9600);
+  pinMode(EWOK_IR_OUT_LEFT,OUTPUT);
   attachInterrupt(2, encoderRightRising, CHANGE);
   attachInterrupt(3, encoderLeftRising, CHANGE);
 }
@@ -29,18 +31,26 @@ const float wheelRadius = 31.7;
 const float umPerWheelIndex = wheelRadius * 3.14 * 2 / (TICKSPERROTATION) / (ENCODER_RATIO) / 3 * 1.26 * 2 * 1000;
 const int wheelSeparation = 175;
 const float degreesPermm = 360 / (3.14 * wheelSeparation) * 5 / 6 * 36 / 35;
-const int TAPE_QRD_FAR_LEFT = 3;
-const int TAPE_QRD_MID_LEFT = 4;
-const int TAPE_QRD_MID_RIGHT = 5;
-const int TAPE_QRD_FAR_RIGHT = 6; 
+const int TAPE_QRD_FAR_LEFT = 2;
+const int TAPE_QRD_MID_LEFT = 3;
+const int TAPE_QRD_MID_RIGHT = 4;
+const int TAPE_QRD_FAR_RIGHT = 5; 
 const int TAPE_QRD_THRESHOLD = 512;
 int leftPower = 100;
 int rightPower = 100;
+    const int EWOK_SENSOR_LEFT = 6;
 
 // leave the func(s) you want to test uncommented
 void loop() {
-turn(720);
-delay(50000);
+    digitalWrite(EWOK_IR_OUT_LEFT,HIGH);
+    delay(40);
+    double with = analogRead(EWOK_SENSOR_LEFT);
+    digitalWrite(EWOK_IR_OUT_LEFT,LOW);
+    delay(40);
+    double without = analogRead(EWOK_SENSOR_LEFT);
+    Serial.println(with-without);
+delay(1000);
+
 }
 
 /// MARK: Movement functions

@@ -7,12 +7,12 @@
 
 class Funcs {
     public:
-        uint16_t leftWheelIndex;
-        uint16_t rightWheelIndex;
         uint32_t leftWheelLastTime;
+        uint32_t leftWheelIndex;
         uint32_t rightWheelLastTime;
-        uint16_t leftSpeed;
-        uint16_t rightSpeed;
+        uint32_t rightWheelIndex;
+        int16_t leftSpeed;
+        int16_t rightSpeed;
         uint8_t nextEwok;
         int8_t error;
         bool irReady;
@@ -42,7 +42,7 @@ class Funcs {
         bool ewokDetectLeft();
         void turn(int deg);
         void move(int distance, int speed);
-        void moveWheels(int leftDistance, int rightDistance, int leftPower, int rightPower);
+        void moveWheels(int leftDistance, int rightDistance, int32_t lSpeed, int32_t rSpeed);
         int speedToPower(int speed);
         void dumpBasket();
         void extendZipline();
@@ -62,6 +62,8 @@ class Funcs {
         void rotateUntilTape(int direction);
         void findTape();
         bool digitalReadMultiplex(int port);
+        int checkEwokSensor(int side);
+        void centerOffEdge();
 
 
 };
