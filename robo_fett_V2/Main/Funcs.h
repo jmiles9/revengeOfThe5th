@@ -16,11 +16,17 @@ class Funcs {
         uint8_t nextEwok;
         int8_t error;
         bool irReady;
-        TINAH::Servo ARM_RIGHT;
-        TINAH::Servo CLAW_RIGHT;
-        TINAH::Servo ARM_LEFT;
-        TINAH::Servo CLAW_LEFT;
-        TINAH::Servo BASKET;
+//        TINAH::Servo ARM_RIGHT;
+//        TINAH::Servo CLAW_RIGHT;
+//        TINAH::Servo ARM_LEFT;
+//        TINAH::Servo CLAW_LEFT;
+//        TINAH::Servo BASKET;
+
+        TINAH::Servo ARM_RIGHT = RCServo2;
+        TINAH::Servo CLAW_RIGHT = TINAH::Servo(configs::RCSERVO7);
+        TINAH::Servo ARM_LEFT = RCServo0;
+        TINAH::Servo CLAW_LEFT = TINAH::Servo(configs::RCSERVO6);
+        TINAH::Servo BASKET = RCServo1;
 
         void setMotorPower(int left, int right);
         void steer(int deg);

@@ -14,11 +14,11 @@ Robot::Robot() {
     rightSpeed = 0;
     error = 0;
     irReady = false;
-    ARM_RIGHT = RCServo2;
-    CLAW_RIGHT = TINAH::Servo(RCSERVO7);
-    ARM_LEFT = RCServo0;
-    CLAW_LEFT = TINAH::Servo(RCSERVO6);
-    BASKET = RCServo1;
+//    ARM_RIGHT = RCServo2;
+//    CLAW_RIGHT = TINAH::Servo(RCSERVO7);
+//    ARM_LEFT = RCServo0;
+//    CLAW_LEFT = TINAH::Servo(RCSERVO6);
+//    BASKET = RCServo1;
 }
 
 //starts at start
