@@ -168,11 +168,11 @@ void Funcs::pickUp(int side, int stuffy) {
         }
     }
 
-    // sweepServo(claw, clawOpen, clawClose);
-    // delay(1000);
+    sweepServo(claw, clawOpen, clawClose);
+    delay(3000);
     sweepServo(arm, armDown, armUp);
-    // delay(1000);
-    // sweepServo(claw, clawClose, clawOpen);
+    delay(3000);
+    sweepServo(CLAW_LEFT, CLAW_CLOSED_LEFT, CLAW_OPEN_LEFT);
 }
 
 double Funcs::record1KIRBeacon() {
@@ -434,12 +434,11 @@ bool Funcs::ewokDetectLeft() {
 
 //function to move servo, works more consistently than servo.write
 void Funcs::sweepServo(TINAH::Servo servo, int startAngle, int endAngle) {
-    int dA = (endAngle - startAngle) / 10;
+    int dA = endAngle > startAngle ? 3 : -3;
     int currAngle = startAngle;
-    while(abs(endAngle-currAngle) > 20) {
+    while(abs(endAngle-currAngle) > 10) {
         servo.write(currAngle + dA);
         currAngle += dA;
-        delay(20);
     }
     servo.write(endAngle);
 }
