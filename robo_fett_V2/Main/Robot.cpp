@@ -31,8 +31,6 @@ void Robot::STARTUP() {
     Funcs::sweepServo(ARM_LEFT, ARM_DOWN_CHEWIE_LEFT, ARM_UP_LEFT);
     Funcs::sweepServo(ARM_RIGHT, ARM_DOWN_CHEWIE_RIGHT, ARM_UP_RIGHT);
 
-
-
     runState = RunState::CRUISE_PLAT1;
 }
 

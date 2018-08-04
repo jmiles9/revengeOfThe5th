@@ -27,7 +27,7 @@ class Robot : public Funcs {
 
     public:
         RunState runState;
-        Menu menu;
+        // Menu menu;
 
         Robot();
         void STARTUP();
