@@ -44,14 +44,15 @@ namespace configs {
     //must be inputs cuz interrupts are 0-3
     //pins 0-3 can only be interrupts!!!!!!!!!!!!
     
+    const int ZIP_SWITCH_EXTENDED = 7;
+    const int ZIP_SWITCH_CLOSED = 6;
     const int MULTIPLEX_IN = 5; 
     const int ENCODER_LEFT = 3;
     const int ENCODER_RIGHT = 2;
-    
+
     //all ports below arbitrary
 
-    const int ZIP_SWITCH_EXTENDED = 13;
-    const int ZIP_SWITCH_CLOSED = 12;
+
     const int ZIPPED_UP_SWITCH = 11;
 
     const int BRIDGE_QRD_RIGHT = 5;
@@ -60,8 +61,8 @@ namespace configs {
     // Motor ports
     const int LEFT_MOTOR = 0;
     const int RIGHT_MOTOR = 1;
-    const int ZIP_ARM_MOTOR = 2;
-    const int ZIP_WHEEL_MOTOR = 3;
+    const int ZIP_ARM_MOTOR = 3;
+    const int ZIP_WHEEL_MOTOR = 2;
 
     // mm
     const float wheelRadius = 31.7;
@@ -99,7 +100,7 @@ namespace configs {
     //TRESHHOLDS
     const int IR_THRESHOLD = 512;
     const int EWOK_THRESH = 250;
-    const int TAPE_QRD_THRESHOLD = 350;
+    const int TAPE_QRD_THRESHOLD = 450;
     const int EDGE_QRD_THRESHOLD = 400;
     const int EDGE_QRD_BOT_THRESHOlD = 100;
     //digitalOut
@@ -147,7 +148,7 @@ namespace configs {
 
     const int BASKET_REST = 165;
     const int BASKET_DUMP = 0;
-    const int BASKET_DROPBRIDGE = 70;
+    const int BASKET_DROPBRIDGE = 85;
 
     const int ZIPLINE_ATTACH_ROTATION = 15;
     const int TURN_90 = 90;

@@ -6,6 +6,8 @@ using namespace configs;
 int tf_power;
 int deg = 0;
 int cumError = 0;
+int st_power;
+int error2 = 0;
 
 // Used in tapeFollow
 void Funcs::setMotorPower(int left, int right) {
@@ -174,7 +176,7 @@ void Funcs::pickUp(int side, int stuffy) {
     sweepServo(claw, clawOpen, clawClose);
     delay(600);
     sweepServo(arm, armDown, armUp);
-    delay(750);
+    delay(950);
     sweepServo(claw, clawClose, clawRelease);
     delay(750);
     sweepServo(claw, clawOpen, clawClose);
@@ -212,17 +214,13 @@ void Funcs::turn(int deg) {
 }
 
 //PARAM: distance - distance in mm to more forwards
-void Funcs::move(int distance, int speed) {
+void Funcs::move(int distance, int power) {
     int32_t originalLeft = leftWheelIndex;
     int32_t originalRight = rightWheelIndex;
-    int32_t leftPower = speed / float(700) * 255;
-    int32_t rightPower = speed / float(600) * 255;
-    setMotorPower(leftPower, rightPower);
-    Serial.println(leftPower);
-    delay(100);
+    st_power = power;
+    setMotorPower(power, power);
     while(distanceTravelled(leftWheelIndex, originalLeft) < abs(distance) && distanceTravelled(rightWheelIndex, originalRight) < abs(distance)) {
-        Serial.print("Left: "); Serial.print(distanceTravelled(leftWheelIndex,originalLeft));
-        Serial.print("     Right: "); Serial.println(distanceTravelled(rightWheelIndex,originalRight));
+        moveStraight(originalLeft, originalRight);
     }
     setMotorPower(0,0);
 }
@@ -306,11 +304,32 @@ int Funcs::maintainSpeed(int side, int targetSpeed, int power) {
     return power;
 }
 
+void Funcs::moveStraight(int originalLeftIndex, int originalRightIndex) {
+    int lasterr = error2;
+    int KP = 4;
+    int KD = 4;
+    int error2 = (rightWheelIndex - originalRightIndex) - (leftWheelIndex - originalLeftIndex);
+    steer2(error2*KP + (error2-lasterr)*KD);
+}
+
+void Funcs::steer2(int error) {
+    if(error > 0) {
+        if(error > st_power) {
+            error = st_power;
+        }
+        setMotorPower(st_power, st_power - error);
+    } else if(error < 0) {
+        if(-error > st_power) {
+            error = -st_power;
+        }
+        setMotorPower(st_power + error, st_power);
+    } else setMotorPower(st_power, st_power);
+}
+
 void Funcs::rotateUntilTape() {
     setMotorPower(100,-100);
     while(true) {
-        if(analogRead(TAPE_QRD_MID_LEFT > TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE == ON_TAPE 
-        || analogRead(TAPE_QRD_MID_RIGHT > TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE == ON_TAPE) {
+        if(analogRead(TAPE_QRD_MID_RIGHT) > TAPE_QRD_THRESHOLD || analogRead(TAPE_QRD_MID_LEFT) > TAPE_QRD_THRESHOLD) {
             setMotorPower(0,0);
             break;
         }
@@ -320,8 +339,7 @@ void Funcs::rotateUntilTape() {
 void Funcs::rotateUntilTapeCCW() {
     setMotorPower(-100,100);
     while(true) {
-        if(analogRead(TAPE_QRD_MID_LEFT > TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE == ON_TAPE 
-        || analogRead(TAPE_QRD_MID_RIGHT > TAPE_QRD_THRESHOLD) ? OFF_TAPE : ON_TAPE == ON_TAPE) {
+        if(analogRead(TAPE_QRD_MID_RIGHT) > TAPE_QRD_THRESHOLD || analogRead(TAPE_QRD_MID_LEFT) > TAPE_QRD_THRESHOLD) {
             setMotorPower(0,0);
             break;
         }
@@ -342,11 +360,16 @@ void Funcs::dumpBasket() {
 }
 
 void Funcs::extendZipline() {
+
+    if(!(digitalRead(ZIP_SWITCH_EXTENDED))){
+        return;
+    }
+
     motor.speed(ZIP_ARM_MOTOR, ZIP_ARM_EXTENDING);
     long startTime = millis();
-    while(!digitalRead(ZIP_SWITCH_EXTENDED)) {
-        // Give the arm 8 seconds to extend
-        if(millis() > startTime + 8000) {
+    while(digitalRead(ZIP_SWITCH_EXTENDED)) {
+        // Give the arm 10 seconds to extend
+        if(millis() > startTime + 10000) {
             break;
         }
     }
@@ -354,9 +377,14 @@ void Funcs::extendZipline() {
 }
 
 void Funcs::contractZipline() {
+
+    if(!(digitalRead(ZIP_SWITCH_CLOSED))){
+        return;
+    }
+
     motor.speed(ZIP_ARM_MOTOR, ZIP_ARM_CONTRACTING);
     long startTime = millis();
-    while(!digitalRead(ZIP_SWITCH_CLOSED)) {
+    while(digitalRead(ZIP_SWITCH_CLOSED)) {
         // Give the arm 8 seconds to contract
         if(millis() > startTime + 8000) {
             break;
@@ -585,10 +613,10 @@ void Funcs::findTape() {
 void Funcs::centerOffEdge() {
     while(analogRead(TAPE_QRD_FAR_LEFT) > EDGE_QRD_THRESHOLD || analogRead(TAPE_QRD_FAR_RIGHT) > EDGE_QRD_THRESHOLD) {
         while(analogRead(TAPE_QRD_FAR_LEFT) > EDGE_QRD_THRESHOLD) {
-            setMotorPower(-120,98);
+            setMotorPower(-115,98);
         }
         while(analogRead(TAPE_QRD_FAR_RIGHT) > EDGE_QRD_THRESHOLD) {
-            setMotorPower(98,-120);
+            setMotorPower(98,-115);
         }
     }
     setMotorPower(0,0);

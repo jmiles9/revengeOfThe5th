@@ -41,7 +41,7 @@ class Funcs {
         bool ewokDetectRight();
         bool ewokDetectLeft();
         void turn(int deg);
-        void move(int distance, int speed);
+        void move(int distance, int power);
         void moveWheels(int leftDistance, int rightDistance, int32_t lSpeed, int32_t rSpeed);
         int speedToPower(int speed);
         void dumpBasket();
@@ -64,8 +64,8 @@ class Funcs {
         bool digitalReadMultiplex(int port);
         int checkEwokSensor(int side);
         void centerOffEdge();
-
-
+        void moveStraight(int originalLeftIndex, int originalRightIndex);
+        void steer2(int error);
 };
 
 #endif

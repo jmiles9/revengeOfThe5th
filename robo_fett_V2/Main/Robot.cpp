@@ -25,6 +25,7 @@ void Robot::STARTUP() {
     delay(1000);
     Funcs::sweepServo(ARM_LEFT, ARM_DOWN_CHEWIE_LEFT, ARM_REST_LEFT);
     Funcs::sweepServo(ARM_RIGHT, ARM_DOWN_CHEWIE_RIGHT, ARM_REST_RIGHT);
+    delay(1000);
 
     runState = RunState::CRUISE_PLAT1;
 }
@@ -139,12 +140,12 @@ void Robot::EWOK_GRAB() {
 //goes into ewok_search
 void Robot::DRAWBRIDGE() {
     //Adjust
-    Funcs::move(120,300);
+    Funcs::move(180,150);
     LCD.setCursor(0,0);
     LCD.print("move");
     //Turn towards gap, should be perpendicular
-    Funcs::turn(-60);
-    Funcs::setMotorPower(150,150);
+    Funcs::turn(-70);
+    Funcs::setMotorPower(120,120);
     int currTime = millis();
     //Timeout after 3 seconds
     while(millis() - currTime < 3000) {
@@ -157,9 +158,9 @@ void Robot::DRAWBRIDGE() {
     delay(1000);
     Funcs::lowerBridge();
     delay(500);
-    setMotorPower(-110,-120);
-    delay(700);
-    setMotorPower(180,180);
+    move(100,-150);
+    delay(200);
+    move(450,170);
     delay(1500);
     Funcs::findTape();
     runState = RunState::EWOK_SEARCH_RIGHT;
@@ -169,11 +170,12 @@ void Robot::DRAWBRIDGE() {
 //ends after right IR is detected
 //enters cruise_plat_2
 void Robot::IR_WAIT() {
-    findTape();
-    turn(-10);
+    delay(5000);
     sweepServo(ARM_LEFT,ARM_DOWN_EWOK_LEFT,ARM_ARCH_LEFT);
     sweepServo(ARM_RIGHT,ARM_DOWN_EWOK_RIGHT,ARM_ARCH_RIGHT);
-    delay(1000);
+    move(120,120);
+    rotateUntilTapeCCW();
+    delay(10000000);
     // while(!irReady) {
     //     if(record10KIRBeacon() > record1KIRBeacon()) {
     //         irReady = true;
