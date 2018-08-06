@@ -20,6 +20,13 @@ Robot::Robot() {
 //goes into cruise_plat1
 void Robot::STARTUP() {
     Serial.println("in startup");
+    Funcs::sweepServo(ARM_LEFT, ARM_UP_LEFT, ARM_DOWN_CHEWIE_LEFT);
+    Funcs::sweepServo(ARM_RIGHT, ARM_UP_RIGHT, ARM_DOWN_CHEWIE_RIGHT);
+    delay(1000);
+    contractZipline();
+    delay(500);
+    extendZipline(3000);
+
     Funcs::sweepServo(CLAW_LEFT, CLAW_OPEN_LEFT, CLAW_CLOSED_LEFT);
     Funcs::sweepServo(CLAW_RIGHT, CLAW_OPEN_RIGHT, CLAW_CLOSED_RIGHT);
     delay(1000);
@@ -53,6 +60,7 @@ void Robot::EWOK_SEARCH_RIGHT() {
     while(true) {
         tapeFollow(TF_KP1, TF_KD1, TF_KI1, TF_GAIN1, 120);
         if(ewokDetectRight()) {
+            Serial.println("detected");
             Funcs::hardStop();
             LCD.clear();LCD.home();
             LCD.setCursor(0,0); LCD.print("EWOK DETECTED");
@@ -67,6 +75,8 @@ void Robot::EWOK_GRAB() {
     LCD.clear();
     LCD.setCursor(0,0);
     LCD.print("EWOK_GRAB");
+
+    //move forward here?
 
     TINAH::Servo arm;
     TINAH::Servo claw;

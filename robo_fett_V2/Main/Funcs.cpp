@@ -383,6 +383,12 @@ void Funcs::extendZipline() {
     motor.stop(ZIP_ARM_MOTOR);
 }
 
+void Funcs::extendZipline(int time){
+    motor.speed(ZIP_ARM_MOTOR, ZIP_ARM_EXTENDING);
+    delay(time);
+    motor.speed(ZIP_ARM_MOTOR, 0);
+}
+
 void Funcs::contractZipline() {
 
     if(!(digitalRead(ZIP_SWITCH_CLOSED))){
