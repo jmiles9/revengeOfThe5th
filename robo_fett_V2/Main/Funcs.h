@@ -46,6 +46,7 @@ class Funcs {
         int speedToPower(int speed);
         void dumpBasket();
         void extendZipline();
+        void extendZipline(int);
         void contractZipline();
         void zipUp();
         void moveZipline(int distance);
