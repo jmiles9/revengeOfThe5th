@@ -72,6 +72,9 @@ void loop() {
 		case ZIP_HOOK :
 			roboFett.ZIP_HOOK();
 			break;
+		case FIND_ZIP_PLAT2 :
+			roboFett.FIND_ZIP_PLAT2();
+			break;
 		case ZIP_UNHOOK :
 			roboFett.ZIP_UNHOOK();
 			break;

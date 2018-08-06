@@ -354,9 +354,16 @@ int Funcs::speedToPower(int speed) {
 }
 
 void Funcs::dumpBasket() {
+    sweepServo(ARM_LEFT,ARM_REST_LEFT,ARM_DOWN_EWOK_LEFT);
+    sweepServo(ARM_RIGHT,ARM_REST_RIGHT,ARM_DOWN_EWOK_RIGHT);
+    delay(1000);
     BASKET.write(BASKET_DUMP);
-    delay(500);
+    delay(1000);
     BASKET.write(BASKET_REST);
+    delay(1000);
+    sweepServo(ARM_LEFT,ARM_DOWN_EWOK_LEFT,ARM_REST_LEFT);
+    sweepServo(ARM_RIGHT,ARM_DOWN_EWOK_RIGHT,ARM_REST_RIGHT);
+
 }
 
 void Funcs::extendZipline() {

@@ -26,8 +26,9 @@ void Robot::STARTUP() {
     Funcs::sweepServo(ARM_LEFT, ARM_DOWN_CHEWIE_LEFT, ARM_REST_LEFT);
     Funcs::sweepServo(ARM_RIGHT, ARM_DOWN_CHEWIE_RIGHT, ARM_REST_RIGHT);
     delay(1000);
+    nextEwok = 3;
 
-    runState = RunState::CRUISE_PLAT1;
+    runState = RunState::IR_WAIT;
 }
 
 // Starts at start
@@ -173,9 +174,9 @@ void Robot::IR_WAIT() {
     delay(5000);
     sweepServo(ARM_LEFT,ARM_DOWN_EWOK_LEFT,ARM_ARCH_LEFT);
     sweepServo(ARM_RIGHT,ARM_DOWN_EWOK_RIGHT,ARM_ARCH_RIGHT);
+    delay(1000);
     move(120,120);
     rotateUntilTapeCCW();
-    delay(10000000);
     // while(!irReady) {
     //     if(record10KIRBeacon() > record1KIRBeacon()) {
     //         irReady = true;
@@ -224,23 +225,14 @@ void Robot::EWOK_SEARCH_LEFT() {
 //ends when aligned and has front right at wall 
 //goes into dump_ewoks
 void Robot::DUMP_PREP() {
-    setMotorPower(120,150);
-    int time = millis();
-    while(!edgeDetect() && millis() - time < 1500) {
-        if(edgeDetect()) {
-            hardStop();
-            centerOffEdge();
-            break;
-        }
-    }
-    setMotorPower(-100,-100);
-    delay(1500);
-    setMotorPower(0,0);
-    turn(-TURN_90);
-    setMotorPower(60,60);
-    delay(3000);
-    dumpBasket();
-    delay(1000000);
+    delay(1000);
+    turn(-30);
+    delay(1000);
+    move(100,-130);
+    delay(1000);
+    turn(-90);
+    delay(1000);
+    move(100,100);
     //can either TapeFollowForDistance or put contact sensor on front? 
     runState = RunState::DUMP_EWOKS;
 
@@ -250,17 +242,22 @@ void Robot::DUMP_PREP() {
 //ends after robots are dumped
 //goes into find_zip_Plat2
 void Robot::DUMP_EWOKS() {
+    Serial.println("dump");
     dumpBasket();
-    runState = RunState::ZIP_HOOK;
+    delay(5000);
+    Serial.println("here we go");
+    runState = RunState::FIND_ZIP_PLAT2;
 }
 
-//ALL STATES ABOVE THIS READY TO RUN
 
 //starts after dump is finished
 //ends when located under zipline on the 2nd platform
 //enters zip_hook
 void Robot::FIND_ZIP_PLAT2(){
-    //need to move around
+    move(200,-140);
+    delay(1000);
+    turn(90);
+    delay(1000000);
 }
 
 // starts when ewoks are dumped
@@ -269,9 +266,8 @@ void Robot::ZIP_HOOK() {
     //need to find zipline, hook up
     //assume is started from already being on tape directly under line
     //likely need to do something other than turning
-    turn(ZIPLINE_ATTACH_ROTATION);
     extendZipline();
-    turn(-ZIPLINE_ATTACH_ROTATION);
+    
     contractZipline();
 
     if (nextEwok ==  4){
