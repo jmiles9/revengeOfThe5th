@@ -23,8 +23,10 @@ void Robot::STARTUP() {
     Funcs::sweepServo(ARM_LEFT, ARM_UP_LEFT, ARM_DOWN_CHEWIE_LEFT);
     Funcs::sweepServo(ARM_RIGHT, ARM_UP_RIGHT, ARM_DOWN_CHEWIE_RIGHT);
     delay(1000);
+    Serial.println("contract");
     contractZipline();
     delay(500);
+    Serial.println("extend");
     extendZipline(3000);
 
     Funcs::sweepServo(CLAW_LEFT, CLAW_OPEN_LEFT, CLAW_CLOSED_LEFT);
@@ -236,7 +238,7 @@ void Robot::EWOK_SEARCH_LEFT() {
 //goes into dump_ewoks
 void Robot::DUMP_PREP() {
     delay(1000);
-    turn(-30);
+    turn(-25);
     delay(1000);
     move(100,-130);
     delay(1000);
@@ -267,7 +269,7 @@ void Robot::FIND_ZIP_PLAT2(){
     move(200,-140);
     delay(1000);
     turn(90);
-    delay(1000000);
+    delay(1000);
 }
 
 // starts when ewoks are dumped
@@ -277,7 +279,7 @@ void Robot::ZIP_HOOK() {
     //assume is started from already being on tape directly under line
     //likely need to do something other than turning
     extendZipline();
-    
+    delay(10000000000);
     contractZipline();
 
     if (nextEwok ==  4){

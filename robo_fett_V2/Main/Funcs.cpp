@@ -376,16 +376,35 @@ void Funcs::extendZipline() {
     long startTime = millis();
     while(digitalRead(ZIP_SWITCH_EXTENDED)) {
         // Give the arm 10 seconds to extend
+
+        if(millis() > startTime + 4000) {
+            motor.speed(ZIP_ARM_MOTOR, ZIP_ARM_EXTENDING - 50);
+            Serial.println(digitalRead(ZIP_ARM_EXTENDING));
+        }
+
         if(millis() > startTime + 10000) {
             break;
         }
     }
     motor.stop(ZIP_ARM_MOTOR);
+    motor.speed(ZIP_ARM_MOTOR, -100);
+    delay(100);
+    motor.speed(ZIP_ARM_MOTOR, 0);
 }
 
 void Funcs::extendZipline(int time){
+    Serial.println("sdfsdfsdf");
+    if(digitalRead(ZIP_SWITCH_EXTENDED)) {
+        Serial.println("switch");
+        return;
+    }
+    int startTime = millis();
     motor.speed(ZIP_ARM_MOTOR, ZIP_ARM_EXTENDING);
-    delay(time);
+    while(millis() - startTime < time && !digitalRead(ZIP_SWITCH_EXTENDED)) {
+        Serial.print("time: "); Serial.println(millis()-startTime);
+        Serial.print("switch: "); Serial.println(!digitalRead(ZIP_SWITCH_EXTENDED));
+    }
+    Serial.println("done");
     motor.speed(ZIP_ARM_MOTOR, 0);
 }
 
@@ -636,4 +655,8 @@ void Funcs::centerOffEdge() {
     setMotorPower(-85,-90);
     delay(350);
     setMotorPower(0,0);
+}
+
+void Funcs::centerOnZipline() {
+    while(digitalRead())
 }

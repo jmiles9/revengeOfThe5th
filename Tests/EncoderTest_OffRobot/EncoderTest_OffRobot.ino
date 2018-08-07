@@ -5,7 +5,7 @@
 void setup() {
   #include <phys253setup.txt>
   Serial.begin(9600);
-  attachInterrupt(3, encoderLeft, FALLING);
+  attachInterrupt(3, encoderLeft, CHANGE);
 }
 
 int count = 0;
@@ -25,13 +25,5 @@ void encoderLeft() {
     int time = millis();
     leftCount++;
     lastLeftTime = time;
-    attachInterrupt(3, encoderLeftRising, RISING);
-}
-
-void encoderLeftRising() {
-      int time = millis();
-    leftCount++;
-    lastLeftTime = time;
-    attachInterrupt(3, encoderLeft, FALLING);
 }
 

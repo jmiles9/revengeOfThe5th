@@ -44,11 +44,13 @@ namespace configs {
     //must be inputs cuz interrupts are 0-3
     //pins 0-3 can only be interrupts!!!!!!!!!!!!
     
-    const int ZIP_SWITCH_EXTENDED = 7;
-    const int ZIP_SWITCH_CLOSED = 6;
+    const int ZIP_SWITCH_CLOSED = 7;
+    const int ZIP_SWITCH_EXTENDED = 6;
     const int MULTIPLEX_IN = 5; 
     const int ENCODER_LEFT = 3;
     const int ENCODER_RIGHT = 2;
+    const int ZIPLINE_HIT_SWITCH_RIGHT = 1;
+    const int ZIPLINE_HIT_SWITCH_LEFT = 0;
 
     //all ports below arbitrary
 
