@@ -35,9 +35,15 @@ void Robot::STARTUP() {
     Funcs::sweepServo(ARM_LEFT, ARM_DOWN_CHEWIE_LEFT, ARM_REST_LEFT);
     Funcs::sweepServo(ARM_RIGHT, ARM_DOWN_CHEWIE_RIGHT, ARM_REST_RIGHT);
     delay(1000);
-    nextEwok = 3;
+    nextEwok = 1;
 
-    runState = RunState::IR_WAIT;
+    LCD.clear();
+    LCD.print("FUCK");
+  
+    while(!(startbutton())){delay(100);}
+    
+
+    runState = RunState::CRUISE_PLAT1;
 }
 
 // Starts at start
@@ -204,7 +210,7 @@ void Robot::IR_WAIT() {
 //enters ewok_search
 void Robot::CRUISE_PLAT2() {
     
-    tapeFollowForDistance(1500);
+    tapeFollowForDistance(1450);
     runState = RunState::EWOK_SEARCH_LEFT;
 }
 

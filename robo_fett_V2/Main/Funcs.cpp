@@ -394,13 +394,13 @@ void Funcs::extendZipline() {
 
 void Funcs::extendZipline(int time){
     Serial.println("sdfsdfsdf");
-    if(digitalRead(ZIP_SWITCH_EXTENDED)) {
+    if(!digitalRead(ZIP_SWITCH_EXTENDED)) {
         Serial.println("switch");
         return;
     }
     int startTime = millis();
     motor.speed(ZIP_ARM_MOTOR, ZIP_ARM_EXTENDING);
-    while(millis() - startTime < time && !digitalRead(ZIP_SWITCH_EXTENDED)) {
+    while(millis() - startTime < time && digitalRead(ZIP_SWITCH_EXTENDED)) {
         Serial.print("time: "); Serial.println(millis()-startTime);
         Serial.print("switch: "); Serial.println(!digitalRead(ZIP_SWITCH_EXTENDED));
     }
@@ -658,5 +658,5 @@ void Funcs::centerOffEdge() {
 }
 
 void Funcs::centerOnZipline() {
-    while(digitalRead())
+//    while(digitalRead())
 }
