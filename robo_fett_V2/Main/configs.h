@@ -103,7 +103,7 @@ namespace configs {
     const int IR_THRESHOLD = 512;
     const int EWOK_THRESH = 250;
     const int TAPE_QRD_THRESHOLD = 450;
-    const int EDGE_QRD_THRESHOLD = 400;
+    const int EDGE_QRD_THRESHOLD = 240;
     const int EDGE_QRD_BOT_THRESHOlD = 100;
     //digitalOut
 
@@ -133,8 +133,8 @@ namespace configs {
     const int ARM_UP_LEFT = 150;
     const int ARM_REST_LEFT = 100;
     const int ARM_REST_RIGHT = 73;
-    const int ARM_ARCH_LEFT = 140;
-    const int ARM_ARCH_RIGHT = 30;
+    const int ARM_ARCH_LEFT = 145;
+    const int ARM_ARCH_RIGHT = 25;
     const int ARM_DOWN_EWOK_LEFT = 0;
     const int ARM_DOWN_CHEWIE_LEFT = 30;
     const int CLAW_CLOSED_RIGHT = 0;
