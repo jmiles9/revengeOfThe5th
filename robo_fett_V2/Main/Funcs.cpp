@@ -428,11 +428,8 @@ void Funcs::contractZipline() {
 void Funcs::zipUp() {
     motor.speed(ZIP_WHEEL_MOTOR, ZIPPING_UP);
     double startTime = millis();
-    while(!digitalRead(ZIPPED_UP_SWITCH)) {
-        // Give 10 seconds to make it up zipline
-        if(millis() > startTime + 10000) {
-            break;
-        }
+    while((millis()-startTime) > 5000) {
+        delay(70);
     }
     motor.stop(ZIP_WHEEL_MOTOR);
 }
@@ -689,6 +686,15 @@ void Funcs::centerOnZipline() {
             turn(5);
         }
 
+    }
+
+}
+
+void centreOnBridgeEdge(){
+
+    //while the bridge qrd sensors are not in middle of edge
+    while(!(!digitalRead(BRIDGE_QRD_LEFT) && digitalRead(BRIDGE_QRD_RIGHT)){
+        turn(1); //might be too small, may need to increment more
     }
 
 }
