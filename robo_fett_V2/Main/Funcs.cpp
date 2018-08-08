@@ -721,8 +721,6 @@ void Funcs::centerOnZipline() {
 //             turn(5);
 //         }
 
-//     }
-
 }
 
 void Funcs::centreOnBridgeEdge(){
@@ -733,3 +731,4 @@ void Funcs::centreOnBridgeEdge(){
       turn(d); //might be too small, may need to increment more
     }
 }
+
