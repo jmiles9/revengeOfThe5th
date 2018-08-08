@@ -318,13 +318,26 @@ void Robot::EWOK_4() {
 // TODO: Write
 void Robot::BRIDGE_FOLLOW() {
 
-    turn(90);
+    // turn(90);
 
     // this assumes when they are on tape they read HI = true
     //follows side of bridge until sees tape indicating zipline
-    while(!(digitalRead(BRIDGE_QRD_LEFT) && digitalRead(BRIDGE_QRD_RIGHT))){
-        bridgeFollow(TF_KP1,TF_KD1,TF_GAIN1);
+    //what tape indicating zipline??
+    LCD.clear(); LCD.print("Reset");
+    int start = millis();
+
+    sweepServo(ARM_LEFT, ARM_UP_LEFT, ARM_DOWN_EWOK_LEFT);
+    sweepServo(CLAW_LEFT, CLAW_CLOSED_LEFT, CLAW_OPEN_LEFT);
+    while((millis()-start) > 3000){ //follow for 4 s before looking for chewie
+        bridgeFollow(BF_KP, BF_KD, BF_GAIN);
     }
+    delay(1000); //just so we know when it changes 
+    while(!ewokDetectRight()){
+        bridgeFollow(BF_KP, BF_KD, BF_GAIN);
+    }
+    pickUp(LEFT, 0);
+    motor.stop(RIGHT_MOTOR);
+    motor.stop(LEFT_MOTOR);
 
 }
 // TODO: WRite

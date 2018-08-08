@@ -88,6 +88,9 @@ namespace configs {
     #define TF_SPEED2 0
     #define TF_GAIN1 2
     #define TF_GAIN2 0
+    #define BF_KP 5
+    #define BF_KD 0
+    #define BF_GAIN 5
     const int ZIP_ARM_EXTENDING = 255;
     const int ZIP_ARM_CONTRACTING = -255;
     const int ZIPPING_UP = 255;
