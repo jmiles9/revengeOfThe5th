@@ -394,13 +394,13 @@ void Funcs::extendZipline() {
 
 void Funcs::extendZipline(int time){
     Serial.println("sdfsdfsdf");
-    if(digitalRead(ZIP_SWITCH_EXTENDED)) {
+    if(!digitalRead(ZIP_SWITCH_EXTENDED)) {
         Serial.println("switch");
         return;
     }
-    int startTime = millis();
+    long startTime = millis();
     motor.speed(ZIP_ARM_MOTOR, ZIP_ARM_EXTENDING);
-    while(millis() - startTime < time && !digitalRead(ZIP_SWITCH_EXTENDED)) {
+    while(millis() - startTime < time && digitalRead(ZIP_SWITCH_EXTENDED)) {
         Serial.print("time: "); Serial.println(millis()-startTime);
         Serial.print("switch: "); Serial.println(!digitalRead(ZIP_SWITCH_EXTENDED));
     }
@@ -423,6 +423,21 @@ void Funcs::contractZipline() {
         }
     }
     motor.stop(ZIP_ARM_MOTOR);
+}
+
+void Funcs::contractZipline(int time) {
+    if(!digitalRead(ZIP_SWITCH_CLOSED)) {
+        Serial.println("switch");
+        return;
+    }
+    long startTime = millis();
+    motor.speed(ZIP_ARM_MOTOR, ZIP_ARM_CONTRACTING);
+    while(millis() - startTime < time && digitalRead(ZIP_SWITCH_CLOSED)) {
+        Serial.print("time: "); Serial.println(millis()-startTime);
+        Serial.print("switch: "); Serial.println(!digitalRead(ZIP_SWITCH_CLOSED));
+    }
+    Serial.println("done");
+    motor.speed(ZIP_ARM_MOTOR, 0);
 }
 
 void Funcs::zipUp() {
@@ -658,5 +673,23 @@ void Funcs::centerOffEdge() {
 }
 
 void Funcs::centerOnZipline() {
-    while(digitalRead())
+    int originalLeft = leftWheelIndex;
+    int originalRight = rightWheelIndex;
+    setMotorPower(100,100);
+    while(!digitalRead(ZIPLINE_HIT_SWITCH_LEFT) && !digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
+        if(digitalRead(ZIPLINE_HIT_SWITCH_LEFT) || digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
+            hardStop();
+            break;
+        }
+        moveStraight(originalLeft, originalRight);
+    }
+    while(!digitalRead(ZIPLINE_HIT_SWITCH_LEFT) || !digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
+        while(!digitalRead(ZIPLINE_HIT_SWITCH_LEFT)) {
+
+        }
+        while(!digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
+
+        }
+    }
+    setMotorPower(0,0);
 }

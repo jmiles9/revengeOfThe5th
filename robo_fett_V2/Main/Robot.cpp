@@ -27,7 +27,7 @@ void Robot::STARTUP() {
     contractZipline();
     delay(500);
     Serial.println("extend");
-    extendZipline(3000);
+    extendZipline(3750);
 
     Funcs::sweepServo(CLAW_LEFT, CLAW_OPEN_LEFT, CLAW_CLOSED_LEFT);
     Funcs::sweepServo(CLAW_RIGHT, CLAW_OPEN_RIGHT, CLAW_CLOSED_RIGHT);
@@ -35,9 +35,8 @@ void Robot::STARTUP() {
     Funcs::sweepServo(ARM_LEFT, ARM_DOWN_CHEWIE_LEFT, ARM_REST_LEFT);
     Funcs::sweepServo(ARM_RIGHT, ARM_DOWN_CHEWIE_RIGHT, ARM_REST_RIGHT);
     delay(1000);
-    nextEwok = 3;
 
-    runState = RunState::IR_WAIT;
+    runState = RunState::CRUISE_PLAT1;
 }
 
 // Starts at start
@@ -183,19 +182,34 @@ void Robot::DRAWBRIDGE() {
 //ends after right IR is detected
 //enters cruise_plat_2
 void Robot::IR_WAIT() {
-    delay(5000);
     sweepServo(ARM_LEFT,ARM_DOWN_EWOK_LEFT,ARM_ARCH_LEFT);
     sweepServo(ARM_RIGHT,ARM_DOWN_EWOK_RIGHT,ARM_ARCH_RIGHT);
     delay(1000);
-    move(120,120);
-    rotateUntilTapeCCW();
+    contractZipline(1500);
+    delay(5000);
     // while(!irReady) {
-    //     if(record10KIRBeacon() > record1KIRBeacon()) {
+    //     if(record1KIRBeacon() > record10KIRBeacon()) {
     //         irReady = true;
     //     }
+    //     int k = analogRead(IR_1KHZ);
+    //     int kk = analogRead(IR_10KHZ);
+    //     LCD.clear(); LCD.setCursor(0,0);
+    //     LCD.print("1kz: "); LCD.print(k);
+    //     LCD.setCursor(0,1); LCD.print("10kz: "); LCD.print(kk);
+    //     delay(250);
     // }
     // while (record10KIRBeacon() < record1KIRBeacon()) {
+    //     int k = analogRead(IR_1KHZ);
+    //     int kk = analogRead(IR_10KHZ);
+    //     LCD.clear(); LCD.setCursor(0,0);
+    //     LCD.print("1k: "); LCD.print(k);
+    //     LCD.setCursor(0,1); LCD.print("10k: "); LCD.print(kk);
+    //     delay(250);
     // }
+    Serial.println("done IR");
+    move(120,120);
+    rotateUntilTapeCCW();
+    Serial.println("cruise set");
     runState = RunState::CRUISE_PLAT2;
 }
 
@@ -209,6 +223,8 @@ void Robot::CRUISE_PLAT2() {
 }
 
 void Robot::EWOK_SEARCH_LEFT() {
+    Funcs::extendZipline(1500);
+    delay(5000);
     Funcs::setMotorPower(180,180);
     Funcs::sweepServo(ARM_RIGHT,ARM_UP_RIGHT,ARM_REST_RIGHT);
     Funcs::sweepServo(ARM_LEFT,ARM_UP_LEFT,ARM_REST_LEFT);
@@ -270,6 +286,7 @@ void Robot::FIND_ZIP_PLAT2(){
     delay(1000);
     turn(90);
     delay(1000);
+    runState = RunState::ZIP_HOOK;
 }
 
 // starts when ewoks are dumped
