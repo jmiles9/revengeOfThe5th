@@ -68,6 +68,7 @@ class Funcs {
         void moveStraight(int originalLeftIndex, int originalRightIndex);
         void steer2(int error);
         void centerOnZipline();
+        void centreOnBridgeEdge();
 };
 
 #endif
