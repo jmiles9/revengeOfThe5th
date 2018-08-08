@@ -398,7 +398,7 @@ void Funcs::extendZipline(int time){
         Serial.println("switch");
         return;
     }
-    int startTime = millis();
+    long startTime = millis();
     motor.speed(ZIP_ARM_MOTOR, ZIP_ARM_EXTENDING);
     while(millis() - startTime < time && digitalRead(ZIP_SWITCH_EXTENDED)) {
         Serial.print("time: "); Serial.println(millis()-startTime);
@@ -423,6 +423,21 @@ void Funcs::contractZipline() {
         }
     }
     motor.stop(ZIP_ARM_MOTOR);
+}
+
+void Funcs::contractZipline(int time) {
+    if(!digitalRead(ZIP_SWITCH_CLOSED)) {
+        Serial.println("switch");
+        return;
+    }
+    long startTime = millis();
+    motor.speed(ZIP_ARM_MOTOR, ZIP_ARM_CONTRACTING);
+    while(millis() - startTime < time && digitalRead(ZIP_SWITCH_CLOSED)) {
+        Serial.print("time: "); Serial.println(millis()-startTime);
+        Serial.print("switch: "); Serial.println(!digitalRead(ZIP_SWITCH_CLOSED));
+    }
+    Serial.println("done");
+    motor.speed(ZIP_ARM_MOTOR, 0);
 }
 
 void Funcs::zipUp() {
@@ -659,34 +674,54 @@ void Funcs::centerOffEdge() {
 
 //gets called once one of the switches is on contact with the zipline
 void Funcs::centerOnZipline() {
-
-    int t = millis();
-
-    //while both switches aren't tripped
-    while(true){
-        if(!digitalRead(ZIPLINE_HIT_SWITCH_LEFT) && !digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)){
+  
+    int originalLeft = leftWheelIndex;
+    int originalRight = rightWheelIndex;
+    setMotorPower(100,100);
+    while(!digitalRead(ZIPLINE_HIT_SWITCH_LEFT) && !digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
+        if(digitalRead(ZIPLINE_HIT_SWITCH_LEFT) || digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
+            hardStop();
             break;
         }
-        //if has been trying for too long, move backwards and forwards until one is hit 
-        if ((millis() - t) > 7000){
-            t = millis();
-            move(-50, 100);
-            //while neither switch is pressed
-            while(digitalRead(ZIPLINE_HIT_SWITCH_LEFT) && digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)){
-                move(30, 100);
-            }
-        }
-        //left switch is hit
-        if(!digitalRead(ZIPLINE_HIT_SWITCH_LEFT)){
-            turn(-5);
-            continue; //use continue to make sure doesn't readjust twice before checking for both switches
-        }
-        //right switch is hit
-        if (digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)){
-            turn(5);
-        }
-
+        moveStraight(originalLeft, originalRight);
     }
+    while(!digitalRead(ZIPLINE_HIT_SWITCH_LEFT) || !digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
+        while(!digitalRead(ZIPLINE_HIT_SWITCH_LEFT)) {
+
+        }
+        while(!digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
+
+        }
+    }
+    setMotorPower(0,0);
+  
+    //int t = millis();
+
+    //while both switches aren't tripped
+//     while(true){
+//         if(!digitalRead(ZIPLINE_HIT_SWITCH_LEFT) && !digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)){
+//             break;
+//         }
+//         //if has been trying for too long, move backwards and forwards until one is hit 
+//         if ((millis() - t) > 7000){
+//             t = millis();
+//             move(-50, 100);
+//             //while neither switch is pressed
+//             while(digitalRead(ZIPLINE_HIT_SWITCH_LEFT) && digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)){
+//                 move(30, 100);
+//             }
+//         }
+//         //left switch is hit
+//         if(!digitalRead(ZIPLINE_HIT_SWITCH_LEFT)){
+//             turn(-5);
+//             continue; //use continue to make sure doesn't readjust twice before checking for both switches
+//         }
+//         //right switch is hit
+//         if (digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)){
+//             turn(5);
+//         }
+
+//     }
 
 }
 
@@ -696,5 +731,4 @@ void centreOnBridgeEdge(){
     while(!(!digitalRead(BRIDGE_QRD_LEFT) && digitalRead(BRIDGE_QRD_RIGHT)){
         turn(1); //might be too small, may need to increment more
     }
-
 }
