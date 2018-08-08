@@ -96,8 +96,8 @@ void loop() {
 		case BRIDGE_FOLLOW :
 			roboFett.BRIDGE_FOLLOW();
 			break;
-		case CHEWIE :
-			roboFett.CHEWIE();
+		case SAVE_CHEWIE :
+			roboFett.SAVE_CHEWIE();
 			break;
 		case ZIP_DOWN :
 			roboFett.ZIP_DOWN();

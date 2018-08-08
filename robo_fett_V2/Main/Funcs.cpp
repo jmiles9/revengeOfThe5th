@@ -725,10 +725,11 @@ void Funcs::centerOnZipline() {
 
 }
 
-void centreOnBridgeEdge(){
+void Funcs::centreOnBridgeEdge(){
 
     //while the bridge qrd sensors are not in middle of edge
-    while(!(!digitalRead(BRIDGE_QRD_LEFT) && digitalRead(BRIDGE_QRD_RIGHT)){
-        turn(1); //might be too small, may need to increment more
+    while(!(!digitalRead(BRIDGE_QRD_LEFT) && digitalRead(BRIDGE_QRD_RIGHT))){
+      int8_t d = 1;
+      turn(d); //might be too small, may need to increment more
     }
 }

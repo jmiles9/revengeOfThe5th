@@ -358,7 +358,7 @@ void Robot::BRIDGE_FOLLOW() {
         bridgeFollow(BF_KP, BF_KD, BF_GAIN);
     }
 
-    runState = RunState::CHEWIE;
+    runState = RunState::SAVE_CHEWIE;
 
     motor.stop(RIGHT_MOTOR);
     motor.stop(LEFT_MOTOR); //may not need these
@@ -366,8 +366,10 @@ void Robot::BRIDGE_FOLLOW() {
 }
 // Starts right after chewie has been detected
 // stops when chewie has been picked up
-void Robot::CHEWIE() {
-    pickUp(LEFT, CHEWIE);
+void Robot::SAVE_CHEWIE() {
+    int8_t side = LEFT;
+    int8_t plush = CHEWIE; //had to do this or would get an error
+    Funcs::pickUp(side, plush);
     runState = RunState::ZIP_DOWN;
 
 }

@@ -19,7 +19,7 @@ enum RunState {
     ZIP_UNHOOK,
     EWOK_4,
     BRIDGE_FOLLOW,
-    CHEWIE,
+    SAVE_CHEWIE,
     ZIP_DOWN
 };
 
@@ -47,7 +47,7 @@ class Robot : public Funcs {
         void ZIP_UNHOOK();
         void EWOK_4();
         void BRIDGE_FOLLOW();
-        void CHEWIE();
+        void SAVE_CHEWIE();
         void ZIP_DOWN();
         void IRHANDLE();
 
