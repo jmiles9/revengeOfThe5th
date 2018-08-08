@@ -21,8 +21,20 @@ void setup() {
 	roboFett = Robot();
 	attachInterrupt(3, encoderLeft, CHANGE);
 	attachInterrupt(2, encoderRight, CHANGE);
-	pinMode(configs::EWOK_IR_OUT_RIGHT, OUTPUT);
-	pinMode(configs::EWOK_IR_OUT_LEFT, OUTPUT);
+	pinMode(0, INPUT);
+  pinMode(1, INPUT); //dont set 2 and 3 cuz interrupts
+	pinMode(4, INPUT);
+	pinMode(5, INPUT);
+	pinMode(6, INPUT);
+	pinMode(7, INPUT);
+	pinMode(8, OUTPUT);
+	pinMode(9, OUTPUT);
+	pinMode(10, OUTPUT);
+	pinMode(11, OUTPUT);
+	pinMode(12, OUTPUT);
+	pinMode(13, OUTPUT);
+	pinMode(14, OUTPUT);
+	pinMode(15, OUTPUT);
 	LCD.clear();  LCD.home();
 }
 

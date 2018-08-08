@@ -9,3 +9,6 @@ Arm
 * Stbd: Set Servo to 15 deg
 * Port: Set Servo to 130 deg
 * Attach arm to be parrallel to ground
+
+Zipline
+* Make sure contact switches hit zipline

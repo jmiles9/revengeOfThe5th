@@ -69,6 +69,7 @@ class Funcs {
         void steer2(int error);
         void centerOnZipline();
         void contractZipline(int time);
+        void centreOnBridgeEdge();
 };
 
 #endif

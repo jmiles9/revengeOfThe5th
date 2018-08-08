@@ -36,6 +36,13 @@ void Robot::STARTUP() {
     Funcs::sweepServo(ARM_RIGHT, ARM_DOWN_CHEWIE_RIGHT, ARM_REST_RIGHT);
     delay(1000);
 
+    nextEwok = 1;
+
+    LCD.clear();
+    LCD.print("FUCK");
+  
+    while(!(startbutton())){delay(100);}
+
     runState = RunState::CRUISE_PLAT1;
 }
 
@@ -218,7 +225,7 @@ void Robot::IR_WAIT() {
 //enters ewok_search
 void Robot::CRUISE_PLAT2() {
     
-    tapeFollowForDistance(1500);
+    tapeFollowForDistance(1450);
     runState = RunState::EWOK_SEARCH_LEFT;
 }
 
@@ -289,6 +296,7 @@ void Robot::FIND_ZIP_PLAT2(){
     runState = RunState::ZIP_HOOK;
 }
 
+//MIGHT NOT NEED THIS STATE CUZ CAN USE centreOnZipline()
 // starts when ewoks are dumped
 //ends when attached to zipline and ready to go 
 void Robot::ZIP_HOOK() {
@@ -310,45 +318,69 @@ void Robot::ZIP_HOOK() {
 //TODO: WRite
 void Robot::ZIP_UP() {
     zipUp();
-    //zipUp function checks for contact switch and has a time limit
+    runState = RunState::ZIP_UNHOOK;
 }
+
 // TODO: Write
 void Robot::ZIP_UNHOOK() {
     extendZipline();
-    turn(ZIPLINE_ATTACH_ROTATION);
+    move(50, -100);
     contractZipline();
-    turn(-ZIPLINE_ATTACH_ROTATION);
+    move(50, 100); //these values may not be enough 
 }
 // TODO: Write
 void Robot::EWOK_4() {
-    //may need to reverse a bit first
-    EWOK_SEARCH_RIGHT();
+    //may need to add more movements before searching
+    EWOK_SEARCH_LEFT();
+    EWOK_GRAB(); //maybe should just use as states, idgaf
+    turn(5);
+    move(100, 100); //need to get past the circular platforn
+    centreOnBridgeEdge();
+
+    runState = RunState::BRIDGE_FOLLOW;
     //may need to have something in here about edge detecting also, or should add to ewok search
 
 }
-// TODO: Write
+// Starts when bot is on edge
+//ends when chewie is detected 
 void Robot::BRIDGE_FOLLOW() {
 
-    turn(90);
+    LCD.clear(); LCD.print("Reset");
+    int start = millis();
 
-    // this assumes when they are on tape they read HI = true
-    //follows side of bridge until sees tape indicating zipline
-    while(!(digitalRead(BRIDGE_QRD_LEFT) && digitalRead(BRIDGE_QRD_RIGHT))){
-        bridgeFollow(TF_KP1,TF_KD1,TF_GAIN1);
+    sweepServo(ARM_LEFT, ARM_UP_LEFT, ARM_DOWN_EWOK_LEFT);
+    sweepServo(CLAW_LEFT, CLAW_CLOSED_LEFT, CLAW_OPEN_LEFT);
+    while((millis()-start) > 3000){ //follow for 4 s before looking for chewie
+        bridgeFollow(BF_KP, BF_KD, BF_GAIN);
+    }
+    delay(1000); //just so we know when it changes 
+    while(!ewokDetectRight()){
+        bridgeFollow(BF_KP, BF_KD, BF_GAIN);
     }
 
+    runState = RunState::CHEWIE;
+
+    motor.stop(RIGHT_MOTOR);
+    motor.stop(LEFT_MOTOR); //may not need these
+
 }
-// TODO: WRite
+// Starts right after chewie has been detected
+// stops when chewie has been picked up
 void Robot::CHEWIE() {
-    //will end on tape so can follow tape for a little bit longer
-    EWOK_SEARCH_LEFT();
+    pickUp(LEFT, CHEWIE);
+    runState = RunState::ZIP_DOWN;
+
 }
-// TODO: Write
+// Starts right after Chewie picked up
+//ends when we beat dom and tom
 void Robot::ZIP_DOWN() {
-    turn(190);
-    //turn around 180 degrees so goes down with sensor going outwards
-    extendZipline();
-    turn(-10);
+
+    //move forward until one switch hit zipline
+    while(digitalRead(ZIPLINE_HIT_SWITCH_LEFT) && digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)){
+        move(10, 100);
+    }
+
+    centerOnZipline();
     contractZipline();
     zipUp();
 }

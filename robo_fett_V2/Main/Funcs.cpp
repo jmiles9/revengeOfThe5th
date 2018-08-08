@@ -443,11 +443,8 @@ void Funcs::contractZipline(int time) {
 void Funcs::zipUp() {
     motor.speed(ZIP_WHEEL_MOTOR, ZIPPING_UP);
     double startTime = millis();
-    while(!digitalRead(ZIPPED_UP_SWITCH)) {
-        // Give 10 seconds to make it up zipline
-        if(millis() > startTime + 10000) {
-            break;
-        }
+    while((millis()-startTime) > 5000) {
+        delay(70);
     }
     motor.stop(ZIP_WHEEL_MOTOR);
 }
@@ -458,10 +455,14 @@ void Funcs::findEdge() {
 //TODO: write this. Should pretty much be tapefollow, different sensors.
 void Funcs::bridgeFollow(int kp, int kd, int gain) {
 
+    tf_power = 100;
+
     //should be true if they are OFF the bridge
     bool rightOffBridge = digitalRead(BRIDGE_QRD_RIGHT);
     bool leftOffBridge = digitalRead(BRIDGE_QRD_LEFT);
 
+    LCD.clear(); LCD.setCursor(0,0); LCD.print("left: "); LCD.print(leftOffBridge);
+    LCD.setCursor(0,1); LCD.print("right: "); LCD.print(rightOffBridge);
     int lastError = error;
     //use same static error that tapefollow uses, shouldn't be issue as don't tapefollow again
 
@@ -477,7 +478,6 @@ void Funcs::bridgeFollow(int kp, int kd, int gain) {
         //need to turn right
         error = 1;
     }
-    
     steer((kp*error + kd*(error - lastError))*gain) ;
 }
 
@@ -672,7 +672,9 @@ void Funcs::centerOffEdge() {
     setMotorPower(0,0);
 }
 
+//gets called once one of the switches is on contact with the zipline
 void Funcs::centerOnZipline() {
+  
     int originalLeft = leftWheelIndex;
     int originalRight = rightWheelIndex;
     setMotorPower(100,100);
@@ -692,4 +694,41 @@ void Funcs::centerOnZipline() {
         }
     }
     setMotorPower(0,0);
+  
+    //int t = millis();
+
+    //while both switches aren't tripped
+//     while(true){
+//         if(!digitalRead(ZIPLINE_HIT_SWITCH_LEFT) && !digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)){
+//             break;
+//         }
+//         //if has been trying for too long, move backwards and forwards until one is hit 
+//         if ((millis() - t) > 7000){
+//             t = millis();
+//             move(-50, 100);
+//             //while neither switch is pressed
+//             while(digitalRead(ZIPLINE_HIT_SWITCH_LEFT) && digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)){
+//                 move(30, 100);
+//             }
+//         }
+//         //left switch is hit
+//         if(!digitalRead(ZIPLINE_HIT_SWITCH_LEFT)){
+//             turn(-5);
+//             continue; //use continue to make sure doesn't readjust twice before checking for both switches
+//         }
+//         //right switch is hit
+//         if (digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)){
+//             turn(5);
+//         }
+
+//     }
+
+}
+
+void centreOnBridgeEdge(){
+
+    //while the bridge qrd sensors are not in middle of edge
+    while(!(!digitalRead(BRIDGE_QRD_LEFT) && digitalRead(BRIDGE_QRD_RIGHT)){
+        turn(1); //might be too small, may need to increment more
+    }
 }
