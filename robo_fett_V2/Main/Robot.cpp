@@ -39,11 +39,11 @@ void Robot::STARTUP() {
     nextEwok = 1;
 
     LCD.clear();
-    LCD.print("FUCK");
+    LCD.print("READY");
   
     while(!(startbutton())){delay(100);}
 
-    runState = RunState::CRUISE_PLAT1;
+    runState = RunState::DUMP_EWOKS;
 }
 
 // Starts at start
@@ -292,7 +292,7 @@ void Robot::FIND_ZIP_PLAT2(){
     move(200,-140);
     delay(1000);
     turn(90);
-    delay(1000);
+    delay(1000000);
     runState = RunState::ZIP_HOOK;
 }
 

@@ -192,10 +192,10 @@ double Funcs::record10KIRBeacon() {
 }
 
 void Funcs::lowerBridge() {
-    BASKET.write(BASKET_DROPBRIDGE);
+    sweepServo(BASKET, BASKET_REST, BASKET_DROPBRIDGE);
     delay(1000);
     // may not need to close
-    BASKET.write(BASKET_REST);
+    sweepServo(BASKET, BASKET_DROPBRIDGE, BASKET_REST);
 }
 
 bool Funcs::checkBeacon() {
@@ -354,16 +354,13 @@ int Funcs::speedToPower(int speed) {
 }
 
 void Funcs::dumpBasket() {
-    sweepServo(ARM_LEFT,ARM_REST_LEFT,ARM_DOWN_EWOK_LEFT);
-    sweepServo(ARM_RIGHT,ARM_REST_RIGHT,ARM_DOWN_EWOK_RIGHT);
-    delay(1000);
-    BASKET.write(BASKET_DUMP);
-    delay(1000);
-    BASKET.write(BASKET_REST);
-    delay(1000);
     sweepServo(ARM_LEFT,ARM_DOWN_EWOK_LEFT,ARM_REST_LEFT);
     sweepServo(ARM_RIGHT,ARM_DOWN_EWOK_RIGHT,ARM_REST_RIGHT);
-
+    delay(1000);
+    sweepServo(BASKET, BASKET_REST, BASKET_DUMP);
+    delay(1000);
+    sweepServo(BASKET, BASKET_DUMP, BASKET_REST);
+    delay(1000);
 }
 
 void Funcs::extendZipline() {
@@ -550,6 +547,7 @@ void Funcs::sweepServo(TINAH::Servo servo, int startAngle, int endAngle) {
         currAngle += dA;
     }
     servo.write(endAngle);
+    delay(10);
     servo.write(endAngle);
 }
 
@@ -677,24 +675,31 @@ void Funcs::centerOnZipline() {
   
     int originalLeft = leftWheelIndex;
     int originalRight = rightWheelIndex;
-    setMotorPower(100,100);
-    while(!digitalRead(ZIPLINE_HIT_SWITCH_LEFT) && !digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
-        if(digitalRead(ZIPLINE_HIT_SWITCH_LEFT) || digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
+    setMotorPower(80,80);
+    st_power = 100;
+    while(digitalRead(ZIPLINE_HIT_SWITCH_LEFT) && digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
+        Serial.println("AAAAAa");
+        if(!digitalRead(ZIPLINE_HIT_SWITCH_LEFT) || !digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
             hardStop();
             break;
         }
         moveStraight(originalLeft, originalRight);
     }
-    while(!digitalRead(ZIPLINE_HIT_SWITCH_LEFT) || !digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
-        while(!digitalRead(ZIPLINE_HIT_SWITCH_LEFT)) {
-
+    while(digitalRead(ZIPLINE_HIT_SWITCH_LEFT) || digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
+        while(digitalRead(ZIPLINE_HIT_SWITCH_LEFT)) {
+            Serial.println("LEFT");
+            Serial.println(ZIPLINE_HIT_SWITCH_LEFT);
+            setMotorPower(80,-55);
         }
-        while(!digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
-
+        while(digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
+            Serial.println("RIGHT");
+            Serial.println(ZIPLINE_HIT_SWITCH_LEFT);
+            setMotorPower(-55,80);
         }
     }
     setMotorPower(0,0);
-  
+    hardStop();
+
     //int t = millis();
 
     //while both switches aren't tripped

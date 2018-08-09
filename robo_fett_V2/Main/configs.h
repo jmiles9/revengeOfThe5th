@@ -134,8 +134,8 @@ namespace configs {
     const int ARM_DOWN_EWOK_RIGHT = 180;
     const int ARM_DOWN_CHEWIE_RIGHT = 180; //above good vals
     const int ARM_UP_LEFT = 150;
-    const int ARM_REST_LEFT = 85;
-    const int ARM_REST_RIGHT = 73;
+    const int ARM_REST_LEFT = 75;
+    const int ARM_REST_RIGHT = 80;
     const int ARM_ARCH_LEFT = 140;
     const int ARM_ARCH_RIGHT = 30;
     const int ARM_DOWN_EWOK_LEFT = 0;
@@ -152,7 +152,7 @@ namespace configs {
     const int DRAWBRIDGE_CLOSED = 0;
 
     const int BASKET_REST = 165;
-    const int BASKET_DUMP = 0;
+    const int BASKET_DUMP = 40;
     const int BASKET_DROPBRIDGE = 85;
 
     const int ZIPLINE_ATTACH_ROTATION = 15;
