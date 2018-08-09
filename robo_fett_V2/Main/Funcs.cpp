@@ -360,11 +360,11 @@ int Funcs::speedToPower(int speed) {
 void Funcs::dumpBasket() {
     sweepServo(ARM_LEFT,ARM_REST_LEFT,ARM_DOWN_EWOK_LEFT);
     sweepServo(ARM_RIGHT,ARM_REST_RIGHT,ARM_DOWN_EWOK_RIGHT);
-    delay(1000);
+    delay(750);
     sweepServo(BASKET, BASKET_REST, BASKET_DUMP);
-    delay(1000);
+    delay(750);
     sweepServo(BASKET, BASKET_DUMP, BASKET_REST);
-    delay(1000);
+    delay(750);
     sweepServo(ARM_LEFT,ARM_DOWN_EWOK_LEFT,ARM_REST_LEFT);
     sweepServo(ARM_RIGHT,ARM_DOWN_EWOK_RIGHT,ARM_REST_RIGHT);
 }
@@ -417,7 +417,7 @@ void Funcs::contractZipline() {
         return;
     }
 
-    motor.speed(ZIP_ARM_MOTOR, ZIP_ARM_CONTRACTING);
+    motor.speed(ZIP_ARM_MOTOR, -220);
     long startTime = millis();
     while(digitalRead(ZIP_SWITCH_CLOSED)) {
         // Give the arm 8 seconds to contract

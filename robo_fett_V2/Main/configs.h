@@ -138,8 +138,8 @@ namespace configs {
     const int ARM_REST_RIGHT = 80;
     const int ARM_ARCH_LEFT = 140;
     const int ARM_ARCH_RIGHT = 30;
-    const int ARM_DOWN_EWOK_LEFT = 0;
-    const int ARM_DOWN_CHEWIE_LEFT = 0;
+    const int ARM_DOWN_EWOK_LEFT = 1;
+    const int ARM_DOWN_CHEWIE_LEFT = 1;
     const int CLAW_CLOSED_RIGHT = 0;
     const int CLAW_OPEN_RIGHT = 180;
     const int CLAW_RELEASED_RIGHT = 90;

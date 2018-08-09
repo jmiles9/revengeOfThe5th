@@ -27,7 +27,7 @@ void Robot::STARTUP() {
     contractZipline();
     delay(500);
     Serial.println("extend");
-    extendZipline(3750*1.5); // was 3750
+    extendZipline(3750*1.5);
 
     Funcs::sweepServo(CLAW_LEFT, CLAW_OPEN_LEFT, CLAW_CLOSED_LEFT);
     Funcs::sweepServo(CLAW_RIGHT, CLAW_OPEN_RIGHT, CLAW_CLOSED_RIGHT);
@@ -44,7 +44,7 @@ void Robot::STARTUP() {
     while(!(startbutton())){delay(100);}
 
 
-    runState = RunState::CRUISE_PLAT1;
+    runState = RunState::CRUISE_PLAT2;
 }
 
 // Starts at start
@@ -318,7 +318,7 @@ void Robot::DUMP_PREP() {
 void Robot::DUMP_EWOKS() {
     Serial.println("dump");
     dumpBasket();
-    delay(500);
+    delay(150);
     Funcs::sweepServo(ARM_LEFT,ARM_DOWN_CHEWIE_LEFT,ARM_UP_LEFT);
     delay(750);
     Funcs::sweepServo(CLAW_LEFT,CLAW_CLOSED_LEFT,CLAW_OPEN_LEFT);
@@ -356,12 +356,11 @@ void Robot::FIND_ZIP_PLAT2(){
 // starts when ewoks are dumped
 //ends when attached to zipline and ready to go 
 void Robot::ZIP_HOOK() {
-    contractZipline();
+    contractZipline(5000);
 
     runState = RunState::ZIP_UP;
-
-
 }
+
 //TODO: WRite
 void Robot::ZIP_UP() {
     zipUp(); //need to tune the time nicely
@@ -404,7 +403,7 @@ void Robot::BRIDGE_FOLLOW() {
 
     sweepServo(ARM_LEFT, ARM_UP_LEFT, ARM_DOWN_EWOK_LEFT);
     sweepServo(CLAW_LEFT, CLAW_CLOSED_LEFT, CLAW_OPEN_LEFT);
-    while(distanceTravelled(leftWheelIndex,leftIndexPlat3) < 1650) {
+    while(distanceTravelled(leftWheelIndex,leftIndexPlat3) < 1600) {
         bridgeFollow(BF_KP, BF_KD, BF_GAIN);
     }
     hardStop();
@@ -418,18 +417,25 @@ void Robot::BRIDGE_FOLLOW() {
 // Starts right after chewie has been detected
 // stops when chewie has been picked up
 void Robot::SAVE_CHEWIE() {
-    move(270,150);
-    int side = LEFT;
-    int plush = CHEWIE;
-    Funcs::pickUp(side, plush);
+    long startTime = millis();
+    setMotorPower(150,150);
+    while(millis() - startTime < 2200) {
+        if(ewokDetectLeft()) {
+            hardStop();
+            break;
+        }
+    }
+    hardStop();
+    sweepServo(CLAW_LEFT,configs::CLAW_OPEN_LEFT,configs::CLAW_CLOSED_LEFT);
+    delay(600);
     runState = RunState::ZIP_DOWN;
 }
 // Starts right after Chewie picked up
 //ends when we beat dom and tom
 void Robot::ZIP_DOWN() {
-
     centerOnZipline();
-    delay(1000);
+    delay(500);
     contractZipline();
-    motor.speed(ZIP_WHEEL_MOTOR,-180);
+    delay(200);
+    motor.speed(ZIP_WHEEL_MOTOR,-170);
 }
