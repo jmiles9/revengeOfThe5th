@@ -11,6 +11,7 @@ enum RunState {
     IR_WAIT,
     CRUISE_PLAT2,
     EWOK_SEARCH_LEFT,
+    PICKUP_THIRD,
     DUMP_PREP,
     DUMP_EWOKS,
     FIND_ZIP_PLAT2,
@@ -39,6 +40,7 @@ class Robot : public Funcs {
         void IR_WAIT();
         void CRUISE_PLAT2();
         void EWOK_SEARCH_LEFT();
+        void PICKUP_THIRD();
         void DUMP_PREP();
         void DUMP_EWOKS();
         void FIND_ZIP_PLAT2();

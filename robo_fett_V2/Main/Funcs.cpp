@@ -132,7 +132,7 @@ void Funcs::tapeFollowForDistance(int distance) {
 
 /// Parameters:
 /// side and stuffy are defined in config now.
-/// returns true if pickup was successful.
+/// returns true if 2 was successful.
 void Funcs::pickUp(int side, int stuffy) {
     TINAH::Servo arm;
     TINAH::Servo claw;
@@ -354,13 +354,15 @@ int Funcs::speedToPower(int speed) {
 }
 
 void Funcs::dumpBasket() {
-    sweepServo(ARM_LEFT,ARM_DOWN_EWOK_LEFT,ARM_REST_LEFT);
-    sweepServo(ARM_RIGHT,ARM_DOWN_EWOK_RIGHT,ARM_REST_RIGHT);
+    sweepServo(ARM_LEFT,ARM_REST_LEFT,ARM_DOWN_EWOK_LEFT);
+    sweepServo(ARM_RIGHT,ARM_REST_RIGHT,ARM_DOWN_EWOK_RIGHT);
     delay(1000);
     sweepServo(BASKET, BASKET_REST, BASKET_DUMP);
     delay(1000);
     sweepServo(BASKET, BASKET_DUMP, BASKET_REST);
     delay(1000);
+    sweepServo(ARM_LEFT,ARM_DOWN_EWOK_LEFT,ARM_REST_LEFT);
+    sweepServo(ARM_RIGHT,ARM_DOWN_EWOK_RIGHT,ARM_REST_RIGHT);
 }
 
 void Funcs::extendZipline() {
@@ -439,7 +441,7 @@ void Funcs::contractZipline(int time) {
 
 void Funcs::zipUp() {
     motor.speed(ZIP_WHEEL_MOTOR, ZIPPING_UP);
-    double startTime = millis();
+    long startTime = millis();
     while((millis()-startTime) > 5000) {
         delay(70);
     }
@@ -594,7 +596,7 @@ bool Funcs::digitalReadMultiplex(int port){
 // finds tape, turns right, turns left, big right, big left
 void Funcs::findTape() {
     //first check left slightly
-    int time = millis();
+    long time = millis();
     setMotorPower(100,-100);
     while(millis() - time < 250) {
         if( analogRead(TAPE_QRD_MID_RIGHT) > TAPE_QRD_THRESHOLD || analogRead(TAPE_QRD_MID_LEFT) > TAPE_QRD_THRESHOLD ) {
@@ -656,6 +658,11 @@ void Funcs::findTape() {
     }
 
 void Funcs::centerOffEdge() {
+    LCD.clear();
+    LCD.setCursor(0,0);
+    LCD.print(analogRead(TAPE_QRD_FAR_LEFT));
+    LCD.print(" ");
+    LCD.print(analogRead(TAPE_QRD_FAR_RIGHT));
     while(analogRead(TAPE_QRD_FAR_LEFT) > EDGE_QRD_THRESHOLD || analogRead(TAPE_QRD_FAR_RIGHT) > EDGE_QRD_THRESHOLD) {
         while(analogRead(TAPE_QRD_FAR_LEFT) > EDGE_QRD_THRESHOLD) {
             setMotorPower(-115,98);
@@ -666,7 +673,7 @@ void Funcs::centerOffEdge() {
     }
     setMotorPower(0,0);
     setMotorPower(-85,-90);
-    delay(350);
+    delay(600);
     setMotorPower(0,0);
 }
 
@@ -677,6 +684,9 @@ void Funcs::centerOnZipline() {
     int originalRight = rightWheelIndex;
     setMotorPower(80,80);
     st_power = 100;
+
+    int start = millis();
+
     while(digitalRead(ZIPLINE_HIT_SWITCH_LEFT) && digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
         Serial.println("AAAAAa");
         if(!digitalRead(ZIPLINE_HIT_SWITCH_LEFT) || !digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
@@ -685,7 +695,14 @@ void Funcs::centerOnZipline() {
         }
         moveStraight(originalLeft, originalRight);
     }
+
+    LCD.clear();
+    LCD.print("LINING UP");
+
     while(digitalRead(ZIPLINE_HIT_SWITCH_LEFT) || digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
+        if((millis()-start) > 3000){
+            break;  //just added this if ! - brendan
+        }
         while(digitalRead(ZIPLINE_HIT_SWITCH_LEFT)) {
             Serial.println("LEFT");
             Serial.println(ZIPLINE_HIT_SWITCH_LEFT);
@@ -697,7 +714,8 @@ void Funcs::centerOnZipline() {
             setMotorPower(-55,80);
         }
     }
-    setMotorPower(0,0);
+    setMotorPower(-70,-70);
+    delay(75);
     hardStop();
 
     //int t = millis();

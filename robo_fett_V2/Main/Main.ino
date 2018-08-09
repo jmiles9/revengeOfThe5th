@@ -102,6 +102,9 @@ void loop() {
 		case ZIP_DOWN :
 			roboFett.ZIP_DOWN();
 			break;
+		case PICKUP_THIRD :
+			roboFett.PICKUP_THIRD();
+			break;
 	}
 }
 

@@ -105,8 +105,8 @@ namespace configs {
     //TRESHHOLDS
     const int IR_THRESHOLD = 512;
     const int EWOK_THRESH = 250;
-    const int TAPE_QRD_THRESHOLD = 450;
-    const int EDGE_QRD_THRESHOLD = 300;
+    const int TAPE_QRD_THRESHOLD = 500;
+    const int EDGE_QRD_THRESHOLD = 400;
     //const int EDGE_QRD_BOT_THRESHOlD = 100;
     //digitalOut
 
@@ -130,10 +130,10 @@ namespace configs {
 
     // ANGLES
     //claws
-    const int ARM_UP_RIGHT = 20;
+    const int ARM_UP_RIGHT = 30;
     const int ARM_DOWN_EWOK_RIGHT = 180;
     const int ARM_DOWN_CHEWIE_RIGHT = 180; //above good vals
-    const int ARM_UP_LEFT = 150;
+    const int ARM_UP_LEFT = 140;
     const int ARM_REST_LEFT = 75;
     const int ARM_REST_RIGHT = 80;
     const int ARM_ARCH_LEFT = 140;
@@ -153,7 +153,7 @@ namespace configs {
 
     const int BASKET_REST = 165;
     const int BASKET_DUMP = 40;
-    const int BASKET_DROPBRIDGE = 85;
+    const int BASKET_DROPBRIDGE = 70; //reduced from 85 
 
     const int ZIPLINE_ATTACH_ROTATION = 15;
     const int TURN_90 = 90;
