@@ -442,7 +442,7 @@ void Funcs::contractZipline(int time) {
 void Funcs::zipUp() {
     motor.speed(ZIP_WHEEL_MOTOR, ZIPPING_UP);
     long startTime = millis();
-    while((millis()-startTime) > 5000) {
+    while((millis()-startTime) > 2000) {
         delay(70);
     }
     motor.stop(ZIP_WHEEL_MOTOR);

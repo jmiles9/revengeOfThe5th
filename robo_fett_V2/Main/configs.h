@@ -91,8 +91,8 @@ namespace configs {
     #define BF_KP 5
     #define BF_KD 0
     #define BF_GAIN 5
-    const int ZIP_ARM_EXTENDING = 255;
-    const int ZIP_ARM_CONTRACTING = -255;
+    const int ZIP_ARM_EXTENDING = 170; //was 255
+    const int ZIP_ARM_CONTRACTING = -170; //was 255
     const int ZIPPING_UP = 255;
     // in mm/s
     const int MAX_SPEED = 500;

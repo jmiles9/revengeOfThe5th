@@ -19,15 +19,15 @@ Robot::Robot() {
 //starts at start
 //goes into cruise_plat1
 void Robot::STARTUP() {
-    // Serial.println("in startup");
-    // Funcs::sweepServo(ARM_LEFT, ARM_UP_LEFT, ARM_DOWN_CHEWIE_LEFT);
-    // Funcs::sweepServo(ARM_RIGHT, ARM_UP_RIGHT, ARM_DOWN_CHEWIE_RIGHT);
-    // delay(1000);
-    // Serial.println("contract");
-    // contractZipline();
-    // delay(500);
-    // Serial.println("extend");
-    // extendZipline(3750);
+    Serial.println("in startup");
+    Funcs::sweepServo(ARM_LEFT, ARM_UP_LEFT, ARM_DOWN_CHEWIE_LEFT);
+    Funcs::sweepServo(ARM_RIGHT, ARM_UP_RIGHT, ARM_DOWN_CHEWIE_RIGHT);
+    delay(1000);
+    Serial.println("contract");
+    contractZipline();
+    delay(500);
+    Serial.println("extend");
+    extendZipline(3750*1.5); // was 3750
 
     Funcs::sweepServo(CLAW_LEFT, CLAW_OPEN_LEFT, CLAW_CLOSED_LEFT);
     Funcs::sweepServo(CLAW_RIGHT, CLAW_OPEN_RIGHT, CLAW_CLOSED_RIGHT);
@@ -36,26 +36,15 @@ void Robot::STARTUP() {
     Funcs::sweepServo(ARM_RIGHT, ARM_DOWN_CHEWIE_RIGHT, ARM_REST_RIGHT);
     delay(1000);
 
-    extendZipline();
     nextEwok = 1;
 
     LCD.clear();
     LCD.print("READY");
   
     while(!(startbutton())){delay(100);}
-    contractZipline();
-    delay(1000);
-    motor.speed(ZIP_WHEEL_MOTOR,-200);
-    delay(3000);
-    motor.speed(ZIP_WHEEL_MOTOR,0);
-    delay(1000);
-    extendZipline();
-    delay(10000000);
 
 
-    //runState = RunState::CRUISE_PLAT1;
-    //runState = RunState::BRIDGE_FOLLOW;
-    runState = RunState::ZIP_UP;
+    runState = RunState::CRUISE_PLAT1;
 }
 
 // Starts at start
@@ -169,7 +158,6 @@ void Robot::EWOK_GRAB() {
     }
     Funcs::pickUp(side, stuffy);
     nextEwok++;
-    delay(1000);
 }
 
 //starts after picking up first ewok
@@ -192,14 +180,14 @@ void Robot::DRAWBRIDGE() {
         }
     }
     hardStop();
+    move(10,-80);
     centerOffEdge();
-    delay(800);
+    delay(100);
     Funcs::lowerBridge();
-    delay(500);
-    move(100,-150);
-    delay(200);
-    move(450,170);
-    delay(500);
+    delay(100);
+    move(50,-150);
+    delay(100);
+    move(450,190);
     Funcs::findTape();
     runState = RunState::EWOK_SEARCH_RIGHT;
 }
@@ -211,28 +199,29 @@ void Robot::IR_WAIT() {
     sweepServo(ARM_LEFT,ARM_DOWN_EWOK_LEFT,ARM_ARCH_LEFT);
     sweepServo(ARM_RIGHT,ARM_DOWN_EWOK_RIGHT,ARM_ARCH_RIGHT);
     delay(500);
-    contractZipline(1500);
-    while(!irReady) {
-        if(record1KIRBeacon() > record10KIRBeacon()) {
-            irReady = true;
-        }
-        int k = analogRead(IR_1KHZ);
-        int kk = analogRead(IR_10KHZ);
-        LCD.clear(); LCD.setCursor(0,0);
-        LCD.print("1kz: "); LCD.print(k);
-        LCD.setCursor(0,1); LCD.print("10kz: "); LCD.print(kk);
-        delay(250);
-    }
-    while (record10KIRBeacon() < record1KIRBeacon()) {
-        int k = analogRead(IR_1KHZ);
-        int kk = analogRead(IR_10KHZ);
-        LCD.clear(); LCD.setCursor(0,0);
-        LCD.print("1k: "); LCD.print(k);
-        LCD.setCursor(0,1); LCD.print("10k: "); LCD.print(kk);
-        delay(250);
-    }
+    contractZipline(1500*1.5);
+    delay(3000);
+    // while(!irReady) {
+    //     if(record1KIRBeacon() > record10KIRBeacon()) {
+    //         irReady = true;
+    //     }
+    //     int k = analogRead(IR_1KHZ);
+    //     int kk = analogRead(IR_10KHZ);
+    //     LCD.clear(); LCD.setCursor(0,0);
+    //     LCD.print("1kz: "); LCD.print(k);
+    //     LCD.setCursor(0,1); LCD.print("10kz: "); LCD.print(kk);
+    //     delay(250);
+    // }
+    // while (record10KIRBeacon() < record1KIRBeacon()) {
+    //     int k = analogRead(IR_1KHZ);
+    //     int kk = analogRead(IR_10KHZ);
+    //     LCD.clear(); LCD.setCursor(0,0);
+    //     LCD.print("1k: "); LCD.print(k);
+    //     LCD.setCursor(0,1); LCD.print("10k: "); LCD.print(kk);
+    //     delay(250);
+    // }
     Serial.println("done IR");
-    move(120,120);
+    move(120,180);
     rotateUntilTapeCCW();
     Serial.println("cruise set");
     runState = RunState::CRUISE_PLAT2;
@@ -242,14 +231,13 @@ void Robot::IR_WAIT() {
 //ends when ready to detect third ewok
 //enters ewok_search
 void Robot::CRUISE_PLAT2() {
-    
+    firstExtensionStartTime = millis();
+    motor.speed(ZIP_ARM_MOTOR, 170);
     tapeFollowForDistance(1375);
     runState = RunState::EWOK_SEARCH_LEFT;
 }
 
 void Robot::EWOK_SEARCH_LEFT() {
-    Funcs::extendZipline(2500);
-    delay(1000);
     Funcs::setMotorPower(180,180);
     Funcs::sweepServo(ARM_RIGHT,ARM_UP_RIGHT,ARM_REST_RIGHT);
     Funcs::sweepServo(ARM_LEFT,ARM_UP_LEFT,ARM_REST_LEFT);
@@ -271,6 +259,7 @@ void Robot::EWOK_SEARCH_LEFT() {
             break;
         }
     }
+    nextEwok++;
     runState = RunState::PICKUP_THIRD;
 }
 
@@ -304,13 +293,11 @@ void Robot::PICKUP_THIRD() {
 //ends when aligned and has front right at wall 
 //goes into dump_ewoks
 void Robot::DUMP_PREP() {
-    delay(1000);
     turn(-25);
-    delay(1000);
-    move(100,-130);
-    delay(1000);
-    turn(-90);
-    delay(1000);
+    while(millis() - firstExtensionStartTime < 14750) {}
+    motor.speed(ZIP_ARM_MOTOR, 0);
+    move(100,-180);
+    turn(-85);
     move(150,150); 
     delay(500);
     //can either TapeFollowForDistance or put contact sensor on front? 
@@ -324,16 +311,15 @@ void Robot::DUMP_PREP() {
 void Robot::DUMP_EWOKS() {
     Serial.println("dump");
     dumpBasket();
-    delay(1000);
+    delay(500);
     Funcs::sweepServo(ARM_LEFT,ARM_DOWN_CHEWIE_LEFT,ARM_UP_LEFT);
     delay(750);
     Funcs::sweepServo(CLAW_LEFT,CLAW_CLOSED_LEFT,CLAW_OPEN_LEFT);
     delay(750);
     Funcs::sweepServo(ARM_LEFT,ARM_UP_LEFT,ARM_REST_LEFT);
     Funcs::sweepServo(CLAW_LEFT,CLAW_CLOSED_LEFT,CLAW_OPEN_LEFT);
-    delay(750);
+    delay(150);
     dumpBasket();
-    delay(750);
     Serial.println("here we go");
     runState = RunState::FIND_ZIP_PLAT2;
 }
@@ -343,11 +329,9 @@ void Robot::DUMP_EWOKS() {
 //ends when located under zipline on the 2nd platform
 //enters zip_hook
 void Robot::FIND_ZIP_PLAT2(){
-    move(200,-140);
-    delay(1000);
+    move(200,-180);
+    delay(100);
     turn(90);
-    extendZipline(3500);
-    delay(1000);
     centerOnZipline();
     runState = RunState::ZIP_HOOK;
 }
@@ -356,30 +340,25 @@ void Robot::FIND_ZIP_PLAT2(){
 // starts when ewoks are dumped
 //ends when attached to zipline and ready to go 
 void Robot::ZIP_HOOK() {
-    delay(100000000);
     contractZipline();
 
-    if (nextEwok ==  4){
-        //going up to 3rd platform
-    }else{
-        //going down to safe zone :')
-    }
+    runState = RunState::ZIP_UP;
 
 
 }
 //TODO: WRite
 void Robot::ZIP_UP() {
-    zipUp();
-    delay(500000);
+    zipUp(); //need to tune the time nicely
     runState = RunState::ZIP_UNHOOK;
 }
 
 // TODO: Write
 void Robot::ZIP_UNHOOK() {
     extendZipline();
-    move(50, -100);
-    contractZipline();
-    move(50, 100); //these values may not be enough 
+    move(75, -100);
+    delay(10000000);
+    // contractZipline();
+    // move(50, 100); //these values may not be enough 
 }
 // TODO: Write
 void Robot::EWOK_4() {

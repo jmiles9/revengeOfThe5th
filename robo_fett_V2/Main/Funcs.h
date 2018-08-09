@@ -15,6 +15,7 @@ class Funcs {
         int16_t rightSpeed;
         uint8_t nextEwok;
         int8_t error;
+        int32_t firstExtensionStartTime;
         bool irReady;
 //        TINAH::Servo ARM_RIGHT;
 //        TINAH::Servo CLAW_RIGHT;
