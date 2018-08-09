@@ -120,32 +120,38 @@ void Robot::EWOK_GRAB() {
     }
     int sensorVal = checkEwokSensor(side);
     int time = millis();
-    if(sensorVal < 300) {
+    int thresh;
+    if(side == LEFT) {
+        thresh = 220;
+    } else {
+        thresh = 300;
+    }
+    if(sensorVal < thresh) {
         if(side == LEFT) {
             LCD.clear(); LCD.setCursor(0,0);
             LCD.print(sensorVal);
             setMotorPower(-70,90);
-            while(sensorVal < 300 && millis() - time < 150) {}
+            while(sensorVal < thresh && millis() - time < 150) {}
             setMotorPower(0,0);
         } else {
             LCD.clear(); LCD.setCursor(0,0);
             LCD.print(sensorVal);
             setMotorPower(90,-70);
-            while(sensorVal < 300 && millis() - time < 150) {}
+            while(sensorVal < thresh && millis() - time < 150) {}
             setMotorPower(0,0);
         }
-    } else if(sensorVal > 300) {
+    } else if(sensorVal > thresh) {
             if(side == RIGHT) {
             LCD.clear(); LCD.setCursor(0,0);
             LCD.print(sensorVal);
             setMotorPower(-100,-50);
-            while(sensorVal > 300 && millis() - time < 150) {}
+            while(sensorVal > thresh && millis() - time < 150) {}
             setMotorPower(0,0);
         } else {
             LCD.clear(); LCD.setCursor(0,0);
             LCD.print(sensorVal);
             setMotorPower(-50,-100);
-            while(sensorVal > 300 && millis() - time < 300) {}
+            while(sensorVal > thresh && millis() - time < 300) {}
             setMotorPower(0,0);
         }
     }
