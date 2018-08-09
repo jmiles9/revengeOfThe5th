@@ -43,7 +43,7 @@ void Robot::STARTUP() {
   
     while(!(startbutton())){delay(100);}
 
-    runState = RunState::DUMP_EWOKS;
+    runState = RunState::CRUISE_PLAT1;
 }
 
 // Starts at start
@@ -193,26 +193,26 @@ void Robot::IR_WAIT() {
     sweepServo(ARM_RIGHT,ARM_DOWN_EWOK_RIGHT,ARM_ARCH_RIGHT);
     delay(1000);
     contractZipline(1500);
-    delay(5000);
-    // while(!irReady) {
-    //     if(record1KIRBeacon() > record10KIRBeacon()) {
-    //         irReady = true;
-    //     }
-    //     int k = analogRead(IR_1KHZ);
-    //     int kk = analogRead(IR_10KHZ);
-    //     LCD.clear(); LCD.setCursor(0,0);
-    //     LCD.print("1kz: "); LCD.print(k);
-    //     LCD.setCursor(0,1); LCD.print("10kz: "); LCD.print(kk);
-    //     delay(250);
-    // }
-    // while (record10KIRBeacon() < record1KIRBeacon()) {
-    //     int k = analogRead(IR_1KHZ);
-    //     int kk = analogRead(IR_10KHZ);
-    //     LCD.clear(); LCD.setCursor(0,0);
-    //     LCD.print("1k: "); LCD.print(k);
-    //     LCD.setCursor(0,1); LCD.print("10k: "); LCD.print(kk);
-    //     delay(250);
-    // }
+    //delay(5000);
+    while(!irReady) {
+        if(record1KIRBeacon() > record10KIRBeacon()) {
+            irReady = true;
+        }
+        int k = analogRead(IR_1KHZ);
+        int kk = analogRead(IR_10KHZ);
+        LCD.clear(); LCD.setCursor(0,0);
+        LCD.print("1kz: "); LCD.print(k);
+        LCD.setCursor(0,1); LCD.print("10kz: "); LCD.print(kk);
+        delay(250);
+    }
+    while (record10KIRBeacon() < record1KIRBeacon()) {
+        int k = analogRead(IR_1KHZ);
+        int kk = analogRead(IR_10KHZ);
+        LCD.clear(); LCD.setCursor(0,0);
+        LCD.print("1k: "); LCD.print(k);
+        LCD.setCursor(0,1); LCD.print("10k: "); LCD.print(kk);
+        delay(250);
+    }
     Serial.println("done IR");
     move(120,120);
     rotateUntilTapeCCW();
@@ -265,9 +265,10 @@ void Robot::DUMP_PREP() {
     delay(1000);
     move(100,-130);
     delay(1000);
-    turn(-90);
+    turn(-80); //-90
     delay(1000);
-    move(100,100);
+    move(100,100); //100
+    delay(500);
     //can either TapeFollowForDistance or put contact sensor on front? 
     runState = RunState::DUMP_EWOKS;
 

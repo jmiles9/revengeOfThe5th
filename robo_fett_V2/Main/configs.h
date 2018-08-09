@@ -106,8 +106,8 @@ namespace configs {
     const int IR_THRESHOLD = 512;
     const int EWOK_THRESH = 250;
     const int TAPE_QRD_THRESHOLD = 450;
-    const int EDGE_QRD_THRESHOLD = 400;
-    const int EDGE_QRD_BOT_THRESHOlD = 100;
+    const int EDGE_QRD_THRESHOLD = 300;
+    //const int EDGE_QRD_BOT_THRESHOlD = 100;
     //digitalOut
 
     //claws
