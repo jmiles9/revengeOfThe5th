@@ -19,15 +19,15 @@ Robot::Robot() {
 //starts at start
 //goes into cruise_plat1
 void Robot::STARTUP() {
-    Serial.println("in startup");
-    Funcs::sweepServo(ARM_LEFT, ARM_UP_LEFT, ARM_DOWN_CHEWIE_LEFT);
-    Funcs::sweepServo(ARM_RIGHT, ARM_UP_RIGHT, ARM_DOWN_CHEWIE_RIGHT);
-    delay(1000);
-    Serial.println("contract");
-    contractZipline();
-    delay(500);
-    Serial.println("extend");
-    extendZipline(3750);
+    // Serial.println("in startup");
+    // Funcs::sweepServo(ARM_LEFT, ARM_UP_LEFT, ARM_DOWN_CHEWIE_LEFT);
+    // Funcs::sweepServo(ARM_RIGHT, ARM_UP_RIGHT, ARM_DOWN_CHEWIE_RIGHT);
+    // delay(1000);
+    // Serial.println("contract");
+    // contractZipline();
+    // delay(500);
+    // Serial.println("extend");
+    // extendZipline(3750);
 
     Funcs::sweepServo(CLAW_LEFT, CLAW_OPEN_LEFT, CLAW_CLOSED_LEFT);
     Funcs::sweepServo(CLAW_RIGHT, CLAW_OPEN_RIGHT, CLAW_CLOSED_RIGHT);
@@ -36,14 +36,26 @@ void Robot::STARTUP() {
     Funcs::sweepServo(ARM_RIGHT, ARM_DOWN_CHEWIE_RIGHT, ARM_REST_RIGHT);
     delay(1000);
 
+    extendZipline();
     nextEwok = 1;
 
     LCD.clear();
     LCD.print("READY");
   
     while(!(startbutton())){delay(100);}
+    contractZipline();
+    delay(1000);
+    motor.speed(ZIP_WHEEL_MOTOR,-200);
+    delay(3000);
+    motor.speed(ZIP_WHEEL_MOTOR,0);
+    delay(1000);
+    extendZipline();
+    delay(10000000);
 
-    runState = RunState::CRUISE_PLAT1;
+
+    //runState = RunState::CRUISE_PLAT1;
+    //runState = RunState::BRIDGE_FOLLOW;
+    runState = RunState::ZIP_UP;
 }
 
 // Starts at start
@@ -358,6 +370,7 @@ void Robot::ZIP_HOOK() {
 //TODO: WRite
 void Robot::ZIP_UP() {
     zipUp();
+    delay(500000);
     runState = RunState::ZIP_UNHOOK;
 }
 
@@ -402,6 +415,8 @@ void Robot::BRIDGE_FOLLOW() {
 
     motor.stop(RIGHT_MOTOR);
     motor.stop(LEFT_MOTOR); //may not need these
+
+    delay(99999);
 
 }
 // Starts right after chewie has been detected

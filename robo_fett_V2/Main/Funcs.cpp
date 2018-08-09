@@ -667,9 +667,13 @@ void Funcs::centerOffEdge() {
         while(analogRead(TAPE_QRD_FAR_LEFT) > EDGE_QRD_THRESHOLD) {
             setMotorPower(-115,98);
         }
+        setMotorPower(0,0);
+        delay(50);
         while(analogRead(TAPE_QRD_FAR_RIGHT) > EDGE_QRD_THRESHOLD) {
             setMotorPower(98,-115);
         }
+        setMotorPower(0,0);
+        delay(50);
     }
     setMotorPower(0,0);
     setMotorPower(-85,-90);
@@ -700,19 +704,23 @@ void Funcs::centerOnZipline() {
     LCD.print("LINING UP");
 
     while(digitalRead(ZIPLINE_HIT_SWITCH_LEFT) || digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
-        if((millis()-start) > 3000){
+        if((millis()-start) > 5000){
             break;  //just added this if ! - brendan
         }
         while(digitalRead(ZIPLINE_HIT_SWITCH_LEFT)) {
             Serial.println("LEFT");
             Serial.println(ZIPLINE_HIT_SWITCH_LEFT);
-            setMotorPower(80,-55);
+            setMotorPower(80,-50);
         }
+        setMotorPower(0,0);
+        delay(50);
         while(digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
             Serial.println("RIGHT");
             Serial.println(ZIPLINE_HIT_SWITCH_LEFT);
-            setMotorPower(-55,80);
+            setMotorPower(-50,80);
         }
+        setMotorPower(0,0);
+        delay(50);
     }
     setMotorPower(-70,-70);
     delay(75);
