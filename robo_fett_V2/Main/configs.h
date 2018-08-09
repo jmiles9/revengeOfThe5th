@@ -88,7 +88,7 @@ namespace configs {
     #define TF_SPEED2 0
     #define TF_GAIN1 2
     #define TF_GAIN2 0
-    #define BF_KP 5
+    #define BF_KP 12
     #define BF_KD 0
     #define BF_GAIN 5
     const int ZIP_ARM_EXTENDING = 170; //was 255
@@ -130,10 +130,10 @@ namespace configs {
 
     // ANGLES
     //claws
-    const int ARM_UP_RIGHT = 30;
+    const int ARM_UP_RIGHT = 25;
     const int ARM_DOWN_EWOK_RIGHT = 180;
     const int ARM_DOWN_CHEWIE_RIGHT = 180; //above good vals
-    const int ARM_UP_LEFT = 140;
+    const int ARM_UP_LEFT = 150;
     const int ARM_REST_LEFT = 75;
     const int ARM_REST_RIGHT = 80;
     const int ARM_ARCH_LEFT = 140;

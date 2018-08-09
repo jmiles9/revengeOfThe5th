@@ -16,6 +16,7 @@ class Funcs {
         uint8_t nextEwok;
         int8_t error;
         int32_t firstExtensionStartTime;
+        int32_t leftIndexPlat3;
         bool irReady;
 //        TINAH::Servo ARM_RIGHT;
 //        TINAH::Servo CLAW_RIGHT;
@@ -66,7 +67,7 @@ class Funcs {
         bool digitalReadMultiplex(int port);
         int checkEwokSensor(int side);
         void centerOffEdge();
-        void moveStraight(int originalLeftIndex, int originalRightIndex);
+        void moveStraight(long originalLeftIndex, long originalRightIndex);
         void steer2(int error);
         void centerOnZipline();
         void contractZipline(int time);

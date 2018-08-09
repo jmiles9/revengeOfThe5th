@@ -179,7 +179,11 @@ void Funcs::pickUp(int side, int stuffy) {
     delay(950);
     sweepServo(claw, clawClose, clawRelease);
     delay(750);
-    sweepServo(claw, clawOpen, clawClose);
+    sweepServo(claw, clawOpen, 20);
+    sweepServo(arm,armUp,armRest);
+    delay(500);
+    sweepServo(arm,armRest,armUp);
+    delay(500);
     sweepServo(arm,armUp,armRest);
 }
 
@@ -304,7 +308,7 @@ int Funcs::maintainSpeed(int side, int targetSpeed, int power) {
     return power;
 }
 
-void Funcs::moveStraight(int originalLeftIndex, int originalRightIndex) {
+void Funcs::moveStraight(long originalLeftIndex, long originalRightIndex) {
     int lasterr = error2;
     int KP = 4;
     int KD = 4;
@@ -417,11 +421,11 @@ void Funcs::contractZipline() {
     long startTime = millis();
     while(digitalRead(ZIP_SWITCH_CLOSED)) {
         // Give the arm 8 seconds to contract
-        if(millis() > startTime + 8000) {
+        if(millis() > startTime + 20000) {
             break;
         }
     }
-    motor.stop(ZIP_ARM_MOTOR);
+    motor.speed(ZIP_ARM_MOTOR, 0);
 }
 
 void Funcs::contractZipline(int time) {
@@ -444,7 +448,11 @@ void Funcs::zipUp() {
     motor.speed(ZIP_WHEEL_MOTOR, ZIPPING_UP);
     LCD.clear(); LCD.setCursor(0,0);
     LCD.print("ZIPPPPP");
-    while((millis()-startTime) < 2000) {
+    while((millis()-startTime) < 1420) {
+    }
+    motor.speed(ZIP_WHEEL_MOTOR,-150);
+    startTime = millis();
+    while((millis()-startTime) < 970) {
     }
     motor.speed(ZIP_WHEEL_MOTOR,0);
 }
@@ -455,7 +463,7 @@ void Funcs::findEdge() {
 //TODO: write this. Should pretty much be tapefollow, different sensors.
 void Funcs::bridgeFollow(int kp, int kd, int gain) {
 
-    tf_power = 100;
+    tf_power = 135;
 
     //should be true if they are OFF the bridge
     bool rightOffBridge = digitalRead(BRIDGE_QRD_RIGHT);
@@ -685,12 +693,12 @@ void Funcs::centerOffEdge() {
 //gets called once one of the switches is on contact with the zipline
 void Funcs::centerOnZipline() {
   
-    int originalLeft = leftWheelIndex;
-    int originalRight = rightWheelIndex;
+    int32_t originalLeft = leftWheelIndex;
+    int32_t originalRight = rightWheelIndex;
     setMotorPower(80,80);
     st_power = 100;
 
-    int start = millis();
+    long start = millis();
 
     while(digitalRead(ZIPLINE_HIT_SWITCH_LEFT) && digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
         Serial.println("AAAAAa");
@@ -705,20 +713,20 @@ void Funcs::centerOnZipline() {
     LCD.print("LINING UP");
 
     while(digitalRead(ZIPLINE_HIT_SWITCH_LEFT) || digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
-        if((millis()-start) > 5000){
+        if((millis()-start) > 4000){
             break;  //just added this if ! - brendan
         }
         while(digitalRead(ZIPLINE_HIT_SWITCH_LEFT)) {
             Serial.println("LEFT");
             Serial.println(ZIPLINE_HIT_SWITCH_LEFT);
-            setMotorPower(80,-50);
+            setMotorPower(80,-35);
         }
         setMotorPower(0,0);
         delay(50);
         while(digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
             Serial.println("RIGHT");
             Serial.println(ZIPLINE_HIT_SWITCH_LEFT);
-            setMotorPower(-50,80);
+            setMotorPower(-35,80);
         }
         setMotorPower(0,0);
         delay(50);

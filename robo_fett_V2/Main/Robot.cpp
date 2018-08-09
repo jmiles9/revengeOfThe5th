@@ -125,7 +125,7 @@ void Robot::EWOK_GRAB() {
     if(side == LEFT) {
         thresh = 220;
     } else {
-        thresh = 250;
+        thresh = 220;
     }
     if(sensorVal < thresh) {
         if(side == LEFT) {
@@ -197,9 +197,8 @@ void Robot::DRAWBRIDGE() {
 //enters cruise_plat_2
 void Robot::IR_WAIT() {
     sweepServo(ARM_RIGHT,ARM_DOWN_EWOK_RIGHT,ARM_ARCH_RIGHT);
-    sweepServo(ARM_LEFT,ARM_DOWN_EWOK_LEFT,ARM_ARCH_LEFT);
-    delay(500);
-    contractZipline(1500*1.5);
+    sweepServo(ARM_LEFT,ARM_DOWN_EWOK_LEFT,120);
+    contractZipline(500);
     while(!irReady) {
         if(record1KIRBeacon() > record10KIRBeacon()) {
             irReady = true;
@@ -230,8 +229,12 @@ void Robot::IR_WAIT() {
 //ends when ready to detect third ewok
 //enters ewok_search
 void Robot::CRUISE_PLAT2() {
-    delay(200);
-    tapeFollowForDistance(1375);
+    tapeFollowForDistance(375);
+    sweepServo(ARM_RIGHT,ARM_ARCH_RIGHT,ARM_REST_RIGHT);
+    sweepServo(ARM_LEFT,ARM_ARCH_LEFT,ARM_REST_LEFT);
+    delay(500);
+    contractZipline(2350);
+    tapeFollowForDistance(1000);
     runState = RunState::EWOK_SEARCH_LEFT;
 }
 
@@ -251,10 +254,9 @@ void Robot::EWOK_SEARCH_LEFT() {
             setMotorPower(0,0);
             break;
         }
-        tapeFollow(TF_KP1, TF_KD1, TF_KI1, TF_GAIN1, 120);
+        tapeFollow(TF_KP1, TF_KD1, TF_KI1, TF_GAIN1, 130);
         if(ewokDetectLeft()) {
             Funcs::hardStop();
-            delay(400);
             LCD.clear();LCD.home();
             LCD.setCursor(0,0); LCD.print("EWOK DETECTED");
             break;
@@ -279,15 +281,16 @@ void Robot::PICKUP_THIRD() {
     } else if(sensorVal > thresh) {
         LCD.clear(); LCD.setCursor(0,0);
         LCD.print(sensorVal);
-        setMotorPower(-65,-90);
-        while(sensorVal > thresh && millis() - time < 300) {}
+        setMotorPower(-15,-115);
+        while(sensorVal > thresh && millis() - time < 325) {}
         setMotorPower(0,0);
     }
     Funcs::sweepServo(ARM_LEFT,ARM_REST_LEFT,ARM_DOWN_EWOK_LEFT);
     delay(750);
-    Funcs::sweepServo(CLAW_LEFT,CLAW_OPEN_LEFT,CLAW_CLOSED_LEFT);
-    while(millis() - firstExtensionStartTime < 12000 && digitalRead(ZIP_SWITCH_EXTENDED)) {}
-    motor.speed(ZIP_ARM_MOTOR, 0);
+    Funcs::sweepServo(CLAW_LEFT,CLAW_OPEN_LEFT,90);
+    delay(200);
+    Funcs::sweepServo(CLAW_LEFT,90,CLAW_CLOSED_LEFT);
+    delay(750);
     nextEwok++;
     runState = RunState::DUMP_PREP;
 }
@@ -297,9 +300,13 @@ void Robot::PICKUP_THIRD() {
 //goes into dump_ewoks
 void Robot::DUMP_PREP() {
     turn(-25);
-    move(100,-180);
+    move(50,-180);
     turn(-85);
-    move(150,150); 
+    while(millis() - firstExtensionStartTime < 12000 && digitalRead(ZIP_SWITCH_EXTENDED)) {}
+    motor.speed(ZIP_ARM_MOTOR, 0);
+    setMotorPower(150,150);
+    delay(1000);
+    setMotorPower(0,0);
     //can either TapeFollowForDistance or put contact sensor on front? 
     runState = RunState::DUMP_EWOKS;
 
@@ -332,7 +339,16 @@ void Robot::FIND_ZIP_PLAT2(){
     move(200,-180);
     delay(100);
     turn(90);
-    centerOnZipline();
+    int32_t originalLeft = leftWheelIndex;
+    int32_t originalRight = rightWheelIndex;
+    setMotorPower(80,80);
+    while(digitalRead(ZIPLINE_HIT_SWITCH_LEFT) && digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
+        if(!digitalRead(ZIPLINE_HIT_SWITCH_LEFT) || !digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)) {
+            hardStop();
+            break;
+        }
+    }
+    hardStop();
     runState = RunState::ZIP_HOOK;
 }
 
@@ -355,24 +371,30 @@ void Robot::ZIP_UP() {
 // TODO: Write
 void Robot::ZIP_UNHOOK() {
     extendZipline();
-    move(75, -100);
-    delay(10000000);
+    move(135, -100);
+    runState = RunState::EWOK_4;
     // contractZipline();
     // move(50, 100); //these values may not be enough 
 }
 // TODO: Write
 void Robot::EWOK_4() {
     //may need to add more movements before searching
-    EWOK_SEARCH_LEFT();
-    EWOK_GRAB(); //maybe should just use as states, idgaf
-    turn(5);
-    move(100, 100); //need to get past the circular platforn
-    centreOnBridgeEdge();
+    sweepServo(CLAW_RIGHT,CLAW_CLOSED_RIGHT,CLAW_OPEN_RIGHT);
+    delay(1000);
+    pickUp(RIGHT, EWOK);
+    delay(1000);
+    leftIndexPlat3 = leftWheelIndex;
+    turn(120);
+    move(40,180);
+    turn(100);
+    setMotorPower(100,60);
+    while(!digitalRead(BRIDGE_QRD_RIGHT) && !digitalRead(BRIDGE_QRD_LEFT)) {
+    }
+    setMotorPower(0,0);
 
     runState = RunState::BRIDGE_FOLLOW;
-    //may need to have something in here about edge detecting also, or should add to ewok search
-
 }
+
 // Starts when bot is on edge
 //ends when chewie is detected 
 void Robot::BRIDGE_FOLLOW() {
@@ -382,41 +404,32 @@ void Robot::BRIDGE_FOLLOW() {
 
     sweepServo(ARM_LEFT, ARM_UP_LEFT, ARM_DOWN_EWOK_LEFT);
     sweepServo(CLAW_LEFT, CLAW_CLOSED_LEFT, CLAW_OPEN_LEFT);
-    while((millis()-start) > 3000){ //follow for 4 s before looking for chewie
+    while(distanceTravelled(leftWheelIndex,leftIndexPlat3) < 1650) {
         bridgeFollow(BF_KP, BF_KD, BF_GAIN);
     }
-    delay(1000); //just so we know when it changes 
-    while(!ewokDetectRight()){
-        bridgeFollow(BF_KP, BF_KD, BF_GAIN);
-    }
+    hardStop();
+    delay(2000);
 
     runState = RunState::SAVE_CHEWIE;
 
     motor.stop(RIGHT_MOTOR);
     motor.stop(LEFT_MOTOR); //may not need these
-
-    delay(999999999);
-
 }
 // Starts right after chewie has been detected
 // stops when chewie has been picked up
 void Robot::SAVE_CHEWIE() {
-    int8_t side = LEFT;
-    int8_t plush = CHEWIE; //had to do this or would get an error
+    move(270,150);
+    int side = LEFT;
+    int plush = CHEWIE;
     Funcs::pickUp(side, plush);
     runState = RunState::ZIP_DOWN;
-
 }
 // Starts right after Chewie picked up
 //ends when we beat dom and tom
 void Robot::ZIP_DOWN() {
 
-    //move forward until one switch hit zipline
-    while(digitalRead(ZIPLINE_HIT_SWITCH_LEFT) && digitalRead(ZIPLINE_HIT_SWITCH_RIGHT)){
-        move(10, 100);
-    }
-
     centerOnZipline();
+    delay(1000);
     contractZipline();
-    zipUp();
+    motor.speed(ZIP_WHEEL_MOTOR,-180);
 }
