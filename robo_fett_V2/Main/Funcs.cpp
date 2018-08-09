@@ -440,12 +440,13 @@ void Funcs::contractZipline(int time) {
 }
 
 void Funcs::zipUp() {
-    motor.speed(ZIP_WHEEL_MOTOR, ZIPPING_UP);
     long startTime = millis();
-    while((millis()-startTime) > 2000) {
-        delay(70);
+    motor.speed(ZIP_WHEEL_MOTOR, ZIPPING_UP);
+    LCD.clear(); LCD.setCursor(0,0);
+    LCD.print("ZIPPPPP");
+    while((millis()-startTime) < 2000) {
     }
-    motor.stop(ZIP_WHEEL_MOTOR);
+    motor.speed(ZIP_WHEEL_MOTOR,0);
 }
 
 void Funcs::findEdge() {
@@ -665,12 +666,12 @@ void Funcs::centerOffEdge() {
     LCD.print(analogRead(TAPE_QRD_FAR_RIGHT));
     while(analogRead(TAPE_QRD_FAR_LEFT) > EDGE_QRD_THRESHOLD || analogRead(TAPE_QRD_FAR_RIGHT) > EDGE_QRD_THRESHOLD) {
         while(analogRead(TAPE_QRD_FAR_LEFT) > EDGE_QRD_THRESHOLD) {
-            setMotorPower(-115,98);
+            setMotorPower(-115,90);
         }
         setMotorPower(0,0);
         delay(50);
         while(analogRead(TAPE_QRD_FAR_RIGHT) > EDGE_QRD_THRESHOLD) {
-            setMotorPower(98,-115);
+            setMotorPower(90,-115);
         }
         setMotorPower(0,0);
         delay(50);

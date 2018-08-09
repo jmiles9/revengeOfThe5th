@@ -125,7 +125,7 @@ void Robot::EWOK_GRAB() {
     if(side == LEFT) {
         thresh = 220;
     } else {
-        thresh = 300;
+        thresh = 250;
     }
     if(sensorVal < thresh) {
         if(side == LEFT) {
@@ -196,30 +196,29 @@ void Robot::DRAWBRIDGE() {
 //ends after right IR is detected
 //enters cruise_plat_2
 void Robot::IR_WAIT() {
-    sweepServo(ARM_LEFT,ARM_DOWN_EWOK_LEFT,ARM_ARCH_LEFT);
     sweepServo(ARM_RIGHT,ARM_DOWN_EWOK_RIGHT,ARM_ARCH_RIGHT);
+    sweepServo(ARM_LEFT,ARM_DOWN_EWOK_LEFT,ARM_ARCH_LEFT);
     delay(500);
     contractZipline(1500*1.5);
-    delay(3000);
-    // while(!irReady) {
-    //     if(record1KIRBeacon() > record10KIRBeacon()) {
-    //         irReady = true;
-    //     }
-    //     int k = analogRead(IR_1KHZ);
-    //     int kk = analogRead(IR_10KHZ);
-    //     LCD.clear(); LCD.setCursor(0,0);
-    //     LCD.print("1kz: "); LCD.print(k);
-    //     LCD.setCursor(0,1); LCD.print("10kz: "); LCD.print(kk);
-    //     delay(250);
-    // }
-    // while (record10KIRBeacon() < record1KIRBeacon()) {
-    //     int k = analogRead(IR_1KHZ);
-    //     int kk = analogRead(IR_10KHZ);
-    //     LCD.clear(); LCD.setCursor(0,0);
-    //     LCD.print("1k: "); LCD.print(k);
-    //     LCD.setCursor(0,1); LCD.print("10k: "); LCD.print(kk);
-    //     delay(250);
-    // }
+    while(!irReady) {
+        if(record1KIRBeacon() > record10KIRBeacon()) {
+            irReady = true;
+        }
+        int k = analogRead(IR_1KHZ);
+        int kk = analogRead(IR_10KHZ);
+        LCD.clear(); LCD.setCursor(0,0);
+        LCD.print("1kz: "); LCD.print(k);
+        LCD.setCursor(0,1); LCD.print("10kz: "); LCD.print(kk);
+        delay(250);
+    }
+    while (record10KIRBeacon() < record1KIRBeacon()) {
+        int k = analogRead(IR_1KHZ);
+        int kk = analogRead(IR_10KHZ);
+        LCD.clear(); LCD.setCursor(0,0);
+        LCD.print("1k: "); LCD.print(k);
+        LCD.setCursor(0,1); LCD.print("10k: "); LCD.print(kk);
+        delay(250);
+    }
     Serial.println("done IR");
     move(120,180);
     rotateUntilTapeCCW();
@@ -231,13 +230,15 @@ void Robot::IR_WAIT() {
 //ends when ready to detect third ewok
 //enters ewok_search
 void Robot::CRUISE_PLAT2() {
-    firstExtensionStartTime = millis();
-    motor.speed(ZIP_ARM_MOTOR, 170);
+    delay(200);
     tapeFollowForDistance(1375);
     runState = RunState::EWOK_SEARCH_LEFT;
 }
 
 void Robot::EWOK_SEARCH_LEFT() {
+    firstExtensionStartTime = millis();
+    motor.speed(ZIP_ARM_MOTOR, 120);
+    delay(2000);
     Funcs::setMotorPower(180,180);
     Funcs::sweepServo(ARM_RIGHT,ARM_UP_RIGHT,ARM_REST_RIGHT);
     Funcs::sweepServo(ARM_LEFT,ARM_UP_LEFT,ARM_REST_LEFT);
@@ -259,7 +260,6 @@ void Robot::EWOK_SEARCH_LEFT() {
             break;
         }
     }
-    nextEwok++;
     runState = RunState::PICKUP_THIRD;
 }
 
@@ -269,7 +269,7 @@ void Robot::PICKUP_THIRD() {
     delay(750);
     int sensorVal = checkEwokSensor(LEFT);
     long time = millis();
-    int thresh = 220;
+    int thresh = 250;
     if(sensorVal < thresh) {
         LCD.clear(); LCD.setCursor(0,0);
         LCD.print(sensorVal);
@@ -279,13 +279,16 @@ void Robot::PICKUP_THIRD() {
     } else if(sensorVal > thresh) {
         LCD.clear(); LCD.setCursor(0,0);
         LCD.print(sensorVal);
-        setMotorPower(-75,-100);
+        setMotorPower(-65,-90);
         while(sensorVal > thresh && millis() - time < 300) {}
         setMotorPower(0,0);
     }
     Funcs::sweepServo(ARM_LEFT,ARM_REST_LEFT,ARM_DOWN_EWOK_LEFT);
     delay(750);
     Funcs::sweepServo(CLAW_LEFT,CLAW_OPEN_LEFT,CLAW_CLOSED_LEFT);
+    while(millis() - firstExtensionStartTime < 12000 && digitalRead(ZIP_SWITCH_EXTENDED)) {}
+    motor.speed(ZIP_ARM_MOTOR, 0);
+    nextEwok++;
     runState = RunState::DUMP_PREP;
 }
 
@@ -294,12 +297,9 @@ void Robot::PICKUP_THIRD() {
 //goes into dump_ewoks
 void Robot::DUMP_PREP() {
     turn(-25);
-    while(millis() - firstExtensionStartTime < 14750) {}
-    motor.speed(ZIP_ARM_MOTOR, 0);
     move(100,-180);
     turn(-85);
     move(150,150); 
-    delay(500);
     //can either TapeFollowForDistance or put contact sensor on front? 
     runState = RunState::DUMP_EWOKS;
 
@@ -395,7 +395,7 @@ void Robot::BRIDGE_FOLLOW() {
     motor.stop(RIGHT_MOTOR);
     motor.stop(LEFT_MOTOR); //may not need these
 
-    delay(99999);
+    delay(999999999);
 
 }
 // Starts right after chewie has been detected

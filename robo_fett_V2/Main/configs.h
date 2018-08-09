@@ -93,7 +93,7 @@ namespace configs {
     #define BF_GAIN 5
     const int ZIP_ARM_EXTENDING = 170; //was 255
     const int ZIP_ARM_CONTRACTING = -170; //was 255
-    const int ZIPPING_UP = 255;
+    const int ZIPPING_UP = -220;
     // in mm/s
     const int MAX_SPEED = 500;
 
@@ -152,8 +152,8 @@ namespace configs {
     const int DRAWBRIDGE_CLOSED = 0;
 
     const int BASKET_REST = 165;
-    const int BASKET_DUMP = 40;
-    const int BASKET_DROPBRIDGE = 70; //reduced from 85 
+    const int BASKET_DUMP = 50;
+    const int BASKET_DROPBRIDGE = 95;
 
     const int ZIPLINE_ATTACH_ROTATION = 15;
     const int TURN_90 = 90;
