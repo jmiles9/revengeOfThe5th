@@ -44,7 +44,7 @@ void Robot::STARTUP() {
     while(!(startbutton())){delay(100);}
 
 
-    runState = RunState::CRUISE_PLAT2;
+    runState = RunState::CRUISE_PLAT1;
 }
 
 // Starts at start
@@ -407,7 +407,7 @@ void Robot::BRIDGE_FOLLOW() {
         bridgeFollow(BF_KP, BF_KD, BF_GAIN);
     }
     hardStop();
-    delay(2000);
+    delay(200);
 
     runState = RunState::SAVE_CHEWIE;
 
